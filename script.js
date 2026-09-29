@@ -42,9 +42,12 @@ const builders = {
         .filter((m) => status === "All" || m.status === status)
         .map((m) =>
           $("figure", { class: "poster" },
-            m.poster
+            [m.poster
               ? $("img", { src: m.poster, alt: m.title, loading: "lazy" })
-              : $("div", { class: "noposter" }, m.title),
+              : $("div", { class: "noposter" }, m.title)
+            ].map((pic) => m.url
+              ? $("a", { href: m.url, target: "_blank", rel: "noopener noreferrer", "aria-label": `${m.title}, opens in a new tab` }, pic)
+              : pic),
             $("figcaption", {},
               $("strong", {}, m.title), ` ${m.year || ""}`,
               m.rating && $("span", { class: "stars", "aria-label": `${m.rating} out of 5` },
