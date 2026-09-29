@@ -18,9 +18,16 @@ const SITE = {
   // Order of sections on the page. Remove one to hide it.
   sections: ["projects", "movies", "about"],
 
+  // Links in the footer.
   links: [
     { label: "GitHub", url: "https://github.com/yourname" },
     { label: "Email", url: "mailto:you@example.com" },
+  ],
+
+  // Links to other sites, shown in the top menu and opened in a new tab.
+  // Add one line per site: { label: "Text shown", url: "https://..." }
+  navLinks: [
+    { label: "My blog", url: "https://example.com" },
   ],
 
   projects: [
