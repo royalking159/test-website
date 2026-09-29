@@ -49,8 +49,9 @@ const SITE = {
   // rating is 1-5. status can be any word (e.g. "watched", "watchlist");
   // filter buttons are made from the statuses you use.
   // poster: a URL, or a file path like "posters/arrival.jpg". Leave "" for a title tile.
+  // url: optional. Clicking the poster opens this page in a new tab (e.g. its Letterboxd or IMDb page).
   movies: [
-    { title: "Arrival", year: 2016, rating: 5, status: "watched", poster: "", note: "" },
+    { title: "Arrival", year: 2016, rating: 5, status: "watched", poster: "", url: "https://letterboxd.com/film/arrival-2016/", note: "" },
     { title: "Spirited Away", year: 2001, rating: 5, status: "watched", poster: "", note: "Rewatch every year" },
     { title: "Parasite", year: 2019, rating: 4, status: "watched", poster: "", note: "" },
     { title: "Paris, Texas", year: 1984, status: "watchlist", poster: "", note: "" },
