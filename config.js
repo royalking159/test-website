@@ -49,14 +49,13 @@ const SITE = {
   // rating is 1-5. status can be any word (e.g. "watched", "watchlist");
   // filter buttons are made from the statuses you use.
   // poster: a URL, or a file path like "posters/arrival.jpg". Leave "" for a title tile.
-  // url: optional. Clicking the poster opens this page in a new tab (e.g. its Letterboxd or IMDb page).
+  // url: optional. Clicking the poster opens it. A full https:// link opens in a new tab;
+  //   a page on your own site (like show.html?show=helluva-boss) opens in the same tab.
   // imdb: optional IMDb id (the tt1234567 part of a movie's IMDb address). A GitHub Action then fills in
   //   poster, genres and ratings from TVDB and MDBList. Anything you type yourself here wins over fetched data.
+  // The two tiles below open the show pages built from shows.js.
   movies: [
-    { title: "Arrival", year: 2016, rating: 5, status: "watched", poster: "", url: "https://letterboxd.com/film/arrival-2016/", imdb: "tt2543164", note: "" },
-    { title: "Spirited Away", year: 2001, rating: 5, status: "watched", poster: "", imdb: "tt0245429", note: "Rewatch every year" },
-    { title: "Parasite", year: 2019, rating: 4, status: "watched", poster: "", imdb: "tt6751668", note: "" },
-    { title: "Paris, Texas", year: 1984, status: "watchlist", poster: "", note: "" },
-    { title: "Aftersun", year: 2022, status: "watchlist", poster: "", note: "" },
+    { title: "Helluva Boss", year: 2020, status: "shows", poster: "", url: "show.html?show=helluva-boss", note: "Series" },
+    { title: "Hazbin Hotel", year: 2024, status: "shows", poster: "", url: "show.html?show=hazbin-hotel", note: "Series" },
   ],
 };
