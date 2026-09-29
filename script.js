@@ -46,7 +46,7 @@ const builders = {
               ? $("img", { src: m.poster, alt: m.title, loading: "lazy" })
               : $("div", { class: "noposter" }, m.title)
             ].map((pic) => m.url
-              ? $("a", { href: m.url, target: "_blank", rel: "noopener noreferrer", "aria-label": `${m.title}, opens in a new tab` }, pic)
+              ? $("a", { href: m.url, target: /^https?:/.test(m.url) ? "_blank" : "", rel: "noopener noreferrer", "aria-label": m.title }, pic)
               : pic),
             $("figcaption", {},
               $("strong", {}, m.title), ` ${m.year || ""}`,
@@ -63,15 +63,7 @@ const builders = {
     ["All", ...new Set(SITE.movies.map((m) => m.status).filter(Boolean))].forEach((s) =>
       bar.append($("button", { type: "button", "data-s": s }, s)));
     bar.onclick = (e) => e.target.dataset.s && draw(e.target.dataset.s);
-    const folders = (typeof SHOWS === "undefined" ? [] : SHOWS).map((show) =>
-      $("details", { class: "folder" },
-        $("summary", {}, show.title),
-        show.url && $("a", { href: show.url, target: "_blank", rel: "noopener noreferrer", class: "src" }, "Open page"),
-        Object.entries(show.seasons).map(([name, eps]) =>
-          $("details", { class: "folder" },
-            $("summary", {}, `${name} (${eps.length})`),
-            eps.length ? $("ol", {}, eps.map((t) => $("li", {}, t))) : $("p", {}, "No episodes yet.")))));
-    const el = section("movies", [bar, grid, folders.length && $("div", { class: "shows" }, $("h3", {}, "Shows"), folders)]);
+    const el = section("movies", [bar, grid]);
     draw("All");
     return el;
   },
