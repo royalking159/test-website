@@ -63,7 +63,15 @@ const builders = {
     ["All", ...new Set(SITE.movies.map((m) => m.status).filter(Boolean))].forEach((s) =>
       bar.append($("button", { type: "button", "data-s": s }, s)));
     bar.onclick = (e) => e.target.dataset.s && draw(e.target.dataset.s);
-    const el = section("movies", [bar, grid]);
+    const folders = (typeof SHOWS === "undefined" ? [] : SHOWS).map((show) =>
+      $("details", { class: "folder" },
+        $("summary", {}, show.title),
+        show.url && $("a", { href: show.url, target: "_blank", rel: "noopener noreferrer", class: "src" }, "Open page"),
+        Object.entries(show.seasons).map(([name, eps]) =>
+          $("details", { class: "folder" },
+            $("summary", {}, `${name} (${eps.length})`),
+            eps.length ? $("ol", {}, eps.map((t) => $("li", {}, t))) : $("p", {}, "No episodes yet.")))));
+    const el = section("movies", [bar, grid, folders.length && $("div", { class: "shows" }, $("h3", {}, "Shows"), folders)]);
     draw("All");
     return el;
   },
