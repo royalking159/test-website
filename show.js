@@ -20,12 +20,9 @@ document.head.append($("link", { rel: "stylesheet", href: `https://fonts.googlea
 const id = new URLSearchParams(location.search).get("show");
 const show = SHOWS[id];
 const app = document.getElementById("app");
-const header = $("header", {},
-  $("a", { class: "brand", href: "index.html" }, SITE.name),
-  $("nav", {}, $("a", { href: "index.html#movies" }, "movies")));
 
 if (!show) {
-  app.append(header, $("section", {}, $("h2", {}, "Show not found"), $("p", {}, "Pick one from the movies page.")));
+  app.append($("section", {}, $("h2", {}, "Show not found"), $("p", {}, "Pick one from the movies page.")));
 } else {
   document.title = `${show.title} - ${SITE.name}`;
   const names = Object.keys(show.seasons);
@@ -65,7 +62,7 @@ if (!show) {
   next.onclick = () => draw(names[names.indexOf(select.value) + 1]);
   select.onchange = () => draw(select.value);
 
-  app.append(header, $("main", { class: "show" },
+  app.append($("main", { class: "show" },
     $("aside", {},
       $("figure", { class: "poster" },
         cover ? $("img", { src: cover, alt: show.title }) : $("div", { class: "noposter" }, show.title)),
