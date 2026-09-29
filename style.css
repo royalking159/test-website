@@ -16,6 +16,7 @@ header { display: flex; justify-content: space-between; align-items: center; fle
 nav { display: flex; gap: 1.25rem; }
 nav a { text-decoration: none; color: var(--muted); }
 nav a:hover { color: var(--accent); }
+nav a.ext { text-transform: none; text-decoration: underline; text-decoration-color: var(--accent); }
 
 .hero { padding: clamp(3rem, 10vw, 8rem) var(--pad) 3rem; }
 h1 { margin: 0; max-width: 20ch; font: 700 clamp(2.4rem, 7vw, 5.5rem)/1.02 var(--head); letter-spacing: -.03em; }
