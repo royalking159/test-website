@@ -52,6 +52,8 @@ const builders = {
               $("strong", {}, m.title), ` ${m.year || ""}`,
               m.rating && $("span", { class: "stars", "aria-label": `${m.rating} out of 5` },
                 "★".repeat(m.rating) + "☆".repeat(5 - m.rating)),
+              m.genres?.length && $("small", {}, m.genres.slice(0, 2).join(", ")),
+              m.ratings?.imdb && $("small", {}, `IMDb ${m.ratings.imdb}`),
               m.note && $("small", {}, m.note)
             )
           )));
@@ -80,3 +82,15 @@ document.getElementById("app").append(
   $("main", {}, SITE.sections.map((s) => builders[s] && builders[s]())),
   $("footer", {}, SITE.links.map((l) => $("a", { href: l.url }, l.label)))
 );
+
+// Merge in poster, genres, ratings etc. from metadata.json (made by fetch-metadata.mjs).
+fetch("metadata.json")
+  .then((r) => (r.ok ? r.json() : {}))
+  .then((meta) => {
+    SITE.movies = SITE.movies.map((m) => ({
+      ...meta[m.imdb],
+      ...Object.fromEntries(Object.entries(m).filter(([, v]) => v !== "" && v != null)), // your own fields win
+    }));
+    document.getElementById("movies")?.replaceWith(builders.movies());
+  })
+  .catch(() => {});
