@@ -45,6 +45,8 @@ h2 { margin: 0 0 1.5rem; font: 700 1.6rem var(--head); }
 .poster { margin: 0; }
 .poster img, .noposter { display: block; width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 4px; background: var(--bg); }
 .noposter { display: grid; place-items: center; padding: .75rem; text-align: center; font: 700 1.1rem var(--head); border: 1px dashed var(--muted); }
+.poster a { display: block; }
+.poster a:hover img, .poster a:hover .noposter { outline: 3px solid var(--accent); outline-offset: 2px; }
 figcaption { margin-top: .5rem; font-size: .9rem; line-height: 1.35; }
 .stars { display: block; color: var(--accent); }
 small { display: block; color: var(--muted); }
