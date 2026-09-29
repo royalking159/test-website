@@ -72,12 +72,6 @@ const builders = {
 };
 
 document.getElementById("app").append(
-  $("header", {},
-    $("a", { class: "brand", href: "#" }, SITE.name),
-    $("nav", {},
-      SITE.sections.map((s) => $("a", { href: "#" + s }, s)),
-      (SITE.navLinks || []).map((l) =>
-        $("a", { class: "ext", href: l.url, target: "_blank", rel: "noopener noreferrer" }, l.label)))),
   $("div", { class: "hero" }, $("h1", {}, SITE.tagline)),
   $("main", {}, SITE.sections.map((s) => builders[s] && builders[s]())),
   $("footer", {}, SITE.links.map((l) => $("a", { href: l.url }, l.label)))
