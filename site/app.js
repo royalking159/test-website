@@ -52,7 +52,7 @@ const fit = () => document.querySelectorAll(".clampbox").forEach((b) => {
 });
 const metaLine = (m) => [m.year, m.runtime && `${m.runtime} min`, m.genres?.length && m.genres.join(", ")].filter(Boolean).join(" · ");
 const ratingLine = (m) => [m.rating && stars(m.rating),
-  (m.ratings?.imdb || m.score) && $("small", {}, m.ratings?.imdb ? `IMDb ${m.ratings.imdb}` : `TMDB ${m.score} / 10`)];
+  m.score && $("small", {}, `TMDB ${m.score} / 10`)];
 
 const page = (title, ...kids) => $("section", { class: "page" }, $("h1", { class: "title" }, title), ...kids);
 const stars = (n) => $("span", { class: "stars", "aria-label": `${n} out of 5` }, "★".repeat(n) + "☆".repeat(5 - n));
@@ -66,7 +66,7 @@ const tile = (m) => {
     $("figcaption", {}, $("strong", {}, m.title), ` ${m.year || ""}`,
       m.rating && stars(m.rating),
       m.genres?.length && $("small", {}, m.genres.slice(0, 2).join(", ")),
-      (m.ratings?.imdb ? $("small", {}, `IMDb ${m.ratings.imdb}`) : m.score && $("small", {}, `TMDB ${m.score} / 10`)),
+      m.score && $("small", {}, `TMDB ${m.score} / 10`),
       m.note && $("small", {}, m.note)));
 };
 
@@ -77,6 +77,10 @@ function seasonsOf(m) {
   const add = (k, e) => (by[k] ||= []).push(e);
   for (const e of m.episodes || []) add(e.season === 0 ? "Specials" : `Season ${e.season}`, { ...e });
   for (const [k, v] of Object.entries(m.extra || {})) by[k] = v.map((e) => ({ ...e }));
+  // Anything you list in an `extra` season (like Shorts) is removed from the fetched Specials, so it isn't shown twice.
+  const norm = (t) => (t || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  const extraTitles = new Set(Object.values(m.extra || {}).flat().map((e) => norm(e.title)));
+  if (by.Specials && !("Specials" in (m.extra || {}))) by.Specials = by.Specials.filter((e) => !extraTitles.has(norm(e.title)));
 
   const edits = {};                                           // your changes to single episodes, by their original name
   const merge = (src, wrap) => { for (const [t, v] of Object.entries(src || {})) edits[t] = { ...edits[t], ...wrap(v) }; };
@@ -97,11 +101,11 @@ function seasonsOf(m) {
 
   // Hand-added episodes (like Shorts): borrow the picture of a fetched episode with the same name,
   // else use a YouTube thumbnail when the episode has  youtube: "VIDEO_ID"  or a YouTube link as its url.
-  const known = new Map((m.episodes || []).map((e) => [(e.title || "").toLowerCase(), e]));
+  const known = new Map((m.episodes || []).map((e) => [norm(e.title), e]));
   const yt = (u) => (String(u || "").match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/))([\w-]{11})/) || [])[1]
     || (/^[\w-]{11}$/.test(u || "") ? u : "");
   for (const eps of Object.values(by)) for (const e of eps) {
-    const k = known.get((e.title || "").toLowerCase());
+    const k = known.get(norm(e.title));
     if (k) { e.image ||= k.image; e.overview ||= k.overview; }
     const id = yt(e.youtube) || yt(e.url);
     if (!e.image && id) e.image = `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
