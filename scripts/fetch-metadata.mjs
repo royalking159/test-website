@@ -101,10 +101,11 @@ for (const e of LIBRARY) {
         const info = await tmdb(`/tv/${tid}`);
         put(md, {
           title: info.name, year: (info.first_air_date || "").slice(0, 4), poster: tImg(info.poster_path, "w500"),
-          overview: info.overview, genres: (info.genres || []).map((g) => g.name),
+          backdrop: tImg(info.backdrop_path, "w780"), overview: info.overview, genres: (info.genres || []).map((g) => g.name),
         }, true);
         for (const s of info.seasons || []) {
           const r = await tmdb(`/tv/${tid}/season/${s.season_number}`);
+          if (r.poster_path) (md.seasonPosters ??= {})[s.season_number] = tImg(r.poster_path, "w342");
           tmdbEps.push(...(r.episodes || []).map((x) => ({
             title: x.name, season: s.season_number, number: x.episode_number, date: x.air_date,
             image: tImg(x.still_path, "w300"), overview: x.overview,
