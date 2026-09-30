@@ -391,7 +391,14 @@
     "Animation",
     "Romance",
     "Musical"
-   ]
+   ],
+   "backdrop": "https://image.tmdb.org/t/p/w780/20OP4f0xDbPttORm9OyIbNu3cNN.jpg",
+   "seasonPosters": {
+    "0": "https://image.tmdb.org/t/p/w342/zfZG7izmTqwAuViqrclYJfbRoGc.jpg",
+    "1": "https://image.tmdb.org/t/p/w342/sOw0GPRA0o9EypAWBRYzYHFysL.jpg",
+    "2": "https://image.tmdb.org/t/p/w342/fhM8qhAWaqtLj56UZIZrBAKNBoB.jpg",
+    "3": "https://image.tmdb.org/t/p/w342/en73lGkRjenqpoi8OWOzbAJX3Qn.jpg"
+   }
   },
   "hazbin-hotel": {
    "title": "Hazbin Hotel",
@@ -664,7 +671,14 @@
     "Animation",
     "Romance",
     "Musical"
-   ]
+   ],
+   "backdrop": "https://image.tmdb.org/t/p/w780/9K6QtLqyocVHgIZe4yqCIl1q2ZR.jpg",
+   "seasonPosters": {
+    "0": "https://image.tmdb.org/t/p/w342/aYApV2vAn2bvY8HbkXHGbmG6FYS.jpg",
+    "1": "https://image.tmdb.org/t/p/w342/wslBT9lKS1GacsCldrQXIUFY2a2.jpg",
+    "2": "https://image.tmdb.org/t/p/w342/aVYHMW8pdzJ9qG1OGRMKyGy9xor.jpg"
+   }
   }
- }
+ },
+ "updated": "2026-09-30T09:05:20.047Z"
 }
