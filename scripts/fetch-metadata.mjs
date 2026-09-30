@@ -4,7 +4,9 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 const LIBRARY = new Function(readFileSync("data/library.js", "utf8") + "; return LIBRARY;")();
-const { TVDB_API_KEY, TVDB_PIN, TMDB_API_KEY, MDBLIST_API_KEY } = process.env;
+const env = (k) => (process.env[k] || "").trim();             // trims stray spaces/newlines from pasted secrets
+const TVDB_API_KEY = env("TVDB_API_KEY"), TVDB_PIN = env("TVDB_PIN"), TMDB_API_KEY = env("TMDB_API_KEY"), MDBLIST_API_KEY = env("MDBLIST_API_KEY");
+console.log("Keys found:", [["TMDB", TMDB_API_KEY], ["TVDB", TVDB_API_KEY], ["MDBList", MDBLIST_API_KEY]].filter(([, v]) => v).map(([n]) => n).join(", ") || "none");
 if (!TVDB_API_KEY && !TMDB_API_KEY && !MDBLIST_API_KEY) {
   console.error("No API keys found. Add TMDB_API_KEY (easiest) and/or TVDB_API_KEY as repository secrets. See README.md.");
   process.exit(1);
@@ -157,4 +159,10 @@ for (const e of LIBRARY) {
   console.log("movie", e.title, "->", md.poster ? "poster OK" : "NO POSTER");
 }
 
+out.updated = new Date().toISOString();
 writeFileSync("data/metadata.json", JSON.stringify(out, null, 1) + "\n");
+const posters = [...Object.values(out.shows), ...Object.values(out.movies)].filter((x) => x.poster).length;
+if (!posters) {                                               // make the GitHub run turn red instead of silently doing nothing
+  console.error("No posters were found. Check the warnings above - usually a wrong or missing API key.");
+  process.exitCode = 1;
+}
