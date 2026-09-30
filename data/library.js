@@ -5,7 +5,8 @@
 //
 // On any movie or show:
 //   title: "New name"         poster: "https://..." or "posters/x.jpg" (a file in data/posters/)
-//   description: "Text"       year: 2020    genres: ["Comedy"]    rating: 1-5    note: "Short note"
+//   description: "Text"       year: 2020    genres: ["Comedy"]    rating: 1-5 (your stars)    note: "Short note"
+//   score: 8.5 (replaces the fetched TMDB score)
 //   order: 1 (lower shows first)     hidden: true (hide it)     type: "show" or "movie"
 //   imdb: "tt1234567"   tmdb: 123   tvdb: 123   exact ids, if the title lookup picks the wrong one
 //   url: "https://..." (a movie's play link)     watchUrl: "https://site/{show}/{season}/{episode}" (see Play icons)
@@ -15,6 +16,7 @@
 //   extra: { Shorts: [ { title, date: "YYYY-MM-DD", image, overview, url } ] }    seasons the databases don't have
 //   seasonOrder: ["Season 1", "Shorts", "Season 2"]     seasonNames: { "Specials": "Extras" }
 //   seasonImages: { "Specials": "https://..." }    a picture for episodes in that season that have none
+//   Any episode can have  youtube: "VIDEO_ID"  (or a YouTube link as its url) to use that video's thumbnail.
 // Play icons: each episode's play icon goes to its own `url`, else the show's `watchUrl`, else `watchUrl` in config.js.
 //   A watchUrl can use {show} {title} {season} {episode} {name} {date} (season 0 = Specials). No URL = no icon.
 const LIBRARY = [
