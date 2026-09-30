@@ -9,11 +9,13 @@
 //   score: 8.5 (replaces the fetched TMDB score)
 //   order: 1 (lower shows first)     hidden: true (hide it)     type: "show" or "movie"
 //   imdb: "tt1234567"   tmdb: 123   tvdb: 123   exact ids, if the title lookup picks the wrong one
+//   (Show posters come from TVDB when you have a TVDB key, else TMDB. Set `poster` to pin any picture you like.)
 //   url: "https://..." (a movie's play link)     watchUrl: "https://site/{show}/{season}/{episode}" (see Play icons)
 // On shows:
 //   edits: { "Original episode name": { title, image, overview, date, url, season: "S1", hidden: true } }
 //   moves: { "Episode name": "S1" }    images: { "Episode name": "https://..." }    (short forms of edits)
 //   extra: { Shorts: [ { title, date: "YYYY-MM-DD", image, overview, url } ] }    seasons the databases don't have
+//          (anything listed in an extra season is automatically removed from the fetched Specials)
 //   seasonOrder: ["Season 1", "Shorts", "Season 2"]     seasonNames: { "Specials": "Extras" }
 //   seasonImages: { "Specials": "https://..." }    a picture for episodes in that season that have none
 //   Any episode can have  youtube: "VIDEO_ID"  (or a YouTube link as its url) to use that video's thumbnail.
