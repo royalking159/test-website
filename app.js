@@ -5,6 +5,14 @@ const fmt = (d) => /^\d{4}-\d{2}-\d{2}/.test(d || "")
   ? new Date(d.slice(0, 10) + "T00:00:00Z").toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" })
   : d;
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== "" && v != null));
+// A local image path like "posters/arrival.jpg" is looked up inside the data/ folder.
+const asset = (u) => (u && !/^(https?:|data:|\/|\.\.)/.test(u) ? "../data/" + u : u);
+// An <img> that swaps to a fallback if the image is missing or fails to load.
+const img = (src, alt, fallback, attrs = {}) => {
+  const el = $("img", { src: asset(src), alt, loading: "lazy", ...attrs });
+  el.onerror = () => el.replaceWith(fallback());
+  return el;
+};
 
 // Library = what you wrote in library.js, filled in with fetched metadata.json. Your own values win.
 let META = { movies: {}, shows: {} };
@@ -19,7 +27,8 @@ const stars = (n) => $("span", { class: "stars", "aria-label": `${n} out of 5` }
 
 const tile = (m) => {
   const href = m.type === "show" ? `#/show/${m.id}` : m.url;
-  const pic = m.poster ? $("img", { src: m.poster, alt: m.title, loading: "lazy" }) : $("div", { class: "noposter" }, m.title);
+  const blank = () => $("div", { class: "noposter" }, m.title);
+  const pic = m.poster ? img(m.poster, m.title, blank) : blank();
   return $("figure", { class: "poster" },
     href ? $("a", { href, target: isWeb(href) ? "_blank" : "", rel: "noopener noreferrer", "aria-label": m.title }, pic) : pic,
     $("figcaption", {}, $("strong", {}, m.title), ` ${m.year || ""}`,
@@ -43,6 +52,7 @@ function seasonsOf(m) {
   }
   touched.forEach((k) => by[k].sort((a, b) => (a.date || "9").localeCompare(b.date || "9")));
   Object.assign(by, m.extra || {});
+  for (const eps of Object.values(by)) for (const e of eps) { const c = (m.images || {})[e.title]; if (c) e.image = c; }
   const rank = (k) => (k === "Specials" ? 2 : /^Season \d+$/.test(k) ? 0 : 1);
   const num = (k) => Number(k.replace(/\D/g, "")) || 0;
   return Object.fromEntries(Object.keys(by).filter((k) => by[k].length)
@@ -58,8 +68,9 @@ function showPage(id) {
   const next = $("button", { type: "button", "aria-label": "Next season" }, "›");
   const list = $("ol", { class: "episodes" });
   const row = (e, i) => {
+    const thumb = () => $("div", { class: "thumb" }, String(i));
     const inner = [
-      e.image ? $("img", { src: e.image, alt: "", loading: "lazy" }) : $("div", { class: "thumb" }, String(i)),
+      e.image ? img(e.image, "", thumb) : thumb(),
       $("div", {}, $("strong", {}, `${i}. ${e.title || "TBA"}`), e.date && $("small", {}, fmt(e.date)),
         e.overview && $("p", { class: "ov" }, e.overview)),
     ];
@@ -77,7 +88,8 @@ function showPage(id) {
   prev.onclick = () => draw(names[names.indexOf(select.value) - 1]);
   next.onclick = () => draw(names[names.indexOf(select.value) + 1]);
   select.onchange = () => draw(select.value);
-  const cover = m.poster ? $("img", { src: m.poster, alt: m.title }) : $("div", { class: "noposter" }, m.title);
+  const blank = () => $("div", { class: "noposter" }, m.title);
+  const cover = m.poster ? img(m.poster, m.title, blank, { loading: "eager" }) : blank();
   const el = $("div", { class: "show" },
     $("aside", {}, $("figure", { class: "poster" }, cover), $("h1", {}, m.title), m.overview && $("p", {}, m.overview)),
     $("div", {}, names.length
@@ -172,5 +184,5 @@ function render() {
 }
 addEventListener("hashchange", () => { render(); scrollTo(0, 0); view.focus({ preventScroll: true }); });
 
-fetch("metadata.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({}))
+fetch("../data/metadata.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({}))
   .then((j) => { META = { movies: j.movies || {}, shows: j.shows || {} }; render(); });

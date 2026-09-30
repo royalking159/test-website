@@ -1,12 +1,15 @@
 // YOUR MOVIES AND SHOWS. Only `title` is needed.
-// Year, poster, genres, episode names and air dates come from TVDB / MDBList (fetched by the GitHub Action
-// in fetch-metadata.mjs and saved in metadata.json). Anything you type here wins over the fetched data.
+// Posters, year, genres, episode names, air dates and episode pictures are fetched from TMDB / TVDB / MDBList
+// (by the GitHub Action running scripts/fetch-metadata.mjs) and saved in data/metadata.json.
+// Anything you type here wins over the fetched data.
 //
-// Optional on any entry:  type: "show" or "movie"   imdb: "tt1234567"   tvdb: 12345 (exact TVDB id)
-//                         rating: 1-5   note: "text"   poster: "image url"   year: 2020
-//                         url: "link opened by a movie's poster"
-// Optional on shows:      moves: { "Episode name": "S1" }   put an episode in another season ("S1", "Specials"...)
-//                         extra: { Shorts: [ { title, date: "YYYY-MM-DD" } ] }   seasons TVDB doesn't have
+// Optional on any entry:  type: "show" or "movie"      year: 2020 (helps the lookup pick the right match)
+//                         imdb: "tt1234567"   tmdb: 12345   tvdb: 12345   (exact ids, if the title lookup guesses wrong)
+//                         poster: "https://..." or "posters/arrival.jpg" (a file in data/posters/) - replaces the fetched poster
+//                         rating: 1-5   note: "text"   url: "link opened by a movie's poster"
+// Optional on shows:      moves: { "Episode name": "S1" }     put an episode in another season ("S1", "Specials"...)
+//                         extra: { Shorts: [ { title, date: "YYYY-MM-DD", image: "..." } ] }   seasons the databases don't have
+//                         images: { "Episode name": "https://..." }     your own picture for an episode
 const LIBRARY = [
   {
     type: "show",

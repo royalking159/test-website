@@ -1,10 +1,10 @@
 name: Update movie metadata
 on:
-  workflow_dispatch:          # lets you run it by hand from the Actions tab
+  workflow_dispatch:            # lets you run it by hand from the Actions tab
   schedule:
-    - cron: "0 3 * * 1"       # and every Monday
+    - cron: "0 3 * * 1"         # and every Monday
   push:
-    paths: ["library.js"]     # and whenever you edit your movies and shows
+    paths: ["data/library.js"]  # and whenever you edit your movies and shows
 permissions:
   contents: write
 jobs:
@@ -15,13 +15,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: node fetch-metadata.mjs
+      - run: node scripts/fetch-metadata.mjs
         env:
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           TVDB_API_KEY: ${{ secrets.TVDB_API_KEY }}
           TVDB_PIN: ${{ secrets.TVDB_PIN }}
           MDBLIST_API_KEY: ${{ secrets.MDBLIST_API_KEY }}
       - run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
-          git add metadata.json
+          git add data/metadata.json
           git diff --cached --quiet || (git commit -m "Update movie metadata" && git push)
