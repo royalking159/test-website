@@ -96,7 +96,7 @@ function showPage(id) {
       ? [$("div", { class: "seasonbar" }, prev, select, next), list]
       : $("p", { class: "empty" }, "No episodes yet. They appear after the metadata update runs.")));
   if (names.length) draw(names[0]);
-  return el;
+  return $("div", {}, $("a", { class: "btn back", href: "#/movies" }, "← Back to movies"), el);
 }
 
 const P = {
@@ -185,4 +185,10 @@ function render() {
 addEventListener("hashchange", () => { render(); scrollTo(0, 0); view.focus({ preventScroll: true }); });
 
 fetch("../data/metadata.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({}))
-  .then((j) => { META = { movies: j.movies || {}, shows: j.shows || {} }; render(); });
+  .then((j) => {
+    META = { movies: j.movies || {}, shows: j.shows || {} };
+    document.querySelector(".panel").append($("p", { class: "status" }, j.updated
+      ? `Posters and episodes last updated ${fmt(j.updated)}.`
+      : "Posters and episodes haven't been fetched yet (placeholder data)."));
+    render();
+  });
