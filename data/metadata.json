@@ -398,7 +398,8 @@
     "1": "https://image.tmdb.org/t/p/w342/sOw0GPRA0o9EypAWBRYzYHFysL.jpg",
     "2": "https://image.tmdb.org/t/p/w342/fhM8qhAWaqtLj56UZIZrBAKNBoB.jpg",
     "3": "https://image.tmdb.org/t/p/w342/en73lGkRjenqpoi8OWOzbAJX3Qn.jpg"
-   }
+   },
+   "score": 7.5
   },
   "hazbin-hotel": {
    "title": "Hazbin Hotel",
@@ -677,8 +678,9 @@
     "0": "https://image.tmdb.org/t/p/w342/aYApV2vAn2bvY8HbkXHGbmG6FYS.jpg",
     "1": "https://image.tmdb.org/t/p/w342/wslBT9lKS1GacsCldrQXIUFY2a2.jpg",
     "2": "https://image.tmdb.org/t/p/w342/aVYHMW8pdzJ9qG1OGRMKyGy9xor.jpg"
-   }
+   },
+   "score": 8.5
   }
  },
- "updated": "2026-09-30T09:05:20.047Z"
+ "updated": "2026-09-30T09:18:53.776Z"
 }
