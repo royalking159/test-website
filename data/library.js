@@ -1,19 +1,27 @@
-// YOUR MOVIES AND SHOWS. Only `title` is needed.
-// Posters, year, genres, episode names, air dates and episode pictures are fetched from TMDB / TVDB / MDBList
+// YOUR MOVIES AND SHOWS. Only `title` is needed. The order in this file is the order on the Movies page.
+// Posters, year, genres, description, episode names, dates and pictures are fetched from TMDB / TVDB / MDBList
 // (by the GitHub Action running scripts/fetch-metadata.mjs) and saved in data/metadata.json.
-// Anything you type here wins over the fetched data.
+// ANYTHING you write here replaces the fetched value.
 //
-// Optional on any entry:  type: "show" or "movie"      year: 2020 (helps the lookup pick the right match)
-//                         imdb: "tt1234567"   tmdb: 12345   tvdb: 12345   (exact ids, if the title lookup guesses wrong)
-//                         poster: "https://..." or "posters/arrival.jpg" (a file in data/posters/) - replaces the fetched poster
-//                         rating: 1-5   note: "text"   url: "link opened by a movie's poster"
-// Optional on shows:      moves: { "Episode name": "S1" }     put an episode in another season ("S1", "Specials"...)
-//                         extra: { Shorts: [ { title, date: "YYYY-MM-DD", image: "..." } ] }   seasons the databases don't have
-//                         images: { "Episode name": "https://..." }     your own picture for an episode
+// On any movie or show:
+//   title: "New name"         poster: "https://..." or "posters/x.jpg" (a file in data/posters/)
+//   description: "Text"       year: 2020    genres: ["Comedy"]    rating: 1-5    note: "Short note"
+//   order: 1 (lower shows first)     hidden: true (hide it)     type: "show" or "movie"
+//   imdb: "tt1234567"   tmdb: 123   tvdb: 123   exact ids, if the title lookup picks the wrong one
+//   url: "https://..." (a movie's play link)     watchUrl: "https://site/{show}/{season}/{episode}" (see Play icons)
+// On shows:
+//   edits: { "Original episode name": { title, image, overview, date, url, season: "S1", hidden: true } }
+//   moves: { "Episode name": "S1" }    images: { "Episode name": "https://..." }    (short forms of edits)
+//   extra: { Shorts: [ { title, date: "YYYY-MM-DD", image, overview, url } ] }    seasons the databases don't have
+//   seasonOrder: ["Season 1", "Shorts", "Season 2"]     seasonNames: { "Specials": "Extras" }
+//   seasonImages: { "Specials": "https://..." }    a picture for episodes in that season that have none
+// Play icons: each episode's play icon goes to its own `url`, else the show's `watchUrl`, else `watchUrl` in config.js.
+//   A watchUrl can use {show} {title} {season} {episode} {name} {date} (season 0 = Specials). No URL = no icon.
 const LIBRARY = [
   {
     type: "show",
     title: "Helluva Boss",
+    // watchUrl: "https://example.com/watch/{show}/{season}/{episode}",
     moves: { "Queen Bee": "S1" },
     extra: {
       Shorts: [
