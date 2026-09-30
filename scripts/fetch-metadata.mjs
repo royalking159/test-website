@@ -128,7 +128,8 @@ for (const e of LIBRARY) {
       md.episodes = eps.sort((a, b) => a.season - b.season || a.number - b.number);
       delete md.seed;
     }
-    console.log("show", e.title, "->", eps.length, "episodes,", eps.filter((x) => x.image).length, "with pictures,", md.poster ? "poster OK" : "NO POSTER");
+    const from = (u) => ((u || "").includes("thetvdb.com") ? "TVDB" : (u || "").includes("themoviedb.org") ? "TMDB" : "other");
+    console.log("show", e.title, "->", eps.length, "episodes,", eps.filter((x) => x.image).length, "with pictures,", md.poster ? `poster OK (${from(md.poster)})` : "NO POSTER");
     continue;
   }
 
