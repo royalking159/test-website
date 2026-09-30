@@ -34,6 +34,26 @@ const watchUrl = (m, e, key, i) => {
   return tpl.replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(vals[k] ?? ""));
 };
 
+// A description that shows a few lines, with a "Show more" button when it is longer than that.
+const expandable = (text, cls, lines) => {
+  const p = $("p", { class: `clamp ${cls}`, style: `--lines:${lines}` }, text);
+  const btn = $("button", { type: "button", class: "more", "aria-expanded": "false" }, "Show more");
+  btn.hidden = true;                                          // fit() reveals it only when the text is really cut off
+  btn.onclick = () => {
+    const open = p.classList.toggle("open");
+    btn.textContent = open ? "Show less" : "Show more";
+    btn.setAttribute("aria-expanded", String(open));
+  };
+  return $("div", { class: "clampbox" }, p, btn);
+};
+const fit = () => document.querySelectorAll(".clampbox").forEach((b) => {
+  const [p, btn] = b.children;
+  if (!p.classList.contains("open")) btn.hidden = !(p.scrollHeight > p.clientHeight + 1);
+});
+const metaLine = (m) => [m.year, m.runtime && `${m.runtime} min`, m.genres?.length && m.genres.join(", ")].filter(Boolean).join(" · ");
+const ratingLine = (m) => [m.rating && stars(m.rating),
+  (m.ratings?.imdb || m.score) && $("small", {}, m.ratings?.imdb ? `IMDb ${m.ratings.imdb}` : `TMDB ${m.score} / 10`)];
+
 const page = (title, ...kids) => $("section", { class: "page" }, $("h1", { class: "title" }, title), ...kids);
 const stars = (n) => $("span", { class: "stars", "aria-label": `${n} out of 5` }, "★".repeat(n) + "☆".repeat(5 - n));
 
@@ -46,7 +66,7 @@ const tile = (m) => {
     $("figcaption", {}, $("strong", {}, m.title), ` ${m.year || ""}`,
       m.rating && stars(m.rating),
       m.genres?.length && $("small", {}, m.genres.slice(0, 2).join(", ")),
-      m.ratings?.imdb && $("small", {}, `IMDb ${m.ratings.imdb}`),
+      (m.ratings?.imdb ? $("small", {}, `IMDb ${m.ratings.imdb}`) : m.score && $("small", {}, `TMDB ${m.score} / 10`)),
       m.note && $("small", {}, m.note)));
 };
 
@@ -75,6 +95,18 @@ function seasonsOf(m) {
   }
   touched.forEach((k) => by[k].sort((a, b) => (a.date || "9").localeCompare(b.date || "9")));
 
+  // Hand-added episodes (like Shorts): borrow the picture of a fetched episode with the same name,
+  // else use a YouTube thumbnail when the episode has  youtube: "VIDEO_ID"  or a YouTube link as its url.
+  const known = new Map((m.episodes || []).map((e) => [(e.title || "").toLowerCase(), e]));
+  const yt = (u) => (String(u || "").match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/))([\w-]{11})/) || [])[1]
+    || (/^[\w-]{11}$/.test(u || "") ? u : "");
+  for (const eps of Object.values(by)) for (const e of eps) {
+    const k = known.get((e.title || "").toLowerCase());
+    if (k) { e.image ||= k.image; e.overview ||= k.overview; }
+    const id = yt(e.youtube) || yt(e.url);
+    if (!e.image && id) e.image = `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
+  }
+
   // Episodes with no picture borrow one: your seasonImages, else the show's backdrop, season poster or poster.
   const sNum = (k) => (k === "Specials" ? 0 : /^Season \d+$/.test(k) ? Number(k.slice(7)) : null);
   const fallback = (k) => (m.seasonImages || {})[k] || m.backdrop || (m.seasonPosters || {})[sNum(k)] || m.poster;
@@ -101,7 +133,7 @@ function showPage(id) {
     return $("li", {}, $("div", { class: "ep" },
       e.image ? img(e.image, "", thumb) : thumb(),
       $("div", { class: "grow" }, $("strong", {}, `${i}. ${e.title || "TBA"}`), e.date && $("small", {}, fmt(e.date)),
-        e.overview && $("p", { class: "ov" }, e.overview)),
+        e.overview && expandable(e.overview, "ov", 2)),
       url && $("a", { class: "play", href: url, target: isWeb(url) ? "_blank" : "", rel: "noopener noreferrer", "aria-label": `Play ${e.title || "episode " + i}` })));
   };
   const draw = (n) => {
@@ -110,6 +142,7 @@ function showPage(id) {
     prev.disabled = at === 0;
     next.disabled = at === names.length - 1;
     list.replaceChildren(...seasons[n].eps.map((e, i) => row(e, i + 1, seasons[n].key)));
+    requestAnimationFrame(fit);
   };
   prev.onclick = () => draw(names[names.indexOf(select.value) - 1]);
   next.onclick = () => draw(names[names.indexOf(select.value) + 1]);
@@ -117,7 +150,9 @@ function showPage(id) {
   const blank = () => $("div", { class: "noposter" }, m.title);
   const cover = m.poster ? img(m.poster, m.title, blank, { loading: "eager" }) : blank();
   const el = $("div", { class: "show" },
-    $("aside", {}, $("figure", { class: "poster" }, cover), $("h1", {}, m.title), m.overview && $("p", {}, m.overview)),
+    $("aside", {}, $("figure", { class: "poster" }, cover), $("h1", {}, m.title),
+      metaLine(m) && $("p", { class: "meta" }, metaLine(m)), ratingLine(m),
+      m.overview && expandable(m.overview, "sdesc", 5)),
     $("div", {}, names.length
       ? [$("div", { class: "seasonbar" }, prev, select, next), list]
       : $("p", { class: "empty" }, "No episodes yet. They appear after the metadata update runs.")));
@@ -134,7 +169,7 @@ function moviePage(id) {
   return $("div", {}, $("a", { class: "btn back", href: "#/movies" }, "← Back to movies"),
     $("div", { class: "show" },
       $("aside", {}, $("figure", { class: "poster" }, m.poster ? img(m.poster, m.title, blank, { loading: "eager" }) : blank())),
-      $("div", {}, $("h1", { class: "title mtitle" }, m.title), meta && $("p", { class: "meta" }, meta), m.rating && stars(m.rating),
+      $("div", {}, $("h1", { class: "title mtitle" }, m.title), meta && $("p", { class: "meta" }, meta), ratingLine(m),
         m.overview && $("p", { class: "lead" }, m.overview), m.note && $("p", {}, m.note),
         url && $("a", { class: "btn", href: url, target: isWeb(url) ? "_blank" : "", rel: "noopener noreferrer" }, "Play"))));
 }
@@ -219,11 +254,14 @@ function render() {
     node = P[pg](); active = pg; label = pg[0].toUpperCase() + pg.slice(1);
   } else { node = page("Not found", $("a", { href: "#/" }, "Back home")); label = "Not found"; }
   view.replaceChildren(node);
+  requestAnimationFrame(fit);
   mark(active);
   document.title = label ? `${label} - ${SITE.name}` : SITE.name;
 }
 addEventListener("hashchange", () => { render(); scrollTo(0, 0); view.focus({ preventScroll: true }); });
 
+addEventListener("resize", fit);
+document.fonts?.ready.then(fit);
 fetch("../data/metadata.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({}))
   .then((j) => {
     META = { movies: j.movies || {}, shows: j.shows || {} };
