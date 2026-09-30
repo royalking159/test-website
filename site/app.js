@@ -19,14 +19,26 @@ let META = { movies: {}, shows: {} };
 const library = () => LIBRARY.map((e) => {
   const id = e.id || slug(e.title);
   const md = (e.type === "show" ? META.shows : META.movies)[id] || {};
-  return { ...md, ...defined(e), id };
-});
+  const m = { ...md, ...defined(e), id };
+  if (e.description) m.overview = e.description;              // "description" is a friendlier name for "overview"
+  return m;
+}).filter((m) => !m.hidden).sort((a, b) => (a.order ?? 1e9) - (b.order ?? 1e9));   // file order, unless you set `order`
+
+// Where an episode's play icon goes: its own `url`, else the show's `watchUrl`, else `watchUrl` in config.js.
+// A template can use {show} {title} {season} {episode} {name} {date}.
+const watchUrl = (m, e, key, i) => {
+  const tpl = e.url || m.watchUrl || SITE.watchUrl;
+  if (!tpl) return "";
+  const season = key === "Specials" ? 0 : /^Season \d+$/.test(key) ? Number(key.slice(7)) : key;
+  const vals = { show: m.id, title: m.title, season, episode: i, name: e.title || "", date: e.date || "" };
+  return tpl.replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(vals[k] ?? ""));
+};
 
 const page = (title, ...kids) => $("section", { class: "page" }, $("h1", { class: "title" }, title), ...kids);
 const stars = (n) => $("span", { class: "stars", "aria-label": `${n} out of 5` }, "★".repeat(n) + "☆".repeat(5 - n));
 
 const tile = (m) => {
-  const href = m.type === "show" ? `#/show/${m.id}` : m.url;
+  const href = `#/${m.type === "show" ? "show" : "movie"}/${m.id}`;
   const blank = () => $("div", { class: "noposter" }, m.title);
   const pic = m.poster ? img(m.poster, m.title, blank) : blank();
   return $("figure", { class: "poster" },
@@ -38,25 +50,41 @@ const tile = (m) => {
       m.note && $("small", {}, m.note)));
 };
 
-// Group a show's episodes into seasons: fetched episodes, then your `moves`, then your `extra` seasons.
+// Group a show's episodes into seasons: fetched episodes, then your moves / edits / images / extra seasons and season settings.
 function seasonsOf(m) {
   const by = {}, touched = new Set();
   const label = (k) => (/^S\d+$/.test(k) ? "Season " + k.slice(1) : k);
   const add = (k, e) => (by[k] ||= []).push(e);
-  for (const e of m.episodes || []) add(e.season === 0 ? "Specials" : `Season ${e.season}`, e);
-  for (const [title, to] of Object.entries(m.moves || {})) {
-    for (const k of Object.keys(by)) {
-      const i = by[k].findIndex((e) => e.title === title);
-      if (i >= 0) { add(label(to), by[k].splice(i, 1)[0]); touched.add(label(to)); break; }
+  for (const e of m.episodes || []) add(e.season === 0 ? "Specials" : `Season ${e.season}`, { ...e });
+  for (const [k, v] of Object.entries(m.extra || {})) by[k] = v.map((e) => ({ ...e }));
+
+  const edits = {};                                           // your changes to single episodes, by their original name
+  const merge = (src, wrap) => { for (const [t, v] of Object.entries(src || {})) edits[t] = { ...edits[t], ...wrap(v) }; };
+  merge(m.moves, (s) => ({ season: s }));
+  merge(m.images, (i) => ({ image: i }));
+  merge(m.edits, (o) => o);
+  for (const k of Object.keys(by)) {
+    for (const e of [...by[k]]) {
+      const o = edits[e.title];
+      if (!o) continue;
+      const { season, hidden, ...rest } = o;
+      Object.assign(e, defined(rest));
+      if (hidden) by[k].splice(by[k].indexOf(e), 1);
+      else if (season && label(season) !== k) { by[k].splice(by[k].indexOf(e), 1); add(label(season), e); touched.add(label(season)); }
     }
   }
   touched.forEach((k) => by[k].sort((a, b) => (a.date || "9").localeCompare(b.date || "9")));
-  Object.assign(by, m.extra || {});
-  for (const eps of Object.values(by)) for (const e of eps) { const c = (m.images || {})[e.title]; if (c) e.image = c; }
+
+  // Episodes with no picture borrow one: your seasonImages, else the show's backdrop, season poster or poster.
+  const sNum = (k) => (k === "Specials" ? 0 : /^Season \d+$/.test(k) ? Number(k.slice(7)) : null);
+  const fallback = (k) => (m.seasonImages || {})[k] || m.backdrop || (m.seasonPosters || {})[sNum(k)] || m.poster;
+  for (const [k, eps] of Object.entries(by)) for (const e of eps) e.image ||= fallback(k);
+
   const rank = (k) => (k === "Specials" ? 2 : /^Season \d+$/.test(k) ? 0 : 1);
   const num = (k) => Number(k.replace(/\D/g, "")) || 0;
-  return Object.fromEntries(Object.keys(by).filter((k) => by[k].length)
-    .sort((a, b) => rank(a) - rank(b) || (rank(a) ? 0 : num(a) - num(b))).map((k) => [k, by[k]]));
+  let keys = Object.keys(by).filter((k) => by[k].length).sort((a, b) => rank(a) - rank(b) || (rank(a) ? 0 : num(a) - num(b)));
+  if (m.seasonOrder) { const want = m.seasonOrder.map(label); keys = [...want.filter((k) => keys.includes(k)), ...keys.filter((k) => !want.includes(k))]; }
+  return Object.fromEntries(keys.map((k) => [(m.seasonNames || {})[k] || k, { key: k, eps: by[k] }]));
 }
 
 function showPage(id) {
@@ -67,23 +95,21 @@ function showPage(id) {
   const prev = $("button", { type: "button", "aria-label": "Previous season" }, "‹");
   const next = $("button", { type: "button", "aria-label": "Next season" }, "›");
   const list = $("ol", { class: "episodes" });
-  const row = (e, i) => {
+  const row = (e, i, key) => {
     const thumb = () => $("div", { class: "thumb" }, String(i));
-    const inner = [
+    const url = watchUrl(m, e, key, i);
+    return $("li", {}, $("div", { class: "ep" },
       e.image ? img(e.image, "", thumb) : thumb(),
-      $("div", {}, $("strong", {}, `${i}. ${e.title || "TBA"}`), e.date && $("small", {}, fmt(e.date)),
+      $("div", { class: "grow" }, $("strong", {}, `${i}. ${e.title || "TBA"}`), e.date && $("small", {}, fmt(e.date)),
         e.overview && $("p", { class: "ov" }, e.overview)),
-    ];
-    return $("li", {}, e.url
-      ? $("a", { class: "ep", href: e.url, target: "_blank", rel: "noopener noreferrer" }, inner)
-      : $("div", { class: "ep" }, inner));
+      url && $("a", { class: "play", href: url, target: isWeb(url) ? "_blank" : "", rel: "noopener noreferrer", "aria-label": `Play ${e.title || "episode " + i}` })));
   };
   const draw = (n) => {
     const at = names.indexOf(n);
     select.value = n;
     prev.disabled = at === 0;
     next.disabled = at === names.length - 1;
-    list.replaceChildren(...seasons[n].map((e, i) => row(e, i + 1)));
+    list.replaceChildren(...seasons[n].eps.map((e, i) => row(e, i + 1, seasons[n].key)));
   };
   prev.onclick = () => draw(names[names.indexOf(select.value) - 1]);
   next.onclick = () => draw(names[names.indexOf(select.value) + 1]);
@@ -97,6 +123,20 @@ function showPage(id) {
       : $("p", { class: "empty" }, "No episodes yet. They appear after the metadata update runs.")));
   if (names.length) draw(names[0]);
   return $("div", {}, $("a", { class: "btn back", href: "#/movies" }, "← Back to movies"), el);
+}
+
+function moviePage(id) {
+  const m = library().find((x) => x.type !== "show" && x.id === id);
+  if (!m) return page("Not found", $("a", { href: "#/movies" }, "Back to movies"));
+  const blank = () => $("div", { class: "noposter" }, m.title);
+  const url = watchUrl(m, m, "", 1);
+  const meta = [m.year, m.runtime && `${m.runtime} min`, m.genres?.length && m.genres.join(", ")].filter(Boolean).join(" · ");
+  return $("div", {}, $("a", { class: "btn back", href: "#/movies" }, "← Back to movies"),
+    $("div", { class: "show" },
+      $("aside", {}, $("figure", { class: "poster" }, m.poster ? img(m.poster, m.title, blank, { loading: "eager" }) : blank())),
+      $("div", {}, $("h1", { class: "title mtitle" }, m.title), meta && $("p", { class: "meta" }, meta), m.rating && stars(m.rating),
+        m.overview && $("p", { class: "lead" }, m.overview), m.note && $("p", {}, m.note),
+        url && $("a", { class: "btn", href: url, target: isWeb(url) ? "_blank" : "", rel: "noopener noreferrer" }, "Play"))));
 }
 
 const P = {
@@ -172,8 +212,8 @@ function render() {
   const [pg, arg] = location.hash.replace(/^#\/?/, "").split("/");
   let node, active = "", label = "";
   if (!pg) { node = P.home(); active = "home"; }
-  else if (pg === "show") {
-    node = showPage(arg); active = "movies";
+  else if (pg === "show" || pg === "movie") {
+    node = pg === "show" ? showPage(arg) : moviePage(arg); active = "movies";
     label = (library().find((m) => m.id === arg) || {}).title || "Show";
   } else if (SITE.sections.includes(pg) && P[pg]) {
     node = P[pg](); active = pg; label = pg[0].toUpperCase() + pg.slice(1);
