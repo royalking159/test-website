@@ -1,33 +1,26 @@
-// EDIT THIS FILE to customise your site. No other file needs to change.
+// EDIT THIS FILE to customise your site. Movies and shows live in library.js.
 const SITE = {
   name: "Your Name",
   tagline: "I build small things and watch too many films.",
+  intro: "A few words for the front page.",
   about: "Write a few lines about yourself here.",
 
-  // Colours are any CSS colour. Fonts are any name from fonts.google.com.
+  // Defaults for the theme. Colours must be 6-digit hex. Visitors can change all of it in Settings.
   theme: {
-    bg: "#101a33",
-    surface: "#182446",
-    text: "#eaf0ff",
-    muted: "#9aa8cf",
-    accent: "#ffc247",
-    headingFont: "Bricolage Grotesque",
+    defaultMode: "dark",                                            // "dark", "light" or "auto" (follow the device)
+    dark:  { bg: "#101a33", text: "#eaf0ff", accent: "#ffc247" },
+    light: { bg: "#f4f6fb", text: "#141b2d", accent: "#b45309" },
+    headingFont: "Bricolage Grotesque",                             // any Google Font that has 400 and 700
     bodyFont: "Instrument Sans",
   },
 
-  // Order of sections on the page. Remove one to hide it.
+  // Pages in the sidebar, in order. Choose from "projects", "movies", "about". Home is always first.
   sections: ["projects", "movies", "about"],
 
-  // Links in the footer.
+  // Buttons on the home page.
   links: [
     { label: "GitHub", url: "https://github.com/yourname" },
     { label: "Email", url: "mailto:you@example.com" },
-  ],
-
-  // Links to other sites, shown in the top menu and opened in a new tab.
-  // Add one line per site: { label: "Text shown", url: "https://..." }
-  navLinks: [
-    { label: "My blog", url: "https://example.com" },
   ],
 
   projects: [
@@ -35,8 +28,8 @@ const SITE = {
       title: "Project one",
       description: "One or two sentences on what it does and why you made it.",
       tags: ["JavaScript", "Web"],
-      url: "https://example.com",       // live link (optional)
-      repo: "https://github.com/yourname/project-one", // source link (optional)
+      url: "https://example.com",                                   // live link (optional)
+      repo: "https://github.com/yourname/project-one",              // source link (optional)
     },
     {
       title: "Project two",
@@ -44,18 +37,5 @@ const SITE = {
       tags: ["Python"],
       repo: "https://github.com/yourname/project-two",
     },
-  ],
-
-  // rating is 1-5. status can be any word (e.g. "watched", "watchlist");
-  // filter buttons are made from the statuses you use.
-  // poster: a URL, or a file path like "posters/arrival.jpg". Leave "" for a title tile.
-  // url: optional. Clicking the poster opens it. A full https:// link opens in a new tab;
-  //   a page on your own site (like show.html?show=helluva-boss) opens in the same tab.
-  // imdb: optional IMDb id (the tt1234567 part of a movie's IMDb address). A GitHub Action then fills in
-  //   poster, genres and ratings from TVDB and MDBList. Anything you type yourself here wins over fetched data.
-  // The two tiles below open the show pages built from shows.js.
-  movies: [
-    { title: "Helluva Boss", year: 2020, status: "shows", poster: "", url: "show.html?show=helluva-boss", note: "Series" },
-    { title: "Hazbin Hotel", year: 2024, status: "shows", poster: "", url: "show.html?show=hazbin-hotel", note: "Series" },
   ],
 };
