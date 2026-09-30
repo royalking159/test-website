@@ -103,6 +103,7 @@ for (const e of LIBRARY) {
           title: info.name, year: (info.first_air_date || "").slice(0, 4), poster: tImg(info.poster_path, "w500"),
           backdrop: tImg(info.backdrop_path, "w780"), overview: info.overview, genres: (info.genres || []).map((g) => g.name),
         }, true);
+        if (info.vote_average) md.score = Math.round(info.vote_average * 10) / 10;   // TMDB rating out of 10
         for (const s of info.seasons || []) {
           const r = await tmdb(`/tv/${tid}/season/${s.season_number}`);
           if (r.poster_path) (md.seasonPosters ??= {})[s.season_number] = tImg(r.poster_path, "w342");
@@ -149,6 +150,7 @@ for (const e of LIBRARY) {
         title: info.title, year: (info.release_date || "").slice(0, 4), poster: tImg(info.poster_path, "w500"),
         overview: info.overview, runtime: info.runtime, genres: (info.genres || []).map((g) => g.name),
       }, true);
+      if (info.vote_average) md.score = Math.round(info.vote_average * 10) / 10;
     } catch (err) { console.warn("TMDB movie:", e.title, err.message); }
   }
   if (headers) {
