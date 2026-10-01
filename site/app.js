@@ -120,7 +120,7 @@ function seasonsOf(m) {
   const num = (k) => Number(k.replace(/\D/g, "")) || 0;
   let keys = Object.keys(by).filter((k) => by[k].length).sort((a, b) => rank(a) - rank(b) || (rank(a) ? 0 : num(a) - num(b)));
   if (m.seasonOrder) { const want = m.seasonOrder.map(label); keys = [...want.filter((k) => keys.includes(k)), ...keys.filter((k) => !want.includes(k))]; }
-  return Object.fromEntries(keys.map((k) => [(m.seasonNames || {})[k] || k, { key: k, eps: by[k] }]));
+  return Object.fromEntries(keys.map((k) => [(m.seasonNames || {})[k] || k, { key: k, eps: by[k], cover: (m.seasonCovers || {})[k] || (m.seasonPosters || {})[sNum(k)] || m.poster }]));
 }
 
 function showPage(id) {
@@ -146,15 +146,20 @@ function showPage(id) {
     prev.disabled = at === 0;
     next.disabled = at === names.length - 1;
     list.replaceChildren(...seasons[n].eps.map((e, i) => row(e, i + 1, seasons[n].key)));
+    setCover(seasons[n].cover);
     requestAnimationFrame(fit);
   };
   prev.onclick = () => draw(names[names.indexOf(select.value) - 1]);
   next.onclick = () => draw(names[names.indexOf(select.value) + 1]);
   select.onchange = () => draw(select.value);
   const blank = () => $("div", { class: "noposter" }, m.title);
-  const cover = m.poster ? img(m.poster, m.title, blank, { loading: "eager" }) : blank();
+  const figure = $("figure", { class: "poster" });             // the big picture on the left; changes with the season
+  const setCover = (u) => figure.replaceChildren(u
+    ? img(u, m.title, () => (m.poster && u !== m.poster ? img(m.poster, m.title, blank, { loading: "eager" }) : blank()), { loading: "eager" })
+    : blank());
+  setCover(m.poster);
   const el = $("div", { class: "show" },
-    $("aside", {}, $("figure", { class: "poster" }, cover), $("h1", {}, m.title),
+    $("aside", {}, figure, $("h1", {}, m.title),
       metaLine(m) && $("p", { class: "meta" }, metaLine(m)), ratingLine(m),
       m.overview && expandable(m.overview, "sdesc", 5)),
     $("div", {}, names.length
