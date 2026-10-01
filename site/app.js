@@ -78,17 +78,19 @@ function seasonsOf(m) {
   for (const [k, v] of Object.entries(m.extra || {})) by[k] = v.map((e) => ({ ...e }));
   // Anything you list in an `extra` season (like Shorts) is removed from the fetched Specials, so it isn't shown twice.
   const norm = (t) => (t || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
-  const extraTitles = new Set(Object.values(m.extra || {}).flat().map((e) => norm(e.title)));
-  if (by.Specials && !("Specials" in (m.extra || {}))) by.Specials = by.Specials.filter((e) => !extraTitles.has(norm(e.title)));
+  // Names match ignoring capitals, punctuation and quote styles, and also when one name contains the other.
+  const near = (a, b) => !!a && !!b && (a === b || (a.length >= 8 && b.length >= 8 && (a.includes(b) || b.includes(a))));
+  const extraNorms = Object.values(m.extra || {}).flat().map((e) => norm(e.title));
+  if (by.Specials && !("Specials" in (m.extra || {}))) by.Specials = by.Specials.filter((e) => !extraNorms.some((x) => near(x, norm(e.title))));
 
   const edits = {};                                           // your changes to single episodes, by their original name
-  const merge = (src, wrap) => { for (const [t, v] of Object.entries(src || {})) edits[t] = { ...edits[t], ...wrap(v) }; };
+  const merge = (src, wrap) => { for (const [t, v] of Object.entries(src || {})) edits[norm(t)] = { ...edits[norm(t)], ...wrap(v) }; };
   merge(m.moves, (s) => ({ season: s }));
   merge(m.images, (i) => ({ image: i }));
   merge(m.edits, (o) => o);
   for (const k of Object.keys(by)) {
     for (const e of [...by[k]]) {
-      const o = edits[e.title];
+      const o = edits[norm(e.title)];
       if (!o) continue;
       const { season, hidden, ...rest } = o;
       Object.assign(e, defined(rest));
@@ -106,11 +108,10 @@ function seasonsOf(m) {
 
   // Hand-added episodes (like Shorts): borrow the picture of a fetched episode with the same name,
   // else use a YouTube thumbnail when the episode has  youtube: "VIDEO_ID"  or a YouTube link as its url.
-  const known = new Map((m.episodes || []).map((e) => [norm(e.title), e]));
   const yt = (u) => (String(u || "").match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/))([\w-]{11})/) || [])[1]
     || (/^[\w-]{11}$/.test(u || "") ? u : "");
   for (const eps of Object.values(by)) for (const e of eps) {
-    const k = known.get(norm(e.title));
+    const k = (m.episodes || []).find((x) => near(norm(x.title), norm(e.title)));
     if (k) { e.image ||= k.image; e.overview ||= k.overview; }
     const id = yt(e.youtube) || yt(e.url);
     if (!e.image && id) e.image = `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
@@ -132,9 +133,8 @@ function showPage(id) {
   const m = library().find((x) => x.type === "show" && x.id === id);
   if (!m) return page("Not found", $("p", {}, "That show isn't in your library."), $("a", { href: "#/movies" }, "Back to movies"));
   const seasons = seasonsOf(m), names = Object.keys(seasons);
-  const select = $("select", { "aria-label": "Season" }, names.map((n) => $("option", { value: n }, n)));
-  const prev = $("button", { type: "button", "aria-label": "Previous season" }, "‹");
-  const next = $("button", { type: "button", "aria-label": "Next season" }, "›");
+  const bar = $("div", { class: "seg seasons", role: "group", "aria-label": "Seasons" },
+    names.map((n) => $("button", { type: "button", "data-n": n }, n)));
   const list = $("ol", { class: "episodes" });
   const row = (e, i, key) => {
     const thumb = () => $("div", { class: "thumb" }, String(i));
@@ -146,33 +146,40 @@ function showPage(id) {
       url && $("a", { class: "play", href: url, target: isWeb(url) ? "_blank" : "", rel: "noopener noreferrer", "aria-label": `Play ${e.title || "episode " + i}` })));
   };
   const draw = (n) => {
-    const at = names.indexOf(n);
-    select.value = n;
-    prev.disabled = at === 0;
-    next.disabled = at === names.length - 1;
+    bar.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.n === n)));
     list.replaceChildren(...seasons[n].eps.map((e, i) => row(e, i + 1, seasons[n].key)));
     setCover(seasons[n].cover);
     requestAnimationFrame(fit);
   };
-  prev.onclick = () => draw(names[names.indexOf(select.value) - 1]);
-  next.onclick = () => draw(names[names.indexOf(select.value) + 1]);
-  select.onchange = () => draw(select.value);
+  bar.onclick = (e) => { const b = e.target.closest("button"); if (b) draw(b.dataset.n); };
   const blank = () => $("div", { class: "noposter" }, m.title);
+  const bd = $("img", { class: "backdrop", "aria-hidden": "true" });   // big blurred background: follows the season poster
+  bd.alt = "";
+  bd.onerror = () => { bd.hidden = true; };
+  const setBackdrop = (u) => {
+    const s = asset(u || m.poster || m.backdrop);
+    bd.hidden = !s;
+    if (!s) return;
+    bd.style.opacity = "0";
+    bd.onload = () => { bd.style.opacity = ""; };
+    bd.src = s;
+  };
   const figure = $("figure", { class: "poster" });             // the big picture on the left; changes with the season
-  const setCover = (u) => figure.replaceChildren(u
+  const paintCover = (u) => figure.replaceChildren(u
     ? img(u, m.title, () => (m.poster && u !== m.poster ? img(m.poster, m.title, blank, { loading: "eager" }) : blank()), { loading: "eager" })
     : blank());
+  const setCover = (u) => { setBackdrop(u); paintCover(u); };
   setCover(m.poster);
   const el = $("div", { class: "show" },
     $("aside", {}, figure, $("h1", {}, m.title),
       metaLine(m) && $("p", { class: "meta" }, metaLine(m)), ratingLine(m),
       m.overview && expandable(m.overview, "sdesc", 5)),
     $("div", {}, names.length
-      ? [$("div", { class: "seasonbar" }, prev, select, next), list]
+      ? [bar, list]
       : $("p", { class: "empty" }, "No episodes yet. They appear after the metadata update runs.")));
   if (names.length) draw(names[0]);
   return $("div", { class: "show-page" },
-    m.backdrop && img(m.backdrop, "", () => document.createTextNode(""), { class: "backdrop", "aria-hidden": "true", loading: "eager" }),
+    bd,
     $("a", { class: "btn back", href: "#/movies" }, "← Back to movies"), el);
 }
 
@@ -188,6 +195,19 @@ function moviePage(id) {
       $("div", {}, $("h1", { class: "title mtitle" }, m.title), meta && $("p", { class: "meta" }, meta), ratingLine(m),
         m.overview && $("p", { class: "lead" }, m.overview), m.note && $("p", {}, m.note),
         url && $("a", { class: "btn", href: url, target: isWeb(url) ? "_blank" : "", rel: "noopener noreferrer" }, "Play"))));
+}
+
+// site/#/check/<show>: every episode name exactly as stored, and what the site shows after your library.js changes.
+function checkPage(id) {
+  const m = library().find((x) => x.type === "show" && x.id === id);
+  if (!m) return page("Not found", $("a", { href: "#/movies" }, "Back to movies"));
+  const raw = {};
+  for (const e of m.episodes || []) (raw[e.season === 0 ? "Specials" : `Season ${e.season}`] ||= []).push(e.title);
+  const block = (k, titles) => [`\\n${k} (${titles.length})`, ...titles.map((t) => "  " + (t || "TBA"))];
+  const shown = seasonsOf(m);
+  const lines = ["NAMES AS THE DATABASES LIST THEM", ...Object.entries(raw).flatMap(([k, t]) => block(k, t)),
+    "\\n\\nWHAT THE SITE SHOWS", ...Object.entries(shown).flatMap(([k, s]) => block(k, s.eps.map((e) => e.title)))];
+  return page("data check", $("pre", { class: "check" }, lines.join("\\n")));
 }
 
 const featured = () => {
@@ -272,6 +292,7 @@ function render() {
   const [pg, arg] = location.hash.replace(/^#\/?/, "").split("/");
   let node, active = "", label = "";
   if (!pg) { node = P.home(); active = "home"; }
+  else if (pg === "check") { node = checkPage(arg); label = "Data check"; }
   else if (pg === "show" || pg === "movie") {
     node = pg === "show" ? showPage(arg) : moviePage(arg); active = "movies";
     label = (library().find((m) => m.id === arg) || {}).title || "Show";
