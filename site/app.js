@@ -60,13 +60,12 @@ const stars = (n) => $("span", { class: "stars", "aria-label": `${n} out of 5` }
 const tile = (m) => {
   const href = `#/${m.type === "show" ? "show" : "movie"}/${m.id}`;
   const blank = () => $("div", { class: "noposter" }, m.title);
-  const pic = m.poster ? img(m.poster, m.title, blank) : blank();
+  const pic = $("div", { class: "pic" }, m.poster ? img(m.poster, m.title, blank) : blank(), m.score && $("span", { class: "chip" }, `★ ${m.score}`));
   return $("figure", { class: "poster" },
     href ? $("a", { href, target: isWeb(href) ? "_blank" : "", rel: "noopener noreferrer", "aria-label": m.title }, pic) : pic,
     $("figcaption", {}, $("strong", {}, m.title), ` ${m.year || ""}`,
       m.rating && stars(m.rating),
       m.genres?.length && $("small", {}, m.genres.slice(0, 2).join(", ")),
-      m.score && $("small", {}, `TMDB ${m.score} / 10`),
       m.note && $("small", {}, m.note)));
 };
 
@@ -98,6 +97,12 @@ function seasonsOf(m) {
     }
   }
   touched.forEach((k) => by[k].sort((a, b) => (a.date || "9").localeCompare(b.date || "9")));
+  for (const [season, order] of Object.entries(m.episodeOrder || {})) {
+    const k = label(season);
+    if (!by[k]) continue;
+    const rank = (e) => { const i = order.findIndex((t) => norm(t) === norm(e.title)); return i < 0 ? order.length : i; };
+    by[k] = by[k].map((e, i) => [e, i]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).map(([e]) => e);
+  }
 
   // Hand-added episodes (like Shorts): borrow the picture of a fetched episode with the same name,
   // else use a YouTube thumbnail when the episode has  youtube: "VIDEO_ID"  or a YouTube link as its url.
@@ -135,8 +140,8 @@ function showPage(id) {
     const thumb = () => $("div", { class: "thumb" }, String(i));
     const url = watchUrl(m, e, key, i);
     return $("li", {}, $("div", { class: "ep" },
-      e.image ? img(e.image, "", thumb) : thumb(),
-      $("div", { class: "grow" }, $("strong", {}, `${i}. ${e.title || "TBA"}`), e.date && $("small", {}, fmt(e.date)),
+      $("div", { class: "tw" }, e.image ? img(e.image, "", thumb) : thumb(), e.image && $("span", { class: "num" }, String(i))),
+      $("div", { class: "grow" }, $("strong", {}, e.title || "TBA"), e.date && $("small", {}, fmt(e.date)),
         e.overview && expandable(e.overview, "ov", 2)),
       url && $("a", { class: "play", href: url, target: isWeb(url) ? "_blank" : "", rel: "noopener noreferrer", "aria-label": `Play ${e.title || "episode " + i}` })));
   };
@@ -166,7 +171,9 @@ function showPage(id) {
       ? [$("div", { class: "seasonbar" }, prev, select, next), list]
       : $("p", { class: "empty" }, "No episodes yet. They appear after the metadata update runs.")));
   if (names.length) draw(names[0]);
-  return $("div", {}, $("a", { class: "btn back", href: "#/movies" }, "← Back to movies"), el);
+  return $("div", { class: "show-page" },
+    m.backdrop && img(m.backdrop, "", () => document.createTextNode(""), { class: "backdrop", "aria-hidden": "true", loading: "eager" }),
+    $("a", { class: "btn back", href: "#/movies" }, "← Back to movies"), el);
 }
 
 function moviePage(id) {
@@ -183,12 +190,21 @@ function moviePage(id) {
         url && $("a", { class: "btn", href: url, target: isWeb(url) ? "_blank" : "", rel: "noopener noreferrer" }, "Play"))));
 }
 
+const featured = () => {
+  const items = library().slice(0, 8);
+  if (!items.length) return null;
+  return $("section", { class: "featured" },
+    $("div", { class: "rowhead" }, $("h2", {}, "From the library"), $("a", { href: "#/movies" }, "See all")),
+    $("div", { class: "posters strip" }, items.map(tile)));
+};
+
 const P = {
-  home: () => $("section", { class: "hero" },
+  home: () => $("div", {}, $("section", { class: "hero" },
     $("h1", {}, SITE.tagline),
     SITE.intro && $("p", { class: "lead" }, SITE.intro),
     $("div", { class: "actions" }, (SITE.links || []).map((l) =>
       $("a", { class: "btn", href: l.url, target: isWeb(l.url) ? "_blank" : "", rel: "noopener noreferrer" }, l.label)))),
+    featured()),
 
   projects: () => page("projects", ...SITE.projects.map((p) =>
     $("article", { class: "project" },
