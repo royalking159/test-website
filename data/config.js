@@ -1,6 +1,6 @@
 // EDIT THIS FILE to customise your site. Movies and shows live in library.js.
 const SITE = {
-  name: "Your Name",
+  name: "Test Site",
   tagline: "I build small things and watch too many films.",
   intro: "A few words for the front page.",
   about: "Write a few lines about yourself here.",
