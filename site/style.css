@@ -96,7 +96,7 @@ figcaption strong { font-family: var(--head); font-size: 1rem; }
 
 /* ---------- Show / movie page ---------- */
 .show-page { position: relative; isolation: isolate; }
-.backdrop { position: absolute; z-index: -1; top: -2.5rem; left: calc(-1 * var(--pad)); width: calc(100% + 2 * var(--pad)); height: 30rem; object-fit: cover; opacity: .42; -webkit-mask-image: radial-gradient(ellipse at 50% 0, #000 30%, transparent 72%); mask-image: radial-gradient(ellipse at 50% 0, #000 30%, transparent 72%); }
+.backdrop { position: absolute; z-index: -1; top: -2.5rem; left: calc(-1 * var(--pad)); width: calc(100% + 2 * var(--pad)); height: 46rem; object-fit: cover; object-position: center 25%; filter: blur(22px) saturate(1.2); opacity: .5; transition: opacity .4s; -webkit-mask-image: radial-gradient(ellipse 80% 85% at 50% 0, #000 35%, transparent 100%); mask-image: radial-gradient(ellipse 80% 85% at 50% 0, #000 35%, transparent 100%); }
 .back { margin-bottom: 1.75rem; }
 .show { display: grid; grid-template-columns: minmax(180px, 300px) minmax(0, 1fr); gap: 2.5rem 4rem; align-items: start; }
 .show aside .poster img, .show aside .noposter { border-radius: var(--radius); box-shadow: var(--shadow); }
@@ -105,12 +105,8 @@ figcaption strong { font-family: var(--head); font-size: 1rem; }
 .meta { margin: 0 0 .75rem; color: var(--muted); }
 .mtitle { text-transform: none; }
 .show aside small { display: inline-block; margin: 0 0 .75rem; padding: .1rem .7rem; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); border-radius: 99px; font-weight: 700; }
-.seasonbar { display: flex; align-items: center; gap: .5rem; margin-bottom: 1.25rem; }
-.seasonbar select, .seasonbar button, .panel select { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--edge); border-radius: 99px; padding: .5rem 1.1rem; }
-.seasonbar select { min-width: 12rem; font-weight: 700; }
-.seasonbar button { width: 2.6rem; padding: .5rem 0; font-size: 1.2rem; line-height: 1; cursor: pointer; }
-.seasonbar button:hover:not(:disabled), .seasonbar select:hover { border-color: var(--accent); }
-.seasonbar button:disabled { opacity: .35; cursor: default; }
+.seasons { margin-bottom: 1.25rem; }
+.panel select { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--edge); border-radius: 10px; padding: .5rem 1.1rem; }
 .episodes { display: grid; gap: .7rem; margin: 0; padding: 0; list-style: none; }
 .ep { display: flex; align-items: center; gap: 1rem; padding: .6rem; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; transition: border-color .2s, background .2s; }
 .ep:hover { border-color: var(--edge); background: color-mix(in srgb, var(--surface) 88%, var(--accent)); }
@@ -129,6 +125,7 @@ figcaption strong { font-family: var(--head); font-size: 1rem; }
 .clamp.open { display: block; overflow: visible; }
 .more { margin-top: .25rem; padding: 0; font: inherit; font-size: .85rem; color: var(--accent); text-decoration: underline; background: none; border: 0; cursor: pointer; }
 .empty { color: var(--muted); }
+.check { margin: 0; padding: 1rem; overflow: auto; font-size: .85rem; line-height: 1.5; white-space: pre-wrap; background: var(--surface); border-radius: 12px; }
 .status { margin: 0; font-size: .85rem; color: var(--muted); }
 
 /* ---------- Settings dialog ---------- */
@@ -158,7 +155,7 @@ dialog.settings::backdrop { background: rgb(0 0 0 / .6); backdrop-filter: blur(3
   .show { grid-template-columns: 1fr; }
   .show .poster { max-width: 200px; }
   .tw { width: 7.5rem; }
-  .backdrop { height: 22rem; }
+  .backdrop { height: 30rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
