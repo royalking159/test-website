@@ -19,6 +19,7 @@
 //   seasonOrder: ["Season 1", "Shorts", "Season 2"]     seasonNames: { "Specials": "Extras" }
 //   seasonImages: { "Specials": "https://..." }    a picture for episodes in that season that have none
 //   seasonCovers: { "Shorts": "https://..." }    the big poster shown on the left when that season is selected
+//   episodeOrder: { Specials: ["Pilot", "Mission: Zero"] }    these episodes first; the rest keep their order
 //   Any episode can have  youtube: "VIDEO_ID"  (or a YouTube link as its url) to use that video's thumbnail.
 // Play icons: each episode's play icon goes to its own `url`, else the show's `watchUrl`, else `watchUrl` in config.js.
 //   A watchUrl can use {show} {title} {season} {episode} {name} {date} (season 0 = Specials). No URL = no icon.
@@ -28,6 +29,10 @@ const LIBRARY = [
     title: "Helluva Boss",
     // watchUrl: "https://example.com/watch/{show}/{season}/{episode}",
     moves: { "Queen Bee": "S1" },
+    // Specials: Pilot and Mission: Zero first, then everything else in its normal order.
+    episodeOrder: { Specials: ["Pilot", "Mission: Zero"] },
+    // The two not-yet-released shorts that TMDB lists as just "Mission:" go into Shorts as well.
+    edits: { "Mission:": { title: "Mission: (coming soon)", season: "Shorts" } },
     extra: {
       Shorts: [
         { title: "Hell's Belles", date: "2024-04-26" },
