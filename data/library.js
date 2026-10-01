@@ -20,6 +20,7 @@
 //   seasonImages: { "Specials": "https://..." }    a picture for episodes in that season that have none
 //   seasonCovers: { "Shorts": "https://..." }    the big poster shown on the left when that season is selected
 //   episodeOrder: { Specials: ["Pilot", "Mission: Zero"] }    these episodes first; the rest keep their order
+//   Not sure of an episode's exact name? Open  site/#/check/helluva-boss  to see every name as the databases list it.
 //   Any episode can have  youtube: "VIDEO_ID"  (or a YouTube link as its url) to use that video's thumbnail.
 // Play icons: each episode's play icon goes to its own `url`, else the show's `watchUrl`, else `watchUrl` in config.js.
 //   A watchUrl can use {show} {title} {season} {episode} {name} {date} (season 0 = Specials). No URL = no icon.
