@@ -68,8 +68,6 @@ body.has-side { padding-left: var(--side); }
 .featured { margin-top: 1rem; }
 
 /* Projects as cards */
-.page:has(> .project) { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 1.1rem; align-content: start; }
-.page:has(> .project) > .title { grid-column: 1 / -1; margin-bottom: .5rem; }
 .project { display: flex; flex-direction: column; align-items: flex-start; gap: .55rem; padding: 1.3rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); transition: transform .25s, border-color .25s; }
 .project:hover { transform: translateY(-3px); border-color: var(--accent); }
 .project h3 { font-size: 1.3rem; }
@@ -96,7 +94,6 @@ figcaption strong { font-family: var(--head); font-size: 1rem; }
 
 /* ---------- Show / movie page ---------- */
 .show-page { position: relative; isolation: isolate; }
-.backdrop { position: absolute; z-index: -1; top: -2.5rem; left: calc(-1 * var(--pad)); width: calc(100% + 2 * var(--pad)); height: 46rem; object-fit: cover; object-position: center 25%; filter: blur(22px) saturate(1.2); opacity: .5; transition: opacity .4s; -webkit-mask-image: radial-gradient(ellipse 80% 85% at 50% 0, #000 35%, transparent 100%); mask-image: radial-gradient(ellipse 80% 85% at 50% 0, #000 35%, transparent 100%); }
 .back { margin-bottom: 1.75rem; }
 .show { display: grid; grid-template-columns: minmax(180px, 300px) minmax(0, 1fr); gap: 2.5rem 4rem; align-items: start; }
 .show aside .poster img, .show aside .noposter { border-radius: var(--radius); box-shadow: var(--shadow); }
@@ -105,7 +102,6 @@ figcaption strong { font-family: var(--head); font-size: 1rem; }
 .meta { margin: 0 0 .75rem; color: var(--muted); }
 .mtitle { text-transform: none; }
 .show aside small { display: inline-block; margin: 0 0 .75rem; padding: .1rem .7rem; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); border-radius: 99px; font-weight: 700; }
-.seasons { margin-bottom: 1.25rem; }
 .panel select { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--edge); border-radius: 10px; padding: .5rem 1.1rem; }
 .episodes { display: grid; gap: .7rem; margin: 0; padding: 0; list-style: none; }
 .ep { display: flex; align-items: center; gap: 1rem; padding: .6rem; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; transition: border-color .2s, background .2s; }
@@ -123,7 +119,6 @@ figcaption strong { font-family: var(--head); font-size: 1rem; }
 .sdesc { margin: 0; }
 .clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--lines, 2); overflow: hidden; }
 .clamp.open { display: block; overflow: visible; }
-.more { margin-top: .25rem; padding: 0; font: inherit; font-size: .85rem; color: var(--accent); text-decoration: underline; background: none; border: 0; cursor: pointer; }
 .empty { color: var(--muted); }
 .check { margin: 0; padding: 1rem; overflow: auto; font-size: .85rem; line-height: 1.5; white-space: pre-wrap; background: var(--surface); border-radius: 12px; }
 .status { margin: 0; font-size: .85rem; color: var(--muted); }
@@ -155,9 +150,76 @@ dialog.settings::backdrop { background: rgb(0 0 0 / .6); backdrop-filter: blur(3
   .show { grid-template-columns: 1fr; }
   .show .poster { max-width: 200px; }
   .tw { width: 7.5rem; }
-  .backdrop { height: 30rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ===================== Refinements ===================== */
+::selection { background: color-mix(in srgb, var(--accent) 40%, transparent); }
+html { scrollbar-color: var(--edge) transparent; }
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+.title, .sidebar nav a { text-transform: none; }
+.btn:active, .seg button:active, .play:active, .arrow:active { transform: scale(.96); }
+.poster, .episodes li { animation: rise .45s ease both; animation-delay: calc(var(--i, 0) * 45ms); }
+
+/* Projects / Study tools */
+.group h2 { margin-bottom: 1rem; font-size: 1.35rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 1.1rem; }
+.divider { height: 1px; margin: 2.75rem 0; border: 0; background: linear-gradient(90deg, var(--accent), var(--line) 45%, transparent); }
+
+/* Posters: leave room so the hover lift and outline are never cut off */
+.strip { margin: -.9rem -.6rem 0; padding: 1rem .6rem 1.4rem; }
+
+/* Season picker: previous / dropdown / next */
+.seasonpick { position: sticky; top: .75rem; z-index: 6; display: flex; align-items: center; gap: .5rem; margin-bottom: 1.25rem; padding: .45rem; background: color-mix(in srgb, var(--bg) 72%, transparent); backdrop-filter: blur(12px); border: 1px solid var(--line); border-radius: 16px; }
+.arrow { flex: none; width: 2.5rem; height: 2.5rem; font: inherit; font-size: 1.3rem; line-height: 1; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; cursor: pointer; transition: border-color .2s, transform .15s; }
+.arrow:hover:not(:disabled) { border-color: var(--accent); }
+.arrow:disabled { opacity: .35; cursor: default; }
+.dd { position: relative; flex: 1; min-width: 0; max-width: 20rem; }
+.dd-btn { display: flex; align-items: center; justify-content: space-between; gap: .75rem; width: 100%; height: 2.5rem; padding: 0 1rem; font: inherit; font-weight: 700; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; cursor: pointer; transition: border-color .2s; }
+.dd-btn:hover, .dd-btn[aria-expanded="true"] { border-color: var(--accent); }
+.chev { flex: none; width: .5rem; height: .5rem; border-right: 2px solid var(--accent); border-bottom: 2px solid var(--accent); transform: rotate(45deg) translateY(-2px); transition: transform .2s; }
+.dd-btn[aria-expanded="true"] .chev { transform: rotate(-135deg) translateY(-2px); }
+.dd-menu { position: absolute; z-index: 10; top: calc(100% + .4rem); left: 0; min-width: 100%; max-height: 18rem; margin: 0; padding: .35rem; overflow-y: auto; list-style: none; background: color-mix(in srgb, var(--surface) 94%, var(--bg)); border: 1px solid var(--edge); border-radius: 14px; box-shadow: 0 18px 40px -12px rgb(0 0 0 / .7); animation: rise .18s ease both; }
+.dd-menu li { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: .5rem .75rem; border-radius: 9px; cursor: pointer; white-space: nowrap; }
+.dd-menu li small { display: inline; font-size: .78rem; }
+.dd-menu li:hover, .dd-menu li:focus { background: color-mix(in srgb, var(--accent) 16%, transparent); outline: none; }
+.dd-menu li[aria-selected="true"] { font-weight: 700; color: var(--accent); }
+
+/* Background that follows the season poster: one fixed layer, faded on every side */
+.bdwrap { position: fixed; z-index: -1; top: 0; right: 0; left: var(--side); height: 70vh; overflow: hidden; pointer-events: none; opacity: .55; -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 100%); mask-image: linear-gradient(to bottom, #000 30%, transparent 100%); }
+.bdwrap img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; filter: blur(26px) saturate(1.25); transform: scale(1.12); transition: opacity .4s; }
+body.side-right .bdwrap { left: 0; right: var(--side); }
+
+/* Show more / less */
+.more { display: inline-flex; align-items: center; gap: .4rem; margin-top: .45rem; padding: .22rem .8rem; font: inherit; font-size: .8rem; font-weight: 700; color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 99px; cursor: pointer; transition: background .2s; }
+.more:hover { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.more::after { content: ""; width: .4em; height: .4em; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-.1em); transition: transform .2s; }
+.more[aria-expanded="true"]::after { transform: rotate(-135deg) translateY(-.05em); }
+
+/* Episodes: picture on top-left, play button centred */
+.ep { align-items: flex-start; }
+.ep .play { align-self: center; }
+
+/* Touch screens: no sticky hover effects */
+@media (hover: none) {
+  .poster a:hover .pic { transform: none; box-shadow: var(--shadow); }
+  .project:hover { transform: none; border-color: var(--line); }
+}
+
+/* Phone: two posters per row */
+@media (max-width: 800px) {
+  .posters { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 1.4rem .9rem; }
+  .strip .poster { flex-basis: 8.25rem; }
+  figcaption { font-size: .85rem; }
+  .cards { grid-template-columns: 1fr; }
+  .seasonpick { top: 3.6rem; }
+  .dd { max-width: none; }
+  .bdwrap { left: 0; height: 55vh; }
+}
+
+/* The hidden attribute must always win (the Show more button uses it) */
+[hidden] { display: none !important; }

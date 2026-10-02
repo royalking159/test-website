@@ -1,6 +1,9 @@
 // Sidebar, page router and every page. Content is drawn into <main id="view">.
 const slug = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const isWeb = (u) => /^https?:/.test(u || "");
+// Names shown in the sidebar and as page titles. Change them in config.js:  sectionNames: { projects: "..." }
+const NAMES = { projects: "Projects/Study tools", ...(SITE.sectionNames || {}) };
+const labelOf = (s) => NAMES[s] || s[0].toUpperCase() + s.slice(1);
 const fmt = (d) => /^\d{4}-\d{2}-\d{2}/.test(d || "")
   ? new Date(d.slice(0, 10) + "T00:00:00Z").toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" })
   : d;
@@ -48,7 +51,7 @@ const expandable = (text, cls, lines) => {
 };
 const fit = () => document.querySelectorAll(".clampbox").forEach((b) => {
   const [p, btn] = b.children;
-  if (!p.classList.contains("open")) btn.hidden = !(p.scrollHeight > p.clientHeight + 1);
+  if (!p.classList.contains("open")) btn.hidden = !(p.scrollHeight > p.clientHeight + 6);   // a little slack so text that fits never gets a button
 });
 const metaLine = (m) => [m.year, m.runtime && `${m.runtime} min`, m.genres?.length && m.genres.join(", ")].filter(Boolean).join(" · ");
 const ratingLine = (m) => [m.rating && stars(m.rating),
@@ -57,11 +60,11 @@ const ratingLine = (m) => [m.rating && stars(m.rating),
 const page = (title, ...kids) => $("section", { class: "page" }, $("h1", { class: "title" }, title), ...kids);
 const stars = (n) => $("span", { class: "stars", "aria-label": `${n} out of 5` }, "★".repeat(n) + "☆".repeat(5 - n));
 
-const tile = (m) => {
+const tile = (m, i = 0) => {
   const href = `#/${m.type === "show" ? "show" : "movie"}/${m.id}`;
   const blank = () => $("div", { class: "noposter" }, m.title);
   const pic = $("div", { class: "pic" }, m.poster ? img(m.poster, m.title, blank) : blank(), m.score && $("span", { class: "chip" }, `★ ${m.score}`));
-  return $("figure", { class: "poster" },
+  return $("figure", { class: "poster", style: `--i:${Math.min(i, 12)}` },
     href ? $("a", { href, target: isWeb(href) ? "_blank" : "", rel: "noopener noreferrer", "aria-label": m.title }, pic) : pic,
     $("figcaption", {}, $("strong", {}, m.title), ` ${m.year || ""}`,
       m.rating && stars(m.rating),
@@ -133,32 +136,69 @@ function showPage(id) {
   const m = library().find((x) => x.type === "show" && x.id === id);
   if (!m) return page("Not found", $("p", {}, "That show isn't in your library."), $("a", { href: "#/movies" }, "Back to movies"));
   const seasons = seasonsOf(m), names = Object.keys(seasons);
-  const bar = $("div", { class: "seg seasons", role: "group", "aria-label": "Seasons" },
-    names.map((n) => $("button", { type: "button", "data-n": n }, n)));
+  // Season picker: previous button, dropdown, next button
+  const cur = $("span", { class: "dd-label" });
+  const ddBtn = $("button", { type: "button", class: "dd-btn", "aria-haspopup": "listbox", "aria-expanded": "false" }, cur, $("span", { class: "chev" }));
+  const opts = names.map((n) => $("li", { role: "option", tabindex: "-1", "data-n": n }, $("span", {}, n),
+    $("small", {}, `${seasons[n].eps.length} ${seasons[n].eps.length === 1 ? "episode" : "episodes"}`)));
+  const menu = $("ul", { class: "dd-menu", role: "listbox", "aria-label": "Seasons" }, opts);
+  menu.hidden = true;
+  const prev = $("button", { type: "button", class: "arrow", "aria-label": "Previous season" }, "‹");
+  const next = $("button", { type: "button", class: "arrow", "aria-label": "Next season" }, "›");
+  const dd = $("div", { class: "dd" }, ddBtn, menu);
+  const bar = $("div", { class: "seasonpick" }, prev, dd, next);
+  let at = 0;
+  const toggle = (open) => {
+    menu.hidden = !open;
+    ddBtn.setAttribute("aria-expanded", String(open));
+    if (open) opts[at].focus();
+  };
   const list = $("ol", { class: "episodes" });
   const row = (e, i, key) => {
     const thumb = () => $("div", { class: "thumb" }, String(i));
     const url = watchUrl(m, e, key, i);
-    return $("li", {}, $("div", { class: "ep" },
+    return $("li", { style: `--i:${Math.min(i, 12)}` }, $("div", { class: "ep" },
       $("div", { class: "tw" }, e.image ? img(e.image, "", thumb) : thumb(), e.image && $("span", { class: "num" }, String(i))),
       $("div", { class: "grow" }, $("strong", {}, e.title || "TBA"), e.date && $("small", {}, fmt(e.date)),
         e.overview && expandable(e.overview, "ov", 2)),
       url && $("a", { class: "play", href: url, target: isWeb(url) ? "_blank" : "", rel: "noopener noreferrer", "aria-label": `Play ${e.title || "episode " + i}` })));
   };
   const draw = (n) => {
-    bar.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.n === n)));
+    at = names.indexOf(n);
+    cur.textContent = n;
+    opts.forEach((o, i) => o.setAttribute("aria-selected", String(i === at)));
+    prev.disabled = at === 0;
+    next.disabled = at === names.length - 1;
     list.replaceChildren(...seasons[n].eps.map((e, i) => row(e, i + 1, seasons[n].key)));
     setCover(seasons[n].cover);
     requestAnimationFrame(fit);
   };
-  bar.onclick = (e) => { const b = e.target.closest("button"); if (b) draw(b.dataset.n); };
+  ddBtn.onclick = () => toggle(menu.hidden);
+  prev.onclick = () => draw(names[at - 1]);
+  next.onclick = () => draw(names[at + 1]);
+  menu.onclick = (e) => { const li = e.target.closest("li"); if (li) { draw(li.dataset.n); toggle(false); ddBtn.focus(); } };
+  menu.onkeydown = (e) => {
+    const i = opts.indexOf(document.activeElement);
+    const go = (j) => { e.preventDefault(); opts[Math.max(0, Math.min(opts.length - 1, j))].focus(); };
+    if (e.key === "ArrowDown") go(i + 1);
+    else if (e.key === "ArrowUp") go(i - 1);
+    else if (e.key === "Home") go(0);
+    else if (e.key === "End") go(opts.length - 1);
+    else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); document.activeElement.click(); }
+    else if (e.key === "Escape" || e.key === "Tab") { toggle(false); ddBtn.focus(); }
+  };
+  const outside = (e) => { if (!dd.isConnected) removeEventListener("click", outside); else if (!dd.contains(e.target)) toggle(false); };
+  addEventListener("click", outside);
   const blank = () => $("div", { class: "noposter" }, m.title);
-  const bd = $("img", { class: "backdrop", "aria-hidden": "true" });   // big blurred background: follows the season poster
+  // Big blurred background that follows the season poster. It sits on <body> (fixed) so it fills the whole window.
+  const bd = $("img", {});
   bd.alt = "";
-  bd.onerror = () => { bd.hidden = true; };
+  const bdwrap = $("div", { class: "bdwrap", "aria-hidden": "true" }, bd);
+  document.body.append(bdwrap);
+  bd.onerror = () => { bdwrap.hidden = true; };
   const setBackdrop = (u) => {
     const s = asset(u || m.poster || m.backdrop);
-    bd.hidden = !s;
+    bdwrap.hidden = !s;
     if (!s) return;
     bd.style.opacity = "0";
     bd.onload = () => { bd.style.opacity = ""; };
@@ -179,7 +219,6 @@ function showPage(id) {
       : $("p", { class: "empty" }, "No episodes yet. They appear after the metadata update runs.")));
   if (names.length) draw(names[0]);
   return $("div", { class: "show-page" },
-    bd,
     $("a", { class: "btn back", href: "#/movies" }, "← Back to movies"), el);
 }
 
@@ -226,12 +265,16 @@ const P = {
       $("a", { class: "btn", href: l.url, target: isWeb(l.url) ? "_blank" : "", rel: "noopener noreferrer" }, l.label)))),
     featured()),
 
-  projects: () => page("projects", ...SITE.projects.map((p) =>
-    $("article", { class: "project" },
+  projects: () => {
+    const card = (p) => $("article", { class: "project" },
       $("h3", {}, p.url ? $("a", { href: p.url, target: "_blank", rel: "noopener noreferrer" }, p.title) : p.title),
       $("p", {}, p.description),
       $("ul", { class: "tags" }, (p.tags || []).map((t) => $("li", {}, t))),
-      p.repo && $("a", { class: "src", href: p.repo, target: "_blank", rel: "noopener noreferrer" }, "Source code")))),
+      p.repo && $("a", { class: "src", href: p.repo, target: "_blank", rel: "noopener noreferrer" }, "Source code"));
+    const group = (name, items) => items?.length && $("section", { class: "group" }, $("h2", {}, name), $("div", { class: "cards" }, items.map(card)));
+    return page(labelOf("projects"), group("Projects", SITE.projects),
+      SITE.studyTools?.length && $("hr", { class: "divider" }), group("Study tools", SITE.studyTools));
+  },
 
   movies: () => {
     const all = library();
@@ -243,19 +286,19 @@ const P = {
     };
     ["All", ...new Set(all.map(kind))].forEach((f) => bar.append($("button", { type: "button", "data-f": f }, f)));
     bar.onclick = (e) => e.target.dataset.f && draw(e.target.dataset.f);
-    const el = page("movies", $("div", { class: "filmstrip" }), bar, grid);
+    const el = page(labelOf("movies"), $("div", { class: "filmstrip" }), bar, grid);
     draw("All");
     return el;
   },
 
-  about: () => page("about", $("p", { class: "lead" }, SITE.about)),
+  about: () => page(labelOf("about"), $("p", { class: "lead" }, SITE.about)),
 };
 
 // ---- Sidebar ----
 const side = $("aside", { class: "sidebar", id: "sidebar" },
   $("a", { class: "brand", href: "#/" }, SITE.name),
   $("nav", { "aria-label": "Main" },
-    [["home", "Home", "#/"], ...SITE.sections.map((s) => [s, s, `#/${s}`])]
+    [["home", "Home", "#/"], ...SITE.sections.map((s) => [s, labelOf(s), `#/${s}`])]
       .map(([k, t, h]) => $("a", { href: h, "data-s": k }, t))),
   $("button", { type: "button", class: "settings-btn" }, "Settings"));
 side.querySelector(".settings-btn").onclick = openSettings;
@@ -289,6 +332,7 @@ const links = [...side.querySelectorAll("a[data-s]")];
 const mark = (k) => links.forEach((a) => (a.dataset.s === k ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
 
 function render() {
+  document.querySelectorAll(".bdwrap").forEach((n) => n.remove());   // the show page adds its own background layer
   const [pg, arg] = location.hash.replace(/^#\/?/, "").split("/");
   let node, active = "", label = "";
   if (!pg) { node = P.home(); active = "home"; }
@@ -297,7 +341,7 @@ function render() {
     node = pg === "show" ? showPage(arg) : moviePage(arg); active = "movies";
     label = (library().find((m) => m.id === arg) || {}).title || "Show";
   } else if (SITE.sections.includes(pg) && P[pg]) {
-    node = P[pg](); active = pg; label = pg[0].toUpperCase() + pg.slice(1);
+    node = P[pg](); active = pg; label = labelOf(pg);
   } else { node = page("Not found", $("a", { href: "#/" }, "Back home")); label = "Not found"; }
   view.replaceChildren(node);
   requestAnimationFrame(fit);

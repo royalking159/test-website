@@ -1,35 +1,88 @@
-// YOUR MOVIES AND SHOWS. Only `title` is needed. The order in this file is the order on the Movies page.
-// Posters, year, genres, description, episode names, dates and pictures are fetched from TMDB / TVDB / MDBList
-// (by the GitHub Action running scripts/fetch-metadata.mjs) and saved in data/metadata.json.
-// ANYTHING you write here replaces the fetched value.
+// ============================================================================
+// YOUR MOVIES AND SHOWS
+// ============================================================================
+// Each item below is one movie or show. Only `title` is needed: the poster, year, genres, description,
+// episode names, dates and pictures are fetched from TMDB / TVDB / MDBList by the GitHub Action
+// (scripts/fetch-metadata.mjs) and saved in data/metadata.json.
+// ANYTHING YOU WRITE HERE REPLACES the fetched value. The order here is the order on the Movies page.
 //
-// On any movie or show:
-//   title: "New name"         poster: "https://..." or "posters/x.jpg" (a file in data/posters/)
-//   description: "Text"       year: 2020    genres: ["Comedy"]    rating: 1-5 (your stars)    note: "Short note"
-//   score: 8.5 (replaces the fetched TMDB score)
-//   order: 1 (lower shows first)     hidden: true (hide it)     type: "show" or "movie"
-//   imdb: "tt1234567"   tmdb: 123   tvdb: 123   exact ids, if the title lookup picks the wrong one
-//   (Posters, season posters and episode pictures come from TMDB first, then TVDB. Set `poster` to pin any picture you like.)
-//   url: "https://..." (a movie's play link)     watchUrl: "https://site/{show}/{season}/{episode}" (see Play icons)
-// On shows:
-//   edits: { "Original episode name": { title, image, overview, date, url, season: "S1", hidden: true } }
-//   moves: { "Episode name": "S1" }    images: { "Episode name": "https://..." }    (short forms of edits)
-//   extra: { Shorts: [ { title, date: "YYYY-MM-DD", image, overview, url } ] }    seasons the databases don't have
-//          (anything listed in an extra season is automatically removed from the fetched Specials)
-//   seasonOrder: ["Season 1", "Shorts", "Season 2"]     seasonNames: { "Specials": "Extras" }
-//   seasonImages: { "Specials": "https://..." }    a picture for episodes in that season that have none
-//   seasonCovers: { "Shorts": "https://..." }    the big poster shown on the left when that season is selected
-//   episodeOrder: { Specials: ["Pilot", "Mission: Zero"] }    these episodes first; the rest keep their order
-//   Not sure of an episode's exact name? Open  site/#/check/helluva-boss  to see every name as the databases list it.
-//   Any episode can have  youtube: "VIDEO_ID"  (or a YouTube link as its url) to use that video's thumbnail.
-// Play icons: each episode's play icon goes to its own `url`, else the show's `watchUrl`, else `watchUrl` in config.js.
-//   A watchUrl can use {show} {title} {season} {episode} {name} {date} (season 0 = Specials). No URL = no icon.
+// ---------------------------------------------------------------------------
+// EXAMPLE: A SHOW WITH EVERYTHING FILLED IN (copy it, delete the lines you don't need)
+// ---------------------------------------------------------------------------
+//   {
+//     type: "show",
+//     title: "My Show",                                  // required. Also used to look the show up
+//     year: 2021,                                        // helps the lookup pick the right show
+//     poster: "https://example.com/poster.jpg",          // your own poster. Or "posters/my-show.jpg" for a file in data/posters/
+//     description: "Replaces the fetched description.",
+//     genres: ["Comedy", "Animation"],
+//     rating: 4,                                         // your own stars, 1 to 5
+//     note: "Rewatching in spring",
+//     order: 1,                                          // lower numbers go first (otherwise: the order in this file)
+//     hidden: true,                                      // hides it without deleting it
+//     tmdb: 12345, tvdb: 67890, imdb: "tt1234567",       // exact ids, only if the title lookup picks the wrong show
+//
+//     // ----- Play links (the small play icon on each episode) -----
+//     watchUrl: "https://example.com/watch/{show}/s{season}e{episode}",   // one pattern for every episode (see below)
+//
+//     // ----- Changes to single episodes: use the episode's ORIGINAL name -----
+//     edits: {
+//       "Pilot": { title: "Pilot (extended)", overview: "New description", image: "https://example.com/pic.jpg",
+//                  date: "2020-01-31", url: "https://example.com/watch/pilot" },   // url = this episode's own play link
+//       "Boring Episode": { hidden: true },                                       // hide an episode
+//       "Bonus Clip": { season: "Shorts" },                                       // move it to another season ("S1", "Specials", "Shorts"...)
+//     },
+//     moves: { "Queen Bee": "S1" },                      // short way to move an episode
+//     images: { "Pilot": "https://example.com/pic.jpg" },// short way to set an episode's picture
+//
+//     // ----- A season the databases don't have (like Shorts) -----
+//     extra: {
+//       Shorts: [
+//         { title: "A short", date: "2024-05-01" },
+//         { title: "Another short", date: "2024-06-01", youtube: "VIDEO_ID" },       // YouTube thumbnail becomes its picture
+//         { title: "A third", date: "2024-07-01", url: "https://example.com/third" },// own play link
+//       ],
+//     },
+//
+//     // ----- Seasons -----
+//     seasonOrder: ["Season 1", "Shorts", "Season 2"],   // listed seasons first, the rest after
+//     seasonNames: { Specials: "Extras" },               // rename a season
+//     seasonCovers: { Shorts: "https://example.com/shorts.jpg" },   // big poster + background when that season is selected
+//     seasonImages: { Specials: "https://example.com/special.jpg" },// picture for episodes in that season that have none
+//     episodeOrder: { Specials: ["Pilot", "Movie Night"] },         // these first, the rest keep their order
+//   },
+//
+// ---------------------------------------------------------------------------
+// EXAMPLE: A MOVIE
+// ---------------------------------------------------------------------------
+//   {
+//     type: "movie",
+//     title: "Arrival",
+//     year: 2016,
+//     rating: 5,                                         // your stars
+//     note: "Rewatch every year",
+//     url: "https://example.com/watch/arrival",          // the Play button on the movie's page
+//   },
+//
+// ---------------------------------------------------------------------------
+// HOW TO ADD PLAY LINKS (URLs): pick whichever is easiest
+// ---------------------------------------------------------------------------
+//   1. One pattern for a whole show:      watchUrl: "https://example.com/watch/{show}/s{season}e{episode}"
+//   2. One pattern for the whole site:    put  watchUrl  in config.js
+//   3. One link for a single episode:     edits: { "Episode name": { url: "https://..." } }
+//   4. A movie's Play button:             url: "https://..."
+//   These are filled in for every episode:  {show} = the show's id (like "my-show")   {title} = show title
+//   {season} = season number (0 for Specials)   {episode} = the number in the list   {name} = episode title   {date} = air date
+//   Longest wins: an episode's own url, else the show's watchUrl, else the one in config.js. No link = no play icon.
+//
+// NOT SURE OF AN EPISODE'S EXACT NAME?  Open  site/#/check/helluva-boss  (use your show's id) to see every name
+// exactly as the databases list it, next to what the site shows.
 const LIBRARY = [
   {
     type: "show",
     title: "Helluva Boss",
-    // watchUrl: "https://example.com/watch/{show}/{season}/{episode}",
-    moves: { "Queen Bee": "S1" },
+    // watchUrl: "https://example.com/watch/{show}/{season}/{episode}",   // remove the // and set your own link pattern
+    moves: { "Queen Bee": "S1" },                                          // Queen Bee goes into Season 1
     // Specials: Pilot and Mission: Zero first, then everything else in its normal order.
     episodeOrder: { Specials: ["Pilot", "Mission: Zero"] },
     // The two not-yet-released shorts that TMDB lists as just "Mission:" go into Shorts as well.
@@ -53,5 +106,7 @@ const LIBRARY = [
     },
   },
   { type: "show", title: "Hazbin Hotel" },
-  // { type: "movie", title: "Arrival", imdb: "tt2543164", rating: 5, note: "Rewatch every year" },
+
+  // To add a movie, remove the // in front of the next line:
+  // { type: "movie", title: "Arrival", rating: 5, note: "Rewatch every year" },
 ];
