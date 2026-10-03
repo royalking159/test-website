@@ -30,12 +30,65 @@ const library = () => LIBRARY.map((e) => {
 // Where an episode's play icon goes: its own `url`, else the show's `watchUrl`, else `watchUrl` in config.js.
 // A template can use {show} {title} {season} {episode} {name} {date}.
 const watchUrl = (m, e, key, i) => {
-  const tpl = e.url || m.watchUrl || SITE.watchUrl;
+  const tpl = e.url || (m.episodeLinks?.[key] || [])[i - 1] || m.watchUrl || SITE.watchUrl;
   if (!tpl) return "";
   const season = key === "Specials" ? 0 : /^Season \d+$/.test(key) ? Number(key.slice(7)) : key;
   const vals = { show: m.id, title: m.title, season, episode: i, name: e.title || "", date: e.date || "" };
   return tpl.replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(vals[k] ?? ""));
 };
+
+// ---- In-site player ----
+// Google Drive, YouTube and direct video links (.mp4 etc.) play inside the site. Anything else opens as a normal link.
+// Turn this off with  playInSite: false  in config.js.
+const embedOf = (url) => {
+  if (SITE.playInSite === false) return null;
+  const drive = String(url).match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:[^#]*&)?id=)([\w-]+)/);
+  if (drive) return { kind: "iframe", src: `https://drive.google.com/file/d/${drive[1]}/preview` };
+  const yt = (String(url).match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/))([\w-]{11})/) || [])[1];
+  if (yt) return { kind: "iframe", src: `https://www.youtube-nocookie.com/embed/${yt}?autoplay=1` };
+  if (/\.(mp4|webm|m4v|ogv|mov)(\?|#|$)/i.test(url)) return { kind: "video", src: url };
+  return null;
+};
+let player;
+const ensurePlayer = () => {
+  if (player) return player;
+  const title = $("strong"), sub = $("small"), frame = $("div", { class: "pl-frame" });
+  const ext = $("a", { class: "btn", target: "_blank", rel: "noopener noreferrer" }, "Open in new tab");
+  const nextBtn = $("button", { type: "button", class: "btn" }, "Next episode");
+  const closeBtn = $("button", { type: "button", class: "btn", "aria-label": "Close player" }, "✕");
+  const dlg = $("dialog", { class: "player", "aria-label": "Video player" },
+    $("div", { class: "pl-head" }, $("div", {}, title, sub), $("div", { class: "pl-actions" }, nextBtn, ext, closeBtn)), frame);
+  closeBtn.onclick = () => dlg.close();
+  dlg.addEventListener("close", () => frame.replaceChildren());      // removing the frame stops playback
+  dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+  nextBtn.onclick = () => { const n = player.info.next?.(); if (n && embedOf(n.url)) showInPlayer(n); };
+  document.body.append(dlg);
+  return (player = { dlg, frame, title, sub, ext, nextBtn, info: null });
+};
+const showInPlayer = (info) => {
+  const p = ensurePlayer(), em = embedOf(info.url), nxt = info.next?.();
+  p.info = info;
+  p.title.textContent = info.title;
+  p.sub.textContent = info.sub || "";
+  p.ext.href = info.url;
+  p.nextBtn.hidden = !(nxt && embedOf(nxt.url));
+  let media;
+  if (em.kind === "video") {
+    media = $("video", { src: em.src });
+    Object.assign(media, { controls: true, autoplay: true, playsInline: true });
+  } else {
+    media = $("iframe", { src: em.src, title: info.title, referrerpolicy: "no-referrer", allow: "autoplay; fullscreen; picture-in-picture" });
+    media.allowFullscreen = true;
+  }
+  p.frame.replaceChildren(media);
+  if (!p.dlg.open) p.dlg.showModal();
+};
+// Make a link open the player when it can; otherwise it stays a normal link.
+const wire = (a, info) => {
+  a.onclick = (ev) => { if (embedOf(info.url)) { ev.preventDefault(); showInPlayer(info); } };
+  return a;
+};
+const playLink = (info, label) => wire($("a", { class: "play", href: info.url, target: isWeb(info.url) ? "_blank" : "", rel: "noopener noreferrer", "aria-label": label }), info);
 
 // A description that shows a few lines, with a "Show more" button when it is longer than that.
 const expandable = (text, cls, lines) => {
@@ -154,14 +207,21 @@ function showPage(id) {
     if (open) opts[at].focus();
   };
   const list = $("ol", { class: "episodes" });
-  const row = (e, i, key) => {
+  // What the player needs to know about one episode (nothing when it has no play link)
+  const infoFor = (S, j, name) => {
+    const e = S.eps[j];
+    if (!e) return null;
+    const url = watchUrl(m, e, S.key, j + 1);
+    return url && { url, title: e.title || `Episode ${j + 1}`, sub: `${m.title} · ${name} · Episode ${j + 1}`, next: () => infoFor(S, j + 1, name) };
+  };
+  const row = (e, i, key, n) => {
     const thumb = () => $("div", { class: "thumb" }, String(i));
-    const url = watchUrl(m, e, key, i);
+    const info = infoFor(seasons[n], i - 1, n);
     return $("li", { style: `--i:${Math.min(i, 12)}` }, $("div", { class: "ep" },
       $("div", { class: "tw" }, e.image ? img(e.image, "", thumb) : thumb(), e.image && $("span", { class: "num" }, String(i))),
       $("div", { class: "grow" }, $("strong", {}, e.title || "TBA"), e.date && $("small", {}, fmt(e.date)),
         e.overview && expandable(e.overview, "ov", 2)),
-      url && $("a", { class: "play", href: url, target: isWeb(url) ? "_blank" : "", rel: "noopener noreferrer", "aria-label": `Play ${e.title || "episode " + i}` })));
+      info && playLink(info, `Play ${e.title || "episode " + i}`)));
   };
   const draw = (n) => {
     at = names.indexOf(n);
@@ -169,8 +229,9 @@ function showPage(id) {
     opts.forEach((o, i) => o.setAttribute("aria-selected", String(i === at)));
     prev.disabled = at === 0;
     next.disabled = at === names.length - 1;
-    list.replaceChildren(...seasons[n].eps.map((e, i) => row(e, i + 1, seasons[n].key)));
+    list.replaceChildren(...seasons[n].eps.map((e, i) => row(e, i + 1, seasons[n].key, n)));
     setCover(seasons[n].cover);
+    fit();
     requestAnimationFrame(fit);
   };
   ddBtn.onclick = () => toggle(menu.hidden);
@@ -233,7 +294,7 @@ function moviePage(id) {
       $("aside", {}, $("figure", { class: "poster" }, m.poster ? img(m.poster, m.title, blank, { loading: "eager" }) : blank())),
       $("div", {}, $("h1", { class: "title mtitle" }, m.title), meta && $("p", { class: "meta" }, meta), ratingLine(m),
         m.overview && $("p", { class: "lead" }, m.overview), m.note && $("p", {}, m.note),
-        url && $("a", { class: "btn", href: url, target: isWeb(url) ? "_blank" : "", rel: "noopener noreferrer" }, "Play"))));
+        url && wire($("a", { class: "btn", href: url, target: isWeb(url) ? "_blank" : "", rel: "noopener noreferrer" }, "Play"), { url, title: m.title, sub: String(m.year || "") }))));
 }
 
 // site/#/check/<show>: every episode name exactly as stored, and what the site shows after your library.js changes.
@@ -344,6 +405,7 @@ function render() {
     node = P[pg](); active = pg; label = labelOf(pg);
   } else { node = page("Not found", $("a", { href: "#/" }, "Back home")); label = "Not found"; }
   view.replaceChildren(node);
+  fit();
   requestAnimationFrame(fit);
   mark(active);
   document.title = label ? `${label} - ${SITE.name}` : SITE.name;
@@ -355,7 +417,7 @@ document.fonts?.ready.then(fit);
 fetch("../data/metadata.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({}))
   .then((j) => {
     META = { movies: j.movies || {}, shows: j.shows || {} };
-    document.querySelector(".panel").append($("p", { class: "status" }, j.updated
+    document.querySelector(".settings-body").append($("p", { class: "status" }, j.updated
       ? `Posters and episodes last updated ${fmt(j.updated)}.`
       : "Posters and episodes haven't been fetched yet (placeholder data)."));
     render();

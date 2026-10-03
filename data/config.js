@@ -24,6 +24,10 @@ const SITE = {
   // Optional: rename a page. This changes both its sidebar label and its page title.
   sectionNames: { projects: "Projects/Study tools" },
 
+  // Play videos inside the site? Google Drive, YouTube and .mp4 links open in a player on the page.
+  // Set to false to always open play links in a new tab instead.
+  playInSite: true,
+
   // Where each episode's play icon goes when a show has no watchUrl of its own ("" = no icon).
   // The link can contain {show} {title} {season} {episode} {name} {date}, which are filled in per episode.
   // Example: "https://example.com/watch?show={show}&s={season}&e={episode}"
@@ -46,17 +50,17 @@ const SITE = {
   //   },
   projects: [
     {
-      title: "Project one",
-      description: "One or two sentences on what it does and why you made it.",
-      tags: ["JavaScript", "Web"],
+      title: "Project 1",
+      description: "Project 1 description",
+      tags: ["Tag 1", "Tag 2"],
       url: "https://example.com",
-      repo: "https://github.com/yourname/project-one",
+      repo: "https://github.com/yourname/project-1",
     },
     {
-      title: "Project two",
-      description: "Another thing you built.",
-      tags: ["Python"],
-      repo: "https://github.com/yourname/project-two",
+      title: "Project 2",
+      description: "Project 2 description",
+      tags: ["Tag 1"],
+      repo: "https://github.com/yourname/project-2",
     },
   ],
 
@@ -65,16 +69,16 @@ const SITE = {
   // Delete everything between the brackets (leave `studyTools: [],`) to hide the section.
   studyTools: [
     {
-      title: "Flashcards",
-      description: "Spaced-repetition cards for revision.",
-      tags: ["Study"],
-      url: "https://example.com/flashcards",
+      title: "Study tool 1",
+      description: "Study tool 1 description",
+      tags: ["Tag 1"],
+      url: "https://example.com",
     },
     {
-      title: "Study timer",
-      description: "A simple focus timer with breaks.",
-      tags: ["Productivity"],
-      url: "https://example.com/timer",
+      title: "Study tool 2",
+      description: "Study tool 2 description",
+      tags: ["Tag 1", "Tag 2"],
+      url: "https://example.com",
     },
   ],
 };

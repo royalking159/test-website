@@ -71,6 +71,11 @@
 //   2. One pattern for the whole site:    put  watchUrl  in config.js
 //   3. One link for a single episode:     edits: { "Episode name": { url: "https://..." } }
 //   4. A movie's Play button:             url: "https://..."
+//   5. A whole season in order:           episodeLinks: { "Season 1": ["link for ep 1", "link for ep 2", ...] }
+//   PLAYING INSIDE THE SITE: Google Drive links (share the file as "Anyone with the link"), YouTube links and direct
+//   video files (.mp4, .webm) open in a player on the site. Any other link opens in a new tab.
+//   Turn the player off with  playInSite: false  in config.js. The order of play links is:
+//   an episode's own url, then episodeLinks, then the show's watchUrl, then watchUrl in config.js.
 //   These are filled in for every episode:  {show} = the show's id (like "my-show")   {title} = show title
 //   {season} = season number (0 for Specials)   {episode} = the number in the list   {name} = episode title   {date} = air date
 //   Longest wins: an episode's own url, else the show's watchUrl, else the one in config.js. No link = no play icon.
@@ -83,6 +88,22 @@ const LIBRARY = [
     title: "Helluva Boss",
     // watchUrl: "https://example.com/watch/{show}/{season}/{episode}",   // remove the // and set your own link pattern
     moves: { "Queen Bee": "S1" },                                          // Queen Bee goes into Season 1
+    // PLAY LINKS for Season 1, in the order the episodes are listed: 1x1 ... 1x7, then Queen Bee as the 8th.
+    // These are Google Drive links, so they play inside the site (the file must be shared as "Anyone with the link").
+    // To add another season, add another line like  "Season 2": [ "link for episode 1", "link for episode 2", ... ],
+    // Use "" for an episode that has no link yet.
+    episodeLinks: {
+      "Season 1": [
+        "https://drive.google.com/file/d/1xzO9SR2cMcWy5Gg8zqGr-Rx92Mg0fO6f/view?usp=sharing",
+        "https://drive.google.com/file/d/1vyz4I4Kfcc6JlGVZWQ4kNwadYBIYtqp8/view?usp=sharing",
+        "https://drive.google.com/file/d/1pkg-SqbKC-9jcTG6lr7dJU36uNXy7to7/view?usp=sharing",
+        "https://drive.google.com/file/d/1RZximY2H15aYfWLHHoxfJDuF0Cdxi63D/view?usp=sharing",
+        "https://drive.google.com/file/d/1pzzam6a7H-ICA7jLgdVxElJ2CDiRc5aM/view?usp=sharing",
+        "https://drive.google.com/file/d/1dnpxGGBNipcglcnRjh7RCGoM1xKYZgRs/view?usp=sharing",
+        "https://drive.google.com/file/d/12VCbd2LR_S0L69QA6Cxkh7K6BVZbcaoR/view?usp=sharing",
+        "https://drive.google.com/file/d/1SvCwqbd4M6harVQnqUkXxLURxz4nxz4s/view?usp=sharing",
+      ],
+    },
     // Specials: Pilot and Mission: Zero first, then everything else in its normal order.
     episodeOrder: { Specials: ["Pilot", "Mission: Zero"] },
     // The two not-yet-released shorts that TMDB lists as just "Mission:" go into Shorts as well.
