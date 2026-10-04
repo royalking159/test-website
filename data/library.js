@@ -75,7 +75,10 @@
 //   PLAYING INSIDE THE SITE: Google Drive links (share the file as "Anyone with the link"), YouTube links and direct
 //   video files (.mp4, .webm) open in a player on the site. Any other link opens in a new tab.
 //   Turn the player off with  playInSite: false  in config.js. The order of play links is:
-//   an episode's own url, then episodeLinks, then the show's watchUrl, then watchUrl in config.js.
+//   an episode's own url, then a YouTube video found by the Action (see  youtube:  below), then episodeLinks,
+//   then the show's watchUrl, then watchUrl in config.js.
+//   YOUTUBE (automatic): youtube: ["@channelhandle", "PLAYLISTID"] on a show makes the Action find each episode's video by
+//   name and add its play link. A bare YouTube id (like "dQw4w9WgXcQ") also works anywhere a link is expected.
 //   These are filled in for every episode:  {show} = the show's id (like "my-show")   {title} = show title
 //   {season} = season number (0 for Specials)   {episode} = the number in the list   {name} = episode title   {date} = air date
 //   Longest wins: an episode's own url, else the show's watchUrl, else the one in config.js. No link = no play icon.
@@ -86,10 +89,16 @@ const LIBRARY = [
   {
     type: "show",
     title: "Helluva Boss",
+    // YOUTUBE: the metadata Action finds each episode's official YouTube video by name and fills in the play links
+    // (Seasons 1-2, the shorts, music videos. Season 3 appears automatically if and when it is uploaded there).
+    // They play inside the site. Sources: a playlist id (works without a key) and/or a channel handle (needs the
+    // YOUTUBE_API_KEY secret, see README.md). Add more playlists to the list any time.
+    youtube: ["@vivziepop", "PL-uopgYBi65HwiiDR9Y23lomAkGr9mm-S"],
     // watchUrl: "https://example.com/watch/{show}/{season}/{episode}",   // remove the // and set your own link pattern
     moves: { "Queen Bee": "S1" },                                          // Queen Bee goes into Season 1
-    // PLAY LINKS for Season 1, in the order the episodes are listed: 1x1 ... 1x7, then Queen Bee as the 8th.
-    // These are Google Drive links, so they play inside the site (the file must be shared as "Anyone with the link").
+    // BACKUP PLAY LINKS for Season 1 (used only when no YouTube video was found for an episode), in the order the
+    // episodes are listed: 1x1 ... 1x7, then Queen Bee as the 8th. Google Drive links play inside the site too
+    // (the file must be shared as "Anyone with the link"). Delete this block if you only want YouTube.
     // To add another season, add another line like  "Season 2": [ "link for episode 1", "link for episode 2", ... ],
     // Use "" for an episode that has no link yet.
     episodeLinks: {
@@ -110,19 +119,22 @@ const LIBRARY = [
     edits: { "Mission:": { title: "Mission: (coming soon)", season: "Shorts" } },
     extra: {
       Shorts: [
-        { title: "Hell's Belles", date: "2024-04-26" },
+        { title: "Hell's Belles", date: "2024-04-26", youtube: "_38dtqdR5V4" },
         { title: "Mission: Antarctica", date: "2024-07-31" },
-        { title: "Mission: Weeaboo-Boo", date: "2024-08-31" },
-        { title: "Mission: Chupacabras", date: "2024-09-29" },
+        { title: "Mission: Weeaboo-Boo", date: "2024-08-31", youtube: "3-NrCcr8Bcg" },
+        { title: "Mission: Chupacabras", date: "2024-09-29", youtube: "pngogrW4iC4" },
         { title: "Mission: Orphan Time", date: "2025-06-28" },
-        { title: "Mission: Bad Drivezo", date: "2025-08-02" },
+        { title: "Mission: Bad Drivezo", date: "2025-08-02", youtube: "52_V04weeC4" },
         { title: "Mission: Whacked Off", date: "2025-09-06" },
-        { title: "Mission: Big Boss", date: "2026-02-07" },
+        { title: "Mission: Big Boss", date: "2026-02-07", youtube: "4obZtz2jEmo" },
         { title: "Mission: Bigfoot", date: "2026-03-07" },
-        { title: "Mission: It's Chaz Funeral", date: "2026-04-01" },
+        { title: "Mission: It's Chaz Funeral", date: "2026-04-01", youtube: "G3XORWJ2rQc" },
         { title: "Barbie's Bad Day", date: "2026-04-25" },
         { title: "IMP Training Video", date: "2026-06-13" },
-        { title: "Mission: Book Report", date: "2026-07-11" }
+        { title: "Mission: Book Report", date: "2026-07-11" },
+        // Helluva Shorts 14 (the date is my best guess: a Saturday release. Edit it if it is wrong)
+        { title: "The Princess & the Pupper", date: "2026-10-03", youtube: "qJuPDHE5jug",
+          overview: "Helluva Shorts 14. Warning from the creator: for daddy issues." }
       ],
     },
   },
