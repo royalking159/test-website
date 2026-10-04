@@ -5,9 +5,9 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 const LIBRARY = new Function(readFileSync("data/library.js", "utf8") + "; return LIBRARY;")();
 const env = (k) => (process.env[k] || "").trim();             // trims stray spaces/newlines from pasted secrets
-const TVDB_API_KEY = env("TVDB_API_KEY"), TVDB_PIN = env("TVDB_PIN"), TMDB_API_KEY = env("TMDB_API_KEY"), MDBLIST_API_KEY = env("MDBLIST_API_KEY");
-console.log("Keys found:", [["TMDB", TMDB_API_KEY], ["TVDB", TVDB_API_KEY], ["MDBList", MDBLIST_API_KEY]].filter(([, v]) => v).map(([n]) => n).join(", ") || "none");
-if (!TVDB_API_KEY && !TMDB_API_KEY && !MDBLIST_API_KEY) {
+const TVDB_API_KEY = env("TVDB_API_KEY"), TVDB_PIN = env("TVDB_PIN"), TMDB_API_KEY = env("TMDB_API_KEY"), MDBLIST_API_KEY = env("MDBLIST_API_KEY"), YOUTUBE_API_KEY = env("YOUTUBE_API_KEY");
+console.log("Keys found:", [["TMDB", TMDB_API_KEY], ["TVDB", TVDB_API_KEY], ["MDBList", MDBLIST_API_KEY], ["YouTube", YOUTUBE_API_KEY]].filter(([, v]) => v).map(([n]) => n).join(", ") || "none");
+if (!TVDB_API_KEY && !TMDB_API_KEY && !MDBLIST_API_KEY && !YOUTUBE_API_KEY) {
   console.error("No API keys found. Add TMDB_API_KEY (easiest) and/or TVDB_API_KEY as repository secrets. See README.md.");
   process.exit(1);
 }
@@ -19,7 +19,7 @@ const slug = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g
 const abs = (u) => (u && !u.startsWith("http") ? "https://artworks.thetvdb.com" + u : u);
 async function get(url, opts) {
   const r = await fetch(url, opts);
-  if (!r.ok) throw new Error(`${r.status} from ${url.replace(/(api_?key)=[^&]+/, "$1=***")}`);
+  if (!r.ok) throw new Error(`${r.status} from ${url.replace(/([?&](?:api_?key|key))=[^&]+/, "$1=***")}`);
   return r.json();
 }
 // Copy non-empty values into e. With keep=true, only fill gaps.
@@ -72,6 +72,70 @@ async function tmdbId(e, kind) {                              // kind: "tv" or "
   const yr = e.year ? `&${kind === "tv" ? "first_air_date_year" : "year"}=${e.year}` : "";
   const r = await tmdb(`/search/${kind}`, `query=${encodeURIComponent(e.title)}${yr}`);
   return r.results?.[0]?.id;
+}
+
+// ---- YouTube: find each episode's video by name and save its id; the site then plays it in its own player ----
+// Sources can be playlist ids (work without a key) or a channel handle like "@vivziepop" (needs YOUTUBE_API_KEY).
+const normBase = (t) => String(t || "").replace(/\(.*?\)/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+const isGeneric = (t) => { const n = normBase(t); return n.length < 4 || n === "mission" || /^episode\d+$/.test(n); };
+async function ytPlaylist(id) {
+  if (YOUTUBE_API_KEY) {                                      // official API: free, reliable
+    const items = [];
+    let token = "";
+    do {
+      const r = await get(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${id}&key=${YOUTUBE_API_KEY}${token ? "&pageToken=" + token : ""}`);
+      items.push(...(r.items || []).map((x) => ({ id: x.snippet?.resourceId?.videoId, title: x.snippet?.title || "" })).filter((x) => x.id));
+      token = r.nextPageToken;
+    } while (token);
+    return items;
+  }
+  const res = await fetch(`https://www.youtube.com/playlist?list=${id}`, {   // no key: read the public playlist page
+    headers: { "Accept-Language": "en-US,en;q=0.9", Cookie: "CONSENT=YES+1; SOCS=CAI", "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36" },
+  });
+  const html = await res.text();
+  const m = html.match(/var ytInitialData = (\{.*?\});\s*<\/script>/s);
+  if (!m) throw new Error("could not read the playlist page; add a YOUTUBE_API_KEY secret to fix this");
+  const found = [];
+  const walk = (o) => {
+    if (!o || typeof o !== "object") return;
+    const v = o.playlistVideoRenderer;
+    if (v?.videoId) found.push({ id: v.videoId, title: v.title?.runs?.map((r) => r.text).join("") || v.title?.simpleText || "" });
+    for (const k in o) walk(o[k]);
+  };
+  walk(JSON.parse(m[1]));
+  return found;
+}
+async function ytChannel(handle) {
+  if (!YOUTUBE_API_KEY) throw new Error(`${handle} needs a YOUTUBE_API_KEY secret (or use a playlist id instead)`);
+  const r = await get(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&forHandle=${encodeURIComponent(handle)}&key=${YOUTUBE_API_KEY}`);
+  const uploads = r.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+  if (!uploads) throw new Error("channel not found: " + handle);
+  return ytPlaylist(uploads);
+}
+async function linkYouTube(e, md) {
+  if (!e.youtube) return;
+  const vids = [];
+  for (const src of [].concat(e.youtube)) {
+    try { vids.push(...(src.startsWith("@") ? await ytChannel(src) : await ytPlaylist(src))); }
+    catch (err) { console.warn("YouTube:", src, err.message); }
+  }
+  if (!vids.length) { console.warn("YouTube: no videos found for", e.title); return; }
+  const key = normBase((e.youtubeKeyword || e.title).split(/\s+/)[0]);          // e.g. "helluva": keeps other shows' videos out
+  const nv = vids.map((v) => ({ ...v, n: normBase(v.title),
+    code: (v.title.match(/\bS(\d+)\s*[:.]?\s*(?:Episode|Ep\.?|E)\s*(\d+)/i) || []).slice(1).map(Number).join("x") }));
+  const mine = nv.filter((v) => v.n.includes(key));
+  const links = {};
+  for (const ep of [...(md.episodes || []), ...Object.values(e.extra || {}).flat()]) {
+    const t = normBase(ep.title), coded = ep.season > 0 && ep.number;
+    let hit;
+    if (!isGeneric(ep.title)) hit = mine.find((v) => v.n.includes(t)) || (t.length >= 12 && nv.find((v) => v.n.includes(t)));
+    if (!hit && coded) hit = mine.find((v) => v.code === `${ep.season}x${ep.number}`);
+    if (!hit) continue;
+    if (!isGeneric(ep.title)) links[t] = hit.id;
+    if (coded && hit.code === `${ep.season}x${ep.number}`) links[`s${ep.season}e${ep.number}`] = hit.id;
+  }
+  md.ytLinks = links;                                        // (not `youtube`: that name is your list of sources in library.js)
+  console.log("YouTube", e.title, "->", Object.keys(links).length, "links from", vids.length, "videos");
 }
 
 for (const e of LIBRARY) {
@@ -130,6 +194,7 @@ for (const e of LIBRARY) {
       md.episodes = eps.sort((a, b) => a.season - b.season || a.number - b.number);
       delete md.seed;
     }
+    await linkYouTube(e, md);
     const from = (u) => ((u || "").includes("thetvdb.com") ? "TVDB" : (u || "").includes("tmdb.org") ? "TMDB" : "other");
     console.log("show", e.title, "->", eps.length, "episodes,", eps.filter((x) => x.image).length, "with pictures,",
       Object.keys(md.seasonPosters || {}).length, "season posters,", md.poster ? `poster OK (${from(md.poster)})` : "NO POSTER");
