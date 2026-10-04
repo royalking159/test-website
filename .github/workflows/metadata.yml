@@ -2,7 +2,7 @@ name: Update movie metadata
 on:
   workflow_dispatch:            # lets you run it by hand from the Actions tab
   schedule:
-    - cron: "0 3 * * 1"         # and every Monday
+    - cron: "0 3 * * *"         # and every day, so new uploads are picked up
   push:
     paths: ["data/library.js"]  # and whenever you edit your movies and shows
 permissions:
@@ -21,6 +21,7 @@ jobs:
           TVDB_API_KEY: ${{ secrets.TVDB_API_KEY }}
           TVDB_PIN: ${{ secrets.TVDB_PIN }}
           MDBLIST_API_KEY: ${{ secrets.MDBLIST_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
       - run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
