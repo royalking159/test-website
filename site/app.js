@@ -29,12 +29,18 @@ const library = () => LIBRARY.map((e) => {
 
 // Where an episode's play icon goes: its own `url`, else the show's `watchUrl`, else `watchUrl` in config.js.
 // A template can use {show} {title} {season} {episode} {name} {date}.
+// Names are compared ignoring capitals, punctuation and anything in (brackets). The metadata Action uses the same rule.
+const normBase = (t) => String(t || "").replace(/\(.*?\)/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "");
 const watchUrl = (m, e, key, i) => {
-  const tpl = e.url || (m.episodeLinks?.[key] || [])[i - 1] || m.watchUrl || SITE.watchUrl;
+  // Order: the episode's own url, a YouTube video the Action found, episodeLinks, the show's watchUrl, then config.js.
+  const found = m.ytLinks || {};
+  const yt = found[normBase(e.orig || e.title)] || (e.season > 0 && e.number ? found[`s${e.season}e${e.number}`] : "");
+  const tpl = e.url || e.youtube || (yt && `https://www.youtube.com/watch?v=${yt}`) || (m.episodeLinks?.[key] || [])[i - 1] || m.watchUrl || SITE.watchUrl;
   if (!tpl) return "";
   const season = key === "Specials" ? 0 : /^Season \d+$/.test(key) ? Number(key.slice(7)) : key;
   const vals = { show: m.id, title: m.title, season, episode: i, name: e.title || "", date: e.date || "" };
-  return tpl.replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(vals[k] ?? ""));
+  const url = tpl.replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(vals[k] ?? ""));
+  return /^[\w-]{11}$/.test(url) ? `https://www.youtube.com/watch?v=${url}` : url;     // a bare YouTube id works too
 };
 
 // ---- In-site player ----
@@ -77,7 +83,7 @@ const showInPlayer = (info) => {
     media = $("video", { src: em.src });
     Object.assign(media, { controls: true, autoplay: true, playsInline: true });
   } else {
-    media = $("iframe", { src: em.src, title: info.title, referrerpolicy: "no-referrer", allow: "autoplay; fullscreen; picture-in-picture" });
+    media = $("iframe", { src: em.src, title: info.title, referrerpolicy: "strict-origin-when-cross-origin", allow: "autoplay; fullscreen; picture-in-picture" });
     media.allowFullscreen = true;
   }
   p.frame.replaceChildren(media);
@@ -130,8 +136,8 @@ function seasonsOf(m) {
   const by = {}, touched = new Set();
   const label = (k) => (/^S\d+$/.test(k) ? "Season " + k.slice(1) : k);
   const add = (k, e) => (by[k] ||= []).push(e);
-  for (const e of m.episodes || []) add(e.season === 0 ? "Specials" : `Season ${e.season}`, { ...e });
-  for (const [k, v] of Object.entries(m.extra || {})) by[k] = v.map((e) => ({ ...e }));
+  for (const e of m.episodes || []) add(e.season === 0 ? "Specials" : `Season ${e.season}`, { ...e, orig: e.title });
+  for (const [k, v] of Object.entries(m.extra || {})) by[k] = v.map((e) => ({ ...e, orig: e.title }));
   // Anything you list in an `extra` season (like Shorts) is removed from the fetched Specials, so it isn't shown twice.
   const norm = (t) => (t || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
   // Names match ignoring capitals, punctuation and quote styles, and also when one name contains the other.
