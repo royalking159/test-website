@@ -19,5 +19,5 @@ Visitors who open `index.html` are sent straight to the site in `site/`.
 
 1. Get a free API key from TMDB (themoviedb.org, in your account's API settings). A TVDB key works too.
 2. In the repo: Settings > Secrets and variables > Actions > New repository secret. Add `TMDB_API_KEY`
-   (and optionally `TVDB_API_KEY`, `TVDB_PIN`, `MDBLIST_API_KEY`).
+   (and optionally `TVDB_API_KEY`, `TVDB_PIN`, `MDBLIST_API_KEY`, `YOUTUBE_API_KEY`).
 3. Open the Actions tab, pick "Update movie metadata" and click Run workflow.
