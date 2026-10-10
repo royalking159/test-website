@@ -124,18 +124,19 @@ async function linkYouTube(e, md) {
   const nv = vids.map((v) => ({ ...v, n: normBase(v.title),
     code: (v.title.match(/\bS(\d+)\s*[:.]?\s*(?:Episode|Ep\.?|E)\s*(\d+)/i) || []).slice(1).map(Number).join("x") }));
   const mine = nv.filter((v) => v.n.includes(key));
-  const links = {};
+  const links = {}, missing = [];
   for (const ep of [...(md.episodes || []), ...Object.values(e.extra || {}).flat()]) {
     const t = normBase(ep.title), coded = ep.season > 0 && ep.number;
     let hit;
     if (!isGeneric(ep.title)) hit = mine.find((v) => v.n.includes(t)) || (t.length >= 12 && nv.find((v) => v.n.includes(t)));
     if (!hit && coded) hit = mine.find((v) => v.code === `${ep.season}x${ep.number}`);
-    if (!hit) continue;
+    if (!hit) { if (!isGeneric(ep.title) || coded) missing.push(ep.title || `S${ep.season}E${ep.number}`); continue; }
     if (!isGeneric(ep.title)) links[t] = hit.id;
     if (coded && hit.code === `${ep.season}x${ep.number}`) links[`s${ep.season}e${ep.number}`] = hit.id;
   }
   md.ytLinks = links;                                        // (not `youtube`: that name is your list of sources in library.js)
   console.log("YouTube", e.title, "->", Object.keys(links).length, "links from", vids.length, "videos");
+  if (missing.length) console.log("  no YouTube video found for:", missing.join(", "));
 }
 
 for (const e of LIBRARY) {

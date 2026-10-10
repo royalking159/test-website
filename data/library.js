@@ -48,6 +48,7 @@
 //     seasonOrder: ["Season 1", "Shorts", "Season 2"],   // listed seasons first, the rest after
 //     seasonNames: { Specials: "Extras" },               // rename a season
 //     seasonCovers: { Shorts: "https://example.com/shorts.jpg" },   // big poster + background when that season is selected
+//                  (or use another season's poster: seasonCovers: { Shorts: "Specials" })
 //     seasonImages: { Specials: "https://example.com/special.jpg" },// picture for episodes in that season that have none
 //     episodeOrder: { Specials: ["Pilot", "Movie Night"] },         // these first, the rest keep their order
 //   },
@@ -89,32 +90,18 @@ const LIBRARY = [
   {
     type: "show",
     title: "Helluva Boss",
-    // YOUTUBE: the metadata Action finds each episode's official YouTube video by name and fills in the play links
-    // (Seasons 1-2, the shorts, music videos. Season 3 appears automatically if and when it is uploaded there).
-    // They play inside the site. Sources: a playlist id (works without a key) and/or a channel handle (needs the
-    // YOUTUBE_API_KEY secret, see README.md). Add more playlists to the list any time.
+    // YOUTUBE PLAY LINKS. The metadata Action finds each episode's official YouTube video by its name (or by season and
+    // episode number) and saves the link: Season 1, Season 2, Season 3 (as soon as it is uploaded there), all the shorts,
+    // and specials like Pilot and Mission: Zero. They play inside the site.
+    // Sources: a playlist id (works without a key) and/or a channel handle (needs the YOUTUBE_API_KEY secret, see README.md).
+    // If one episode doesn't get a link, give it by hand:  edits: { "Episode name": { youtube: "VIDEO_ID" } }
     youtube: ["@vivziepop", "PL-uopgYBi65HwiiDR9Y23lomAkGr9mm-S"],
     // watchUrl: "https://example.com/watch/{show}/{season}/{episode}",   // remove the // and set your own link pattern
     moves: { "Queen Bee": "S1" },                                          // Queen Bee goes into Season 1
-    // BACKUP PLAY LINKS for Season 1 (used only when no YouTube video was found for an episode), in the order the
-    // episodes are listed: 1x1 ... 1x7, then Queen Bee as the 8th. Google Drive links play inside the site too
-    // (the file must be shared as "Anyone with the link"). Delete this block if you only want YouTube.
-    // To add another season, add another line like  "Season 2": [ "link for episode 1", "link for episode 2", ... ],
-    // Use "" for an episode that has no link yet.
-    episodeLinks: {
-      "Season 1": [
-        "https://drive.google.com/file/d/1xzO9SR2cMcWy5Gg8zqGr-Rx92Mg0fO6f/view?usp=sharing",
-        "https://drive.google.com/file/d/1vyz4I4Kfcc6JlGVZWQ4kNwadYBIYtqp8/view?usp=sharing",
-        "https://drive.google.com/file/d/1pkg-SqbKC-9jcTG6lr7dJU36uNXy7to7/view?usp=sharing",
-        "https://drive.google.com/file/d/1RZximY2H15aYfWLHHoxfJDuF0Cdxi63D/view?usp=sharing",
-        "https://drive.google.com/file/d/1pzzam6a7H-ICA7jLgdVxElJ2CDiRc5aM/view?usp=sharing",
-        "https://drive.google.com/file/d/1dnpxGGBNipcglcnRjh7RCGoM1xKYZgRs/view?usp=sharing",
-        "https://drive.google.com/file/d/12VCbd2LR_S0L69QA6Cxkh7K6BVZbcaoR/view?usp=sharing",
-        "https://drive.google.com/file/d/1SvCwqbd4M6harVQnqUkXxLURxz4nxz4s/view?usp=sharing",
-      ],
-    },
     // Specials: Pilot and Mission: Zero first, then everything else in its normal order.
     episodeOrder: { Specials: ["Pilot", "Mission: Zero"] },
+    // The Shorts section shows the Specials poster (instead of the main show poster).
+    seasonCovers: { Shorts: "Specials" },
     // The two not-yet-released shorts that TMDB lists as just "Mission:" go into Shorts as well.
     edits: { "Mission:": { title: "Mission: (coming soon)", season: "Shorts" } },
     extra: {
@@ -134,7 +121,7 @@ const LIBRARY = [
         { title: "Mission: Book Report", date: "2026-07-11" },
         // Helluva Shorts 14 (the date is my best guess: a Saturday release. Edit it if it is wrong)
         { title: "The Princess & the Pupper", date: "2026-10-03", youtube: "qJuPDHE5jug",
-          overview: "Helluva Shorts 14. Warning from the creator: for daddy issues." }
+          overview: "WARNING: For daddy issues" }
       ],
     },
   },

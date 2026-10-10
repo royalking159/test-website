@@ -3,621 +3,301 @@
  "shows": {
   "helluva-boss": {
    "title": "Helluva Boss",
-   "year": "2020",
-   "overview": "In Hell, imp Blitzø (the 'o' is silent) runs an assassin business targeting the world of the living, using a spell book borrowed from a prince of the underworld. With employees Moxxie, Millie, and Loona, they attempt to survive each other while keeping business afloat.",
+   "year": 2020,
+   "overview": "Blitzo and his crew run a startup in Hell that takes contracts to kill people on Earth.",
+   "seed": true,
    "episodes": [
-    {
-     "title": "Helluva Boss (Pilot)",
-     "season": 0,
-     "number": 1,
-     "date": "2019-11-25",
-     "image": "https://image.tmdb.org/t/p/w300/rgOZRzvQBxh6OhIuMew61BjxTms.jpg",
-     "overview": "Follow Blitzo (the 'o' is silent) as he attempts to run a startup killing company in a very competitive market, along with his weapons specialist Moxxie, his powerhouse Millie, and his receptionist hellhound Loona. With the help of an ancient book obtained by one of the princes of Hell, they manage to make their work possible and together they attempt to survive each other while trying to keep their business afloat."
-    },
-    {
-     "title": "JUST LOOK MY WAY",
-     "season": 0,
-     "number": 2,
-     "date": "2023-03-12",
-     "image": "https://image.tmdb.org/t/p/w300/qIZitkddm3ox5cZ1SZYCS4tuq8d.jpg",
-     "overview": "WARNING FOR: No swearing! Gasp!"
-    },
-    {
-     "title": "Helluva Shorts 1 - Hell's Belles",
-     "season": 0,
-     "number": 3,
-     "date": "2024-04-26",
-     "image": "https://image.tmdb.org/t/p/w300/yNeZ6Nwg7yipjyqCT54wtc2cECb.jpg",
-     "overview": "Join Sallie May and Millie as they spend a sisters day in Imp City!"
-    },
-    {
-     "title": "Helluva Shorts 2 - Mission: Antarctica",
-     "season": 0,
-     "number": 4,
-     "date": "2024-07-31",
-     "image": "https://image.tmdb.org/t/p/w300/AbFHD8Ci3AFHyZs5OeiGLQ2trun.jpg",
-     "overview": "WARNING: For some un-aliving of nature."
-    },
-    {
-     "title": "Helluva Shorts 3 - Mission: Weeaboo-Boo",
-     "season": 0,
-     "number": 5,
-     "date": "2024-08-31",
-     "image": "https://image.tmdb.org/t/p/w300/rl8vxyGm9u6gdKAvuGbLpPAUpl4.jpg",
-     "overview": "WARNING: For cringe."
-    },
-    {
-     "title": "Helluva Shorts 4 - Mission: Chupacabras",
-     "season": 0,
-     "number": 6,
-     "date": "2024-09-29",
-     "image": "https://image.tmdb.org/t/p/w300/8Df01F69Wt7QhHSYhIiP2nmJ43F.jpg",
-     "overview": "WARNING: For GOATS."
-    },
-    {
-     "title": "Helluva Shorts 5 - Mission: Orphan Time",
-     "season": 0,
-     "number": 7,
-     "date": "2025-06-28",
-     "image": "https://image.tmdb.org/t/p/w300/tlVylcFK6C7oJQOOpSjfi3IS4b5.jpg",
-     "overview": "WARNING: For entirely wholesome content"
-    },
-    {
-     "title": "Helluva Shorts 6 - Mission: Bad Drivezo",
-     "season": 0,
-     "number": 8,
-     "date": "2025-08-02",
-     "image": "https://image.tmdb.org/t/p/w300/7vDPzOrmJkCza7DAkvZ1XerWwvt.jpg",
-     "overview": "WARNING: For hand signals"
-    },
-    {
-     "title": "Helluva Shorts 7 - Mission: Whacked Off",
-     "season": 0,
-     "number": 9,
-     "date": "2025-09-06",
-     "image": "https://image.tmdb.org/t/p/w300/34CM910DvoyjfxvfkFm585FRfLN.jpg",
-     "overview": "WARNING: For fettuccine"
-    },
-    {
-     "title": "MISSION: ZERO",
-     "season": 0,
-     "number": 10,
-     "date": "2025-09-10",
-     "image": "https://image.tmdb.org/t/p/w300/uRAoKIUkm5kIL8qj74TcZVkMKoq.jpg",
-     "overview": "The I.M.P. plan their very first assassination on Earth with the help of a demon prince's mystical grimoire."
-    },
-    {
-     "title": "Helluva Shorts 8 - Mission: Big Boss",
-     "season": 0,
-     "number": 11,
-     "date": "2026-02-07",
-     "image": "https://image.tmdb.org/t/p/w300/utAHTIIZcgXxHEAkYU5PSVfdI15.jpg",
-     "overview": "WARNING: For capitalism"
-    },
-    {
-     "title": "Helluva Shorts 9 - Mission: Bigfoot",
-     "season": 0,
-     "number": 12,
-     "date": "2026-03-07",
-     "image": "https://image.tmdb.org/t/p/w300/ekszYfIECucxZmuuhJaFsrs91C7.jpg",
-     "overview": "WARNING: squatch"
-    },
-    {
-     "title": "Helluva Shorts 10: It's Chaz Funeral",
-     "season": 0,
-     "number": 13,
-     "date": "2026-04-01",
-     "image": "https://image.tmdb.org/t/p/w300/7euel767vr15kl1S2h4IVzNuTYz.jpg",
-     "overview": "WARNING: For April Fools"
-    },
-    {
-     "title": "Helluva Shorts 11 - Barbie's Bad Day",
-     "season": 0,
-     "number": 14,
-     "date": "2026-04-25",
-     "image": "https://image.tmdb.org/t/p/w300/pnNPKpSe0A3n4wUPx15jaMssjp4.jpg",
-     "overview": "Having gotten fired from her job following the incident with her brother and his employees, Barbie's day only gets worse."
-    },
-    {
-     "title": "SHARK BOY SUMMER",
-     "season": 0,
-     "number": 15,
-     "date": "2026-05-16",
-     "image": "https://image.tmdb.org/t/p/w300/2q3vop0l6ysaj4mMA8LEzz1mJAJ.jpg",
-     "overview": "WARNING: For sick summer vibes"
-    },
-    {
-     "title": "Helluva Shorts 12 - IMP Training Video",
-     "season": 0,
-     "number": 16,
-     "date": "2026-06-13",
-     "image": "https://image.tmdb.org/t/p/w300/2evEgrsHdxnDQZi9LyHjkejdtrk.jpg",
-     "overview": "WARNING: For hostile work environments"
-    },
-    {
-     "title": "Helluva Shorts 13 - Mission: Book Report",
-     "season": 0,
-     "number": 17,
-     "date": "2026-07-11",
-     "image": "https://image.tmdb.org/t/p/w300/jBx48dpHeAmL5Za2L8b1bGsUGGQ.jpg",
-     "overview": "WARNING: For fanfiction"
-    },
-    {
-     "title": "Helluva Shorts 14 - The Princess and the Pupper",
-     "season": 0,
-     "number": 18,
-     "date": "2026-10-03",
-     "image": "https://image.tmdb.org/t/p/w300/k0AJ3QjSEIl0LPLRGCebdKKpgO4.jpg",
-     "overview": "WARNING: For daddy issues"
-    },
     {
      "title": "Murder Family",
      "season": 1,
      "number": 1,
-     "date": "2020-10-31",
-     "image": "https://image.tmdb.org/t/p/w300/jARS4wf4HxrAhAZDdJjyrqvlfgm.jpg",
-     "overview": "After her husband's mistress survives a violent outburst, a deceased teacher hires the I.M.P to finish the job, only to encounter a far more bizarre threat."
+     "date": "2020-10-31"
     },
     {
      "title": "Loo Loo Land",
      "season": 1,
      "number": 2,
-     "date": "2020-12-09",
-     "image": "https://image.tmdb.org/t/p/w300/uMB98DuIWmSG2jXfY9vuwLCuuXS.jpg",
-     "overview": "In an attempt to get Blitzø's attention, Stolas unnecessarily hires the I.M.P to work as bodyguards for him and his daughter, Octavia, while they visit Loo Loo Land, an amusement park in the Greed Ring."
+     "date": "2020-12-09"
     },
     {
      "title": "Spring Broken",
      "season": 1,
      "number": 3,
-     "date": "2021-01-31",
-     "image": "https://image.tmdb.org/t/p/w300/zWXZMjUsallNKWV4NtV0geiXdrB.jpg",
-     "overview": "Blitzø discovers that his reserved, sole parking spot has been stolen by his ex-girlfriend, succubus and famous pop star Verosika Mayday. He and the rest of the I.M.P attempt to get it back by challenging Verosika to a \"demon duel.\""
+     "date": "2021-01-31"
     },
     {
-     "title": "C.H.E.R.U.B.",
+     "title": "C.H.E.R.U.B",
      "season": 1,
      "number": 4,
-     "date": "2021-03-14",
-     "image": "https://image.tmdb.org/t/p/w300/y1bHtTJDRJYH4odI6XEe5tK00IW.jpg",
-     "overview": "An eccentric inventor killed by an experiment gone wrong hires the I.M.P to assassinate his now elderly business partner, only to find that he's being talked out of suicide by a rival organization."
+     "date": "2021-03-14"
     },
     {
      "title": "The Harvest Moon Festival",
      "season": 1,
      "number": 5,
-     "date": "2021-04-30",
-     "image": "https://image.tmdb.org/t/p/w300/dfEWnnxkRbd64FmS0kLHajFoevg.jpg",
-     "overview": "Stolas invites the I.M.P to attend the Harvest Moon Festival, an annual event taking place in the Wrath Ring that is overseen by him. However, unbeknownst to our protagonists, an insidious plot will be transpiring there."
+     "date": "2021-04-30"
     },
     {
      "title": "Truth Seekers",
      "season": 1,
      "number": 6,
-     "date": "2021-08-21",
-     "image": "https://image.tmdb.org/t/p/w300/iGj8vjAKSkTWfTkYVC0o1sSl4id.jpg",
-     "overview": "While on Earth, Blitzø and Moxxie are captured by demon-hunting government agents. To escape, they must fight, and come to terms with their inner fears in the process."
+     "date": "2021-08-21"
     },
     {
      "title": "Ozzie's",
      "season": 1,
      "number": 7,
-     "date": "2021-10-31",
-     "image": "https://image.tmdb.org/t/p/w300/yIjWBVWkPhFrXfC41ox7ie992yZ.jpg",
-     "overview": "Moxxie and Millie celebrate their first anniversary at Ozzie's, a club in the Lust Ring. Blitzø wants in on the action, but since the club is couples only, he has no choice but to invite Stolas."
+     "date": "2021-10-31"
+    },
+    {
+     "title": "Queen Bee",
+     "season": 1,
+     "number": 8,
+     "date": "2023-06-24"
     },
     {
      "title": "The Circus",
      "season": 2,
      "number": 1,
-     "date": "2022-07-30",
-     "image": "https://image.tmdb.org/t/p/w300/dR4gvVObCVo7KeUHWyLVVVlhCX6.jpg",
-     "overview": "In a flashback to 25 years in the past, Stolas meets Blitzø, who becomes his first friend. Flash forward to shortly before the present, and they meet again for the first time since on a night that kickstarts their monthly arrangement."
+     "date": "2022-07-30"
     },
     {
      "title": "Seeing Stars",
      "season": 2,
      "number": 2,
-     "date": "2022-10-19",
-     "image": "https://image.tmdb.org/t/p/w300/wIIlfiiRLXoghn3OUsVHrovpH28.jpg",
-     "overview": "In an effort to watch Azathoth's tears descend onto Earth, an event that Stolas promised to take her to but forgot to, Octavia steals his grimoire from the I.M.P's office to do so but ends up getting lost in Hollywood."
+     "date": "2022-10-19"
     },
     {
      "title": "Exes and Oohs",
      "season": 2,
      "number": 3,
-     "date": "2023-03-11",
-     "image": "https://image.tmdb.org/t/p/w300/dILaz08CVuTudjE1J8LLvTuOMoR.jpg",
-     "overview": "The I.M.P are invited to meet a mysterious figure offering them a vague job. Upon arrival, Moxxie realizes that he is far more familiar with the place and the figure than he'd like to be."
+     "date": "2023-03-11"
     },
     {
      "title": "Western Energy",
      "season": 2,
      "number": 4,
-     "date": "2023-05-20",
-     "image": "https://image.tmdb.org/t/p/w300/gAKidRnvB4ZQWMLAqtMfWG0wCAo.jpg",
-     "overview": "When Striker kidnaps Stolas, Millie and Moxxie must rescue him while Blitzø takes Loona to the vet."
-    },
-    {
-     "title": "Queen Bee",
-     "season": 2,
-     "number": 5,
-     "date": "2023-06-24",
-     "image": "https://image.tmdb.org/t/p/w300/ww0ocxVg4BsNgOcHGi7ePlm3mwF.jpg",
-     "overview": "Loona goes to a hellhound party in the Gluttony Ring, but after things don't go the way she planned, she asks Blitzø to join.\n\nThis is in the wrong place. It is Season 1 Episode 8"
+     "date": "2023-05-20"
     },
     {
      "title": "Unhappy Campers",
      "season": 2,
-     "number": 6,
-     "date": "2023-07-08",
-     "image": "https://image.tmdb.org/t/p/w300/sHac2TwzCWtVYbzud7f0JBEkHLB.jpg",
-     "overview": "Due to Blitzø being preoccupied, Moxxie takes an opportunity to lead a mission for the first time, in which he and Millie travel to Earth to investigate the death of a camper and kill the culprit."
+     "number": 5,
+     "date": "2023-07-08"
     },
     {
      "title": "Oops",
      "season": 2,
-     "number": 7,
-     "date": "2023-09-09",
-     "image": "https://image.tmdb.org/t/p/w300/hjxcoZm3WhIwD4Zf38tnSWemjvU.jpg",
-     "overview": "Upon being abducted by Crimson and Striker so that they may be used as ransom, Blitzø and Fizzarolli are forced to confront each other over their mutual hatred for each other following the explosive ending of their childhood friendship."
+     "number": 6,
+     "date": "2023-09-09"
     },
     {
      "title": "Mammon's Magnificent Musical Mid-Season Special (ft Fizzarolli)",
      "season": 2,
-     "number": 8,
-     "date": "2023-10-29",
-     "image": "https://image.tmdb.org/t/p/w300/wqOqSoc8Rq5kJVOIvfcPo0ry37G.jpg",
-     "overview": "Fizzarolli participates in Mammon's annual clown pageant, which he has done every year since Mammon began hosting them and won in each of them. However, with the help of Asmodeus and Blitzø, he realizes that things need to change."
+     "number": 7,
+     "date": "2023-10-29"
     },
     {
      "title": "The Full Moon",
      "season": 2,
-     "number": 9,
-     "date": "2024-05-31",
-     "image": "https://image.tmdb.org/t/p/w300/kU6yt3CWhLSKbQqMEGDVONDxZck.jpg",
-     "overview": "On Earth, the Cherubs partner with the D.H.O.R.K.S. after being captured by them and discovering their mutual disdain for the I.M.P. Meanwhile, in Hell, Blitzø prepares for his monthly meeting with Stolas."
+     "number": 8,
+     "date": "2024-05-31"
     },
     {
      "title": "Apology Tour",
      "season": 2,
-     "number": 10,
-     "date": "2024-06-22",
-     "image": "https://image.tmdb.org/t/p/w300/uHUaPZxfFTD38yNH8acb9e3wtTs.jpg",
-     "overview": "After Blitzø and Stolas' transactional relationship finally comes to an apparent end, Blitzø attempts to make things right with those who he has wronged in the past."
+     "number": 9,
+     "date": "2024-06-22"
     },
     {
-     "title": "Ghostf**kers",
+     "title": "Ghostf**ckers",
      "season": 2,
-     "number": 11,
-     "date": "2024-10-31",
-     "image": "https://image.tmdb.org/t/p/w300/oy4ZQYxmlfdCFhq5xeFfJWvBHDA.jpg",
-     "overview": "Millie helps Blitz deal with his NOT-breakup and things happen. WARNING: Happy Halloween."
+     "number": 10,
+     "date": "2024-10-31"
     },
     {
      "title": "Mastermind",
      "season": 2,
-     "number": 12,
-     "date": "2024-11-29",
-     "image": "https://image.tmdb.org/t/p/w300/cuxPJfmk2Jq217QX7OLrmBlyvWM.jpg",
-     "overview": "When Andrealphus learns that Blitzø has been illegally accessing Stolas' Grimoire, I.M.P. is arrested and put on trial, where they must defend themselves against the court's harsh accusations."
+     "number": 11,
+     "date": "2024-11-29"
     },
     {
      "title": "Sinsmas",
      "season": 2,
-     "number": 13,
-     "date": "2024-12-21",
-     "image": "https://image.tmdb.org/t/p/w300/a3tT9nExVnPpzc21ijcONWRUJjE.jpg",
-     "overview": "Stolas tries to contact Via. Sinsmas starts."
+     "number": 12,
+     "date": "2024-12-21"
     },
     {
-     "title": "Episode 1",
+     "title": "TBA",
      "season": 3,
      "number": 1,
-     "date": "2026-10-14",
-     "image": null,
-     "overview": null
+     "date": "2026-10-14"
     },
     {
-     "title": "Episode 2",
+     "title": "TBA",
      "season": 3,
      "number": 2,
-     "date": "2026-10-14",
-     "image": null,
-     "overview": null
+     "date": "2026-10-14"
     },
     {
-     "title": "Episode 3",
+     "title": "TBA",
      "season": 3,
      "number": 3,
-     "date": "2026-10-14",
-     "image": null,
-     "overview": null
+     "date": "2026-10-14"
     },
     {
-     "title": "Episode 4",
+     "title": "TBA",
      "season": 3,
      "number": 4,
-     "date": "2026-10-21",
-     "image": null,
-     "overview": null
+     "date": "2026-10-21"
     },
     {
-     "title": "Episode 5",
+     "title": "TBA",
      "season": 3,
      "number": 5,
-     "date": "2026-10-21",
-     "image": null,
-     "overview": null
+     "date": "2026-10-21"
     },
     {
-     "title": "Episode 6",
+     "title": "TBA",
      "season": 3,
      "number": 6,
-     "date": "2026-10-28",
-     "image": null,
-     "overview": null
+     "date": "2026-10-28"
     },
     {
-     "title": "Episode 7",
+     "title": "TBA",
      "season": 3,
      "number": 7,
-     "date": "2026-10-28",
-     "image": null,
-     "overview": null
+     "date": "2026-10-28"
+    },
+    {
+     "title": "Pilot",
+     "season": 0,
+     "number": 1,
+     "date": "2019-11-25"
+    },
+    {
+     "title": "Mission: Zero",
+     "season": 0,
+     "number": 2,
+     "date": "2025-09-10"
     }
-   ],
-   "poster": "https://image.tmdb.org/t/p/w500/bcrp2ovxirKH81XSMYQZ7eEunzX.jpg",
-   "backdrop": "https://image.tmdb.org/t/p/w780/20OP4f0xDbPttORm9OyIbNu3cNN.jpg",
-   "genres": [
-    "Animation",
-    "Comedy",
-    "Drama",
-    "Sci-Fi & Fantasy"
-   ],
-   "score": 7.5,
-   "seasonPosters": {
-    "0": "https://image.tmdb.org/t/p/w500/zfZG7izmTqwAuViqrclYJfbRoGc.jpg",
-    "1": "https://image.tmdb.org/t/p/w500/sOw0GPRA0o9EypAWBRYzYHFysL.jpg",
-    "2": "https://image.tmdb.org/t/p/w500/fhM8qhAWaqtLj56UZIZrBAKNBoB.jpg",
-    "3": "https://image.tmdb.org/t/p/w500/en73lGkRjenqpoi8OWOzbAJX3Qn.jpg"
-   },
-   "ytLinks": {
-    "helluvaboss": "Pu12or7uOHE",
-    "helluvashorts1hellsbelles": "_38dtqdR5V4",
-    "helluvashorts2missionantarctica": "uSDG4K1ycvc",
-    "helluvashorts3missionweeabooboo": "3-NrCcr8Bcg",
-    "helluvashorts4missionchupacabras": "pngogrW4iC4",
-    "helluvashorts5missionorphantime": "-1b7uCyONb0",
-    "helluvashorts6missionbaddrivezo": "52_V04weeC4",
-    "helluvashorts7missionwhackedoff": "dlThyclyHtw",
-    "missionzero": "Pu12or7uOHE",
-    "helluvashorts8missionbigboss": "4obZtz2jEmo",
-    "helluvashorts9missionbigfoot": "LPzQl8gwulw",
-    "helluvashorts11barbiesbadday": "PyICIy6fkDo",
-    "sharkboysummer": "-mLSmR58ZaQ",
-    "helluvashorts12imptrainingvideo": "4kJXWQWW-og",
-    "helluvashorts13missionbookreport": "ZAkGmkP9j5c",
-    "murderfamily": "el_PChGfJN8",
-    "s1e1": "el_PChGfJN8",
-    "loolooland": "kpnwRg268FQ",
-    "s1e2": "kpnwRg268FQ",
-    "springbroken": "RghsgkZKedg",
-    "s1e3": "RghsgkZKedg",
-    "cherub": "1ZFseYPmkAk",
-    "s1e4": "1ZFseYPmkAk",
-    "theharvestmoonfestival": "h2ZmVAdezF8",
-    "s1e5": "h2ZmVAdezF8",
-    "truthseekers": "yXErLiSbxXQ",
-    "s1e6": "yXErLiSbxXQ",
-    "ozzies": "8zyGQquL8VM",
-    "s1e7": "8zyGQquL8VM",
-    "thecircus": "_spuxXnul0U",
-    "s2e1": "_spuxXnul0U",
-    "seeingstars": "4J0xFUyz1nw",
-    "s2e2": "4J0xFUyz1nw",
-    "exesandoohs": "j1BfO7VlIw4",
-    "s2e3": "j1BfO7VlIw4",
-    "westernenergy": "KJy7T24rhg0",
-    "s2e4": "KJy7T24rhg0",
-    "queenbee": "D-2799Y07Zc",
-    "unhappycampers": "lYu1ysDULwA",
-    "oops": "y1sF6ZeASU0",
-    "mammonsmagnificentmusicalmidseasonspecial": "rRymSi8SmqA",
-    "thefullmoon": "Fj9YRsV1pEw",
-    "apologytour": "tLD-OUkYtk4",
-    "ghostfkers": "5DV4IIKwqRI",
-    "mastermind": "IoVB5Hn2m_k",
-    "sinsmas": "GisSNuVpbkM",
-    "hellsbelles": "_38dtqdR5V4",
-    "missionantarctica": "uSDG4K1ycvc",
-    "missionweeabooboo": "3-NrCcr8Bcg",
-    "missionchupacabras": "pngogrW4iC4",
-    "missionorphantime": "-1b7uCyONb0",
-    "missionbaddrivezo": "52_V04weeC4",
-    "missionwhackedoff": "dlThyclyHtw",
-    "missionbigboss": "4obZtz2jEmo",
-    "missionbigfoot": "LPzQl8gwulw",
-    "missionitschazfuneral": "G3XORWJ2rQc",
-    "barbiesbadday": "PyICIy6fkDo",
-    "imptrainingvideo": "4kJXWQWW-og",
-    "missionbookreport": "ZAkGmkP9j5c",
-    "theprincessthepupper": "qJuPDHE5jug"
-   }
+   ]
   },
   "hazbin-hotel": {
    "title": "Hazbin Hotel",
-   "year": "2024",
-   "overview": "In attempt to find a non-violent alternative for reducing Hell's overpopulation, the daughter of Lucifer opens a rehabilitation hotel that offers a group of misfit demons a chance at redemption.",
+   "year": 2024,
+   "overview": "Charlie, the Princess of Hell, opens a hotel to rehabilitate demons and send them to Heaven.",
+   "seed": true,
    "episodes": [
-    {
-     "title": "Hazbin Hotel (Pilot)",
-     "season": 0,
-     "number": 1,
-     "date": "2019-10-28",
-     "image": "https://image.tmdb.org/t/p/w300/hEDnBoVr3dwCqKc9T7Ek3me8HNg.jpg",
-     "overview": "Follow Charlie, the princess of Hell, as she pursues her seemingly impossible goal of rehabilitating demons to peacefully reduce overpopulation in her kingdom. After a yearly extermination imposed by angels, She opens a hotel in hopes that patients will be \"checking out\" into Heaven. While most of Hell mocks her goal, her devoted partner Vaggie, and their first test subject, adult film-star Angel Dust, stick by her side. When a powerful entity known as the \"Radio Demon\" reaches out to Charlie to assist in her endeavors, her crazy dream is given a chance to become a reality."
-    },
-    {
-     "title": "Addict (Music Video)",
-     "season": 0,
-     "number": 2,
-     "date": "2020-07-17",
-     "image": "https://image.tmdb.org/t/p/w300/5BCg11LYHT2TS7t8DMf6JyW9xRr.jpg",
-     "overview": "Thank you Silva for creating this amazing fansong and allowing us to bring it to life!! I hope you all enjoy this deeper peek into Angel Dust, -and please look forward to BIG NEWS about HAZBIN HOTEL real soon!! Thank you everyone who has supported the project so far, stay tuned!!"
-    },
-    {
-     "title": "Hazbin Hotel Live on Broadway",
-     "season": 0,
-     "number": 3,
-     "date": "2025-11-17",
-     "image": "https://image.tmdb.org/t/p/w300/hduqwC4YahXZxFFUo3wBUjNzUvC.jpg",
-     "overview": "Hosted by series lead Erika Henningsen, at New York’s historic Majestic Theater, this concert event features performances of the show's hit songs from Seasons One and Two by Erika Henningsen, Blake Roman, Amir Talai, Christian Borle, Jessica Vosk, Jeremy Jordan, and Krystina Alabado, with special appearances by Stephanie Beatriz, Kimiko Glenn, Vivienne Medrano, Sam Haft, and Richard Horvitz."
-    },
     {
      "title": "Overture",
      "season": 1,
      "number": 1,
-     "date": "2024-01-18",
-     "image": "https://image.tmdb.org/t/p/w300/8rj1UJrcPB9g498YmaE57jb4d9l.jpg",
-     "overview": "Charlie pitches Heaven her plan to save sinners by way of redeeming themselves through her Hotel. Vaggie enlists the staff to make a commercial to promote the hotel."
+     "date": "2024-01-19"
     },
     {
      "title": "Radio Killed the Video Star",
      "season": 1,
      "number": 2,
-     "date": "2024-01-18",
-     "image": "https://image.tmdb.org/t/p/w300/AwcWnE5QDsKdhnmArgVGd5nnxkO.jpg",
-     "overview": "The Vee's: Vox, Velvette, and Valentino rule their corner of Hell unchallenged, but Alastor's return to the airwaves may shake things up. Meanwhile, a new Hotel guest tests Angel's patience."
+     "date": "2024-01-19"
     },
     {
      "title": "Scrambled Eggs",
      "season": 1,
      "number": 3,
-     "date": "2024-01-18",
-     "image": "https://image.tmdb.org/t/p/w300/9xdoUagj3AnplIS8VmlHzRmsQoU.jpg",
-     "overview": "While the Hotel's guests and crew spend the day learning about trust, information revealed at a meeting of overlords leads to a respectless dispute."
+     "date": "2024-01-19"
     },
     {
      "title": "Masquerade",
      "season": 1,
      "number": 4,
-     "date": "2024-01-18",
-     "image": "https://image.tmdb.org/t/p/w300/2voEbz6aZvWgTo8NTQSfqfZVBs4.jpg",
-     "overview": "Angel struggles to juggle his work and his time at the Hotel. Charlie decides it's time to put her ‘Princess' status to use with Angel's boss."
+     "date": "2024-01-19"
     },
     {
      "title": "Dad Beat Dad",
      "season": 1,
      "number": 5,
-     "date": "2024-01-25",
-     "image": "https://image.tmdb.org/t/p/w300/cUtVWd5FyveDIu9SEfG3Rqisfxm.jpg",
-     "overview": "Charlie struggles with asking her father, Lucifer, for help. Meanwhile, an unexpected new arrival shakes things up at the Hotel."
+     "date": "2024-01-26"
     },
     {
      "title": "Welcome to Heaven",
      "season": 1,
      "number": 6,
-     "date": "2024-01-25",
-     "image": "https://image.tmdb.org/t/p/w300/A93PBhKxwJMrkqKpqhptnR1w1rr.jpg",
-     "overview": "Charlie and Vaggie make their way to Heaven to speak to Adam's manager. Meanwhile an explosive reunion gives Angel the opportunity to show how far he's come."
+     "date": "2024-01-26"
     },
     {
      "title": "Hello Rosie!",
      "season": 1,
      "number": 7,
-     "date": "2024-02-01",
-     "image": "https://image.tmdb.org/t/p/w300/wPzhMhtLOdppSltb3mnYmOFhTAt.jpg",
-     "overview": "With secrets revealed and the Hotel in the crosshairs, Charlie and Vaggie must do what they can to protect their home from destruction by any means necessary."
+     "date": "2024-02-02"
     },
     {
      "title": "The Show Must Go On",
      "season": 1,
      "number": 8,
-     "date": "2024-02-01",
-     "image": "https://image.tmdb.org/t/p/w300/mVa6wxS7I7097HyMi1FGe38XrOm.jpg",
-     "overview": "All bets are off as the confrontation between the legions of Heaven and Hell begins."
+     "date": "2024-02-02"
     },
     {
      "title": "New Pentious",
      "season": 2,
      "number": 1,
-     "date": "2025-10-29",
-     "image": "https://image.tmdb.org/t/p/w300/tSzzDh1W5UX1bI3INyYI5t0XC6s.jpg",
-     "overview": "Charlie's victory against Heaven has sinners flocking to the newly rebuilt Hazbin Hotel. But can she make sure they're all there for the right reasons? Meanwhile, Vox reveals his plan for the Vees to gain their ultimate victory."
+     "date": "2025-10-29"
     },
     {
      "title": "Storyteller",
      "season": 2,
      "number": 2,
-     "date": "2025-10-29",
-     "image": "https://image.tmdb.org/t/p/w300/kbaF3AxYWH6O8F98KxboLURTv6U.jpg",
-     "overview": "Sir Pentious' redemption creates a stir in Heaven, but not everyone is happy to see a sinner redeemed."
+     "date": "2025-10-29"
     },
     {
-     "title": "Hazbin Hotel: Behind Closed Doors",
+     "title": "Behind Closed Doors",
      "season": 2,
      "number": 3,
-     "date": "2025-11-05",
-     "image": "https://image.tmdb.org/t/p/w300/v8mF1N5uUISUszKsUy1GcnYyykL.jpg",
-     "overview": "Charlie invites Voxtek to do a piece on the Hotel and Pentious' redemption. But she will need hard proof to convince her skeptical guests."
+     "date": "2025-11-05"
     },
     {
-     "title": "It's a Deal",
+     "title": "It's A Deal",
      "season": 2,
      "number": 4,
-     "date": "2025-11-05",
-     "image": "https://image.tmdb.org/t/p/w300/bzwvWHBbhTQ68ZsTFaCAVhv0yPD.jpg",
-     "overview": "Charlie tries to do damage control by going live on television! Meanwhile, Alastor reaches his final straw."
+     "date": "2025-11-05"
     },
     {
      "title": "Silenced",
      "season": 2,
      "number": 5,
-     "date": "2025-11-12",
-     "image": "https://image.tmdb.org/t/p/w300/lXBrD4efdZg8orbdxzOaydmLx0z.jpg",
-     "overview": "Vox hosts a rally for his increasing supporters. Meanwhile, Charlie looks to Heaven for help."
+     "date": "2025-11-12"
     },
     {
      "title": "Scream Rain",
      "season": 2,
      "number": 6,
-     "date": "2025-11-12",
-     "image": "https://image.tmdb.org/t/p/w300/736fVKNNuw8xd9Jo5QuI3ujby0D.jpg",
-     "overview": "Vox leads the overlords toward war with Heaven. Tensions run high at the hotel and Husk returns to his old ways."
+     "date": "2025-11-12"
     },
     {
      "title": "Weapon of Mass Distraction",
      "season": 2,
      "number": 7,
-     "date": "2025-11-19",
-     "image": "https://image.tmdb.org/t/p/w300/fe2mLNXgJNoy8jbGZXTW0G19pgy.jpg",
-     "overview": "Vox unveils his secret weapon, giving Heaven their final warning."
+     "date": "2025-11-19"
     },
     {
      "title": "Curtain Call",
      "season": 2,
      "number": 8,
-     "date": "2025-11-19",
-     "image": "https://image.tmdb.org/t/p/w300/9sEN4QGCoa2gXxrWWVjcEbX0dLT.jpg",
-     "overview": "Vox (and the Vees, I guess) is hosting a party so everyone can watch him take over Heaven - and you're all invited!"
+     "date": "2025-11-19"
+    },
+    {
+     "title": "That's Entertainment (Pilot)",
+     "season": 0,
+     "number": 1,
+     "date": "2019-10-28"
+    },
+    {
+     "title": "Hazbin Hotel: Live on Broadway",
+     "season": 0,
+     "number": 2,
+     "date": "2025-11-17"
     }
-   ],
-   "poster": "https://image.tmdb.org/t/p/w500/aVYHMW8pdzJ9qG1OGRMKyGy9xor.jpg",
-   "backdrop": "https://image.tmdb.org/t/p/w780/9K6QtLqyocVHgIZe4yqCIl1q2ZR.jpg",
-   "genres": [
-    "Animation",
-    "Comedy",
-    "Drama",
-    "Sci-Fi & Fantasy"
-   ],
-   "score": 8.5,
-   "seasonPosters": {
-    "0": "https://image.tmdb.org/t/p/w500/aYApV2vAn2bvY8HbkXHGbmG6FYS.jpg",
-    "1": "https://image.tmdb.org/t/p/w500/wslBT9lKS1GacsCldrQXIUFY2a2.jpg",
-    "2": "https://image.tmdb.org/t/p/w500/aVYHMW8pdzJ9qG1OGRMKyGy9xor.jpg"
-   }
+   ]
   }
- },
- "updated": "2026-10-09T10:14:22.403Z"
+ }
 }

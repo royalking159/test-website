@@ -2,7 +2,7 @@
 const slug = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const isWeb = (u) => /^https?:/.test(u || "");
 // Names shown in the sidebar and as page titles. Change them in config.js:  sectionNames: { projects: "..." }
-const NAMES = { projects: "Projects/Study tools", ...(SITE.sectionNames || {}) };
+const NAMES = { projects: "Projects/Study tools", movies: "Movies/Shows", ...(SITE.sectionNames || {}) };
 const labelOf = (s) => NAMES[s] || s[0].toUpperCase() + s.slice(1);
 const fmt = (d) => /^\d{4}-\d{2}-\d{2}/.test(d || "")
   ? new Date(d.slice(0, 10) + "T00:00:00Z").toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" })
@@ -59,35 +59,46 @@ let player;
 const ensurePlayer = () => {
   if (player) return player;
   const title = $("strong"), sub = $("small"), frame = $("div", { class: "pl-frame" });
-  const ext = $("a", { class: "btn", target: "_blank", rel: "noopener noreferrer" }, "Open in new tab");
-  const nextBtn = $("button", { type: "button", class: "btn" }, "Next episode");
-  const closeBtn = $("button", { type: "button", class: "btn", "aria-label": "Close player" }, "✕");
+  const loading = $("div", { class: "pl-loading" }, $("span", { class: "spin" }));
+  const btn = (act, label) => $("button", { type: "button", class: "pl-btn", "data-act": act, "aria-label": label, title: label });
+  const prevBtn = btn("prev", "Previous episode"), nextBtn = btn("next", "Next episode"), closeBtn = btn("close", "Close player");
+  const ext = $("a", { class: "pl-btn", "data-act": "ext", target: "_blank", rel: "noopener noreferrer", "aria-label": "Open in a new tab", title: "Open in a new tab" });
+  const foot = $("a", { target: "_blank", rel: "noopener noreferrer" }, "open it in a new tab");
   const dlg = $("dialog", { class: "player", "aria-label": "Video player" },
-    $("div", { class: "pl-head" }, $("div", {}, title, sub), $("div", { class: "pl-actions" }, nextBtn, ext, closeBtn)), frame);
+    $("div", { class: "pl-head" }, $("div", { class: "pl-titles" }, title, sub), $("div", { class: "pl-actions" }, prevBtn, nextBtn, ext, closeBtn)),
+    $("div", { class: "pl-stage" }, loading, frame),
+    $("p", { class: "pl-foot" }, "Video not playing? You can ", foot, "."));
+  const go = (dir) => { const n = player.info?.[dir]?.(); if (n && embedOf(n.url)) showInPlayer(n); };
+  prevBtn.onclick = () => go("prev");
+  nextBtn.onclick = () => go("next");
   closeBtn.onclick = () => dlg.close();
-  dlg.addEventListener("close", () => frame.replaceChildren());      // removing the frame stops playback
+  dlg.addEventListener("close", () => { frame.replaceChildren(); document.documentElement.classList.remove("lock"); });   // removing the frame stops playback
   dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
-  nextBtn.onclick = () => { const n = player.info.next?.(); if (n && embedOf(n.url)) showInPlayer(n); };
+  dlg.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") go("next"); else if (e.key === "ArrowLeft") go("prev"); });
   document.body.append(dlg);
-  return (player = { dlg, frame, title, sub, ext, nextBtn, info: null });
+  return (player = { dlg, frame, loading, title, sub, ext, foot, prevBtn, nextBtn, info: null });
 };
 const showInPlayer = (info) => {
-  const p = ensurePlayer(), em = embedOf(info.url), nxt = info.next?.();
+  const p = ensurePlayer(), em = embedOf(info.url), nxt = info.next?.(), prv = info.prev?.();
   p.info = info;
   p.title.textContent = info.title;
   p.sub.textContent = info.sub || "";
-  p.ext.href = info.url;
+  p.ext.href = p.foot.href = info.url;
   p.nextBtn.hidden = !(nxt && embedOf(nxt.url));
+  p.prevBtn.hidden = !(prv && embedOf(prv.url));
+  p.loading.hidden = false;
   let media;
   if (em.kind === "video") {
     media = $("video", { src: em.src });
     Object.assign(media, { controls: true, autoplay: true, playsInline: true });
+    media.addEventListener("loadeddata", () => { p.loading.hidden = true; });
   } else {
-    media = $("iframe", { src: em.src, title: info.title, referrerpolicy: "strict-origin-when-cross-origin", allow: "autoplay; fullscreen; picture-in-picture" });
+    media = $("iframe", { src: em.src, title: info.title, referrerpolicy: "strict-origin-when-cross-origin", allow: "autoplay; fullscreen; picture-in-picture; encrypted-media" });
     media.allowFullscreen = true;
+    media.addEventListener("load", () => { p.loading.hidden = true; });
   }
   p.frame.replaceChildren(media);
-  if (!p.dlg.open) p.dlg.showModal();
+  if (!p.dlg.open) { document.documentElement.classList.add("lock"); p.dlg.showModal(); }
 };
 // Make a link open the player when it can; otherwise it stays a normal link.
 const wire = (a, info) => {
@@ -184,16 +195,21 @@ function seasonsOf(m) {
   const fallback = (k) => (m.seasonImages || {})[k] || m.backdrop || (m.seasonPosters || {})[sNum(k)] || m.poster;
   for (const [k, eps] of Object.entries(by)) for (const e of eps) e.image ||= fallback(k);
 
+  const coverOf = (k, depth = 0) => {                         // a season's big poster (your own, else TMDB's, else the show's)
+    const c = (m.seasonCovers || {})[k];
+    if (c && by[c] && depth < 3) return coverOf(c, depth + 1);   // seasonCovers: { Shorts: "Specials" } = use that season's poster
+    return c || (m.seasonPosters || {})[sNum(k)] || m.poster;
+  };
   const rank = (k) => (k === "Specials" ? 2 : /^Season \d+$/.test(k) ? 0 : 1);
   const num = (k) => Number(k.replace(/\D/g, "")) || 0;
   let keys = Object.keys(by).filter((k) => by[k].length).sort((a, b) => rank(a) - rank(b) || (rank(a) ? 0 : num(a) - num(b)));
   if (m.seasonOrder) { const want = m.seasonOrder.map(label); keys = [...want.filter((k) => keys.includes(k)), ...keys.filter((k) => !want.includes(k))]; }
-  return Object.fromEntries(keys.map((k) => [(m.seasonNames || {})[k] || k, { key: k, eps: by[k], cover: (m.seasonCovers || {})[k] || (m.seasonPosters || {})[sNum(k)] || m.poster }]));
+  return Object.fromEntries(keys.map((k) => [(m.seasonNames || {})[k] || k, { key: k, eps: by[k], cover: coverOf(k) }]));
 }
 
 function showPage(id) {
   const m = library().find((x) => x.type === "show" && x.id === id);
-  if (!m) return page("Not found", $("p", {}, "That show isn't in your library."), $("a", { href: "#/movies" }, "Back to movies"));
+  if (!m) return page("Not found", $("p", {}, "That show isn't in your library."), $("a", { href: "#/movies" }, `Back to ${labelOf("movies")}`));
   const seasons = seasonsOf(m), names = Object.keys(seasons);
   // Season picker: previous button, dropdown, next button
   const cur = $("span", { class: "dd-label" });
@@ -218,7 +234,7 @@ function showPage(id) {
     const e = S.eps[j];
     if (!e) return null;
     const url = watchUrl(m, e, S.key, j + 1);
-    return url && { url, title: e.title || `Episode ${j + 1}`, sub: `${m.title} · ${name} · Episode ${j + 1}`, next: () => infoFor(S, j + 1, name) };
+    return url && { url, title: e.title || `Episode ${j + 1}`, sub: `${m.title} · ${name} · Episode ${j + 1}`, next: () => infoFor(S, j + 1, name), prev: () => infoFor(S, j - 1, name) };
   };
   const row = (e, i, key, n) => {
     const thumb = () => $("div", { class: "thumb" }, String(i));
@@ -286,16 +302,16 @@ function showPage(id) {
       : $("p", { class: "empty" }, "No episodes yet. They appear after the metadata update runs.")));
   if (names.length) draw(names[0]);
   return $("div", { class: "show-page" },
-    $("a", { class: "btn back", href: "#/movies" }, "← Back to movies"), el);
+    $("a", { class: "btn back", href: "#/movies" }, `← Back to ${labelOf("movies")}`), el);
 }
 
 function moviePage(id) {
   const m = library().find((x) => x.type !== "show" && x.id === id);
-  if (!m) return page("Not found", $("a", { href: "#/movies" }, "Back to movies"));
+  if (!m) return page("Not found", $("a", { href: "#/movies" }, `Back to ${labelOf("movies")}`));
   const blank = () => $("div", { class: "noposter" }, m.title);
   const url = watchUrl(m, m, "", 1);
   const meta = [m.year, m.runtime && `${m.runtime} min`, m.genres?.length && m.genres.join(", ")].filter(Boolean).join(" · ");
-  return $("div", {}, $("a", { class: "btn back", href: "#/movies" }, "← Back to movies"),
+  return $("div", {}, $("a", { class: "btn back", href: "#/movies" }, `← Back to ${labelOf("movies")}`),
     $("div", { class: "show" },
       $("aside", {}, $("figure", { class: "poster" }, m.poster ? img(m.poster, m.title, blank, { loading: "eager" }) : blank())),
       $("div", {}, $("h1", { class: "title mtitle" }, m.title), meta && $("p", { class: "meta" }, meta), ratingLine(m),
@@ -306,7 +322,7 @@ function moviePage(id) {
 // site/#/check/<show>: every episode name exactly as stored, and what the site shows after your library.js changes.
 function checkPage(id) {
   const m = library().find((x) => x.type === "show" && x.id === id);
-  if (!m) return page("Not found", $("a", { href: "#/movies" }, "Back to movies"));
+  if (!m) return page("Not found", $("a", { href: "#/movies" }, `Back to ${labelOf("movies")}`));
   const raw = {};
   for (const e of m.episodes || []) (raw[e.season === 0 ? "Specials" : `Season ${e.season}`] ||= []).push(e.title);
   const block = (k, titles) => [`\\n${k} (${titles.length})`, ...titles.map((t) => "  " + (t || "TBA"))];
@@ -315,6 +331,52 @@ function checkPage(id) {
     "\\n\\nWHAT THE SITE SHOWS", ...Object.entries(shown).flatMap(([k, s]) => block(k, s.eps.map((e) => e.title)))];
   return page("data check", $("pre", { class: "check" }, lines.join("\\n")));
 }
+
+// A dropdown where you can tick several options. The ticked ones show as chips with an x to remove them.
+const multiSelect = (label, options, picked, onChange) => {
+  const chips = $("div", { class: "tagchips" });
+  const text = $("span", { class: "dd-label" }, label);
+  const btn = $("button", { type: "button", class: "dd-btn", "aria-haspopup": "listbox", "aria-expanded": "false" }, text, $("span", { class: "chev" }));
+  const opts = options.map((o) => $("li", { role: "option", tabindex: "-1", "data-o": o }, $("span", {}, o), $("span", { class: "tick" })));
+  const menu = $("ul", { class: "dd-menu", role: "listbox", "aria-multiselectable": "true", "aria-label": label }, opts);
+  menu.hidden = true;
+  const dd = $("div", { class: "dd tagdd" }, btn, menu);
+  const clear = $("button", { type: "button", class: "tagclear" }, "Clear all");
+  const paint = () => {
+    text.textContent = picked.size ? `${label} (${picked.size})` : label;
+    opts.forEach((li) => li.setAttribute("aria-selected", String(picked.has(li.dataset.o))));
+    chips.replaceChildren(...[...picked].map((t) => {
+      const x = $("button", { type: "button", class: "tagx", "aria-label": `Remove tag ${t}` }, t, $("span", { "aria-hidden": "true" }, "✕"));
+      x.onclick = () => { picked.delete(t); paint(); onChange(); };
+      return x;
+    }), picked.size > 1 ? clear : null);
+  };
+  const toggle = (open) => {
+    menu.hidden = !open;
+    btn.setAttribute("aria-expanded", String(open));
+    if (open) opts[0].focus();
+  };
+  btn.onclick = () => toggle(menu.hidden);
+  clear.onclick = () => { picked.clear(); paint(); onChange(); };
+  menu.onclick = (e) => {
+    const li = e.target.closest("li");
+    if (!li) return;
+    picked.has(li.dataset.o) ? picked.delete(li.dataset.o) : picked.add(li.dataset.o);
+    paint(); onChange(); li.focus();
+  };
+  menu.onkeydown = (e) => {
+    const i = opts.indexOf(document.activeElement);
+    const go = (j) => { e.preventDefault(); opts[Math.max(0, Math.min(opts.length - 1, j))].focus(); };
+    if (e.key === "ArrowDown") go(i + 1);
+    else if (e.key === "ArrowUp") go(i - 1);
+    else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); document.activeElement.click(); }
+    else if (e.key === "Escape" || e.key === "Tab") { toggle(false); btn.focus(); }
+  };
+  const outside = (e) => { if (!dd.isConnected) removeEventListener("click", outside); else if (!dd.contains(e.target)) toggle(false); };
+  addEventListener("click", outside);
+  paint();
+  return { dd, chips };
+};
 
 const featured = () => {
   const items = library().slice(0, 8);
@@ -338,7 +400,22 @@ const P = {
       $("p", {}, p.description),
       $("ul", { class: "tags" }, (p.tags || []).map((t) => $("li", {}, t))),
       p.repo && $("a", { class: "src", href: p.repo, target: "_blank", rel: "noopener noreferrer" }, "Source code"));
-    const group = (name, items) => items?.length && $("section", { class: "group" }, $("h2", {}, name), $("div", { class: "cards" }, items.map(card)));
+    const group = (name, items) => {
+      if (!items?.length) return null;
+      const cards = items.map((p) => ({ tags: p.tags || [], el: card(p) }));
+      const all = [...new Set(items.flatMap((p) => p.tags || []))].sort((a, b) => a.localeCompare(b));
+      const picked = new Set();
+      const none = $("p", { class: "empty" }, "Nothing matches those tags.");
+      none.hidden = true;
+      const filter = all.length ? multiSelect("Filter by tag", all, picked, () => {      // shows items that have any picked tag
+        let shown = 0;
+        for (const c of cards) { const ok = !picked.size || c.tags.some((t) => picked.has(t)); c.el.hidden = !ok; if (ok) shown++; }
+        none.hidden = shown > 0;
+      }) : null;
+      return $("section", { class: "group" },
+        $("div", { class: "grouphead" }, $("h2", {}, name), filter && filter.dd), filter && filter.chips, none,
+        $("div", { class: "cards" }, cards.map((c) => c.el)));
+    };
     return page(labelOf("projects"), group("Projects", SITE.projects),
       SITE.studyTools?.length && $("hr", { class: "divider" }), group("Study tools", SITE.studyTools));
   },
@@ -383,13 +460,14 @@ const setMenu = (v) => {
   menuBtn.textContent = open ? "✕" : "☰";
   menuBtn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
   menuBtn.setAttribute("aria-expanded", String(open));
-  side.inert = small.matches && !open;
+  side.inert = (small.matches || document.documentElement.dataset.sidehide === "on") && !open;
   if (open) side.querySelector("a").focus();
 };
 menuBtn.onclick = () => setMenu(!open);
 scrim.onclick = () => setMenu(false);
 side.addEventListener("click", (e) => e.target.closest("a, button") && setMenu(false));
 small.addEventListener("change", () => setMenu(false));
+document.addEventListener("settingschange", () => setMenu(false));       // e.g. the "Hide sidebar" setting was switched
 addEventListener("keydown", (e) => { if (e.key === "Escape" && open) { setMenu(false); menuBtn.focus(); } });
 setMenu(false);
 

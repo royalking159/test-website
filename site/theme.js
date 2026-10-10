@@ -30,12 +30,12 @@ CHOICES.headingFonts = [...new Set([T.headingFont, ...CHOICES.headingFonts])];
 CHOICES.bodyFonts = [...new Set([T.bodyFont, ...CHOICES.bodyFonts])];
 
 const DEFAULTS = { mode: T.defaultMode || "dark", accent: "", bg: "", headingFont: T.headingFont, bodyFont: T.bodyFont,
-  size: "m", side: "left", cards: "m", motion: "full", glow: "on" };
+  size: "m", side: "left", cards: "m", motion: "full", glow: "on", sidehide: "off" };
 const KEY = "site-settings";
 let S = { ...DEFAULTS };
 try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch {}
 const allowed = { mode: ["dark", "light", "auto"], size: ["s", "m", "l"], side: ["left", "right"], cards: ["s", "m", "l"],
-  motion: ["full", "reduced"], glow: ["on", "off"], headingFont: CHOICES.headingFonts, bodyFont: CHOICES.bodyFonts };
+  motion: ["full", "reduced"], glow: ["on", "off"], sidehide: ["on", "off"], headingFont: CHOICES.headingFonts, bodyFont: CHOICES.bodyFonts };
 for (const [k, list] of Object.entries(allowed)) if (!list.includes(S[k])) S[k] = DEFAULTS[k];
 for (const k of ["accent", "bg"]) if (S[k] && !/^#[0-9a-f]{6}$/i.test(S[k])) S[k] = "";
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
@@ -67,7 +67,8 @@ const apply = () => {
   fontLink.href = "https://fonts.googleapis.com/css2?" +
     [...new Set([S.headingFont, S.bodyFont])].map((f) => "family=" + f.replace(/ /g, "+") + ":wght@400;700").join("&") + "&display=swap";
   r.style.fontSize = { s: "90%", m: "100%", l: "115%" }[S.size];
-  Object.assign(r.dataset, { cards: S.cards, motion: S.motion, glow: S.glow });
+  Object.assign(r.dataset, { cards: S.cards, motion: S.motion, glow: S.glow, sidehide: S.sidehide });
+  document.dispatchEvent(new Event("settingschange"));
   document.body.classList.toggle("side-right", S.side === "right");
 };
 prefersDark.addEventListener("change", () => S.mode === "auto" && apply());
@@ -146,7 +147,8 @@ dlg.append($("div", { class: "panel" },
       row("Text size", null, seg("size", [["s", "Small"], ["m", "Medium"], ["l", "Large"]]))),
     card("Layout",
       row("Poster size", "How big the movie and show cards are", seg("cards", [["s", "Small"], ["m", "Medium"], ["l", "Large"]])),
-      row("Sidebar position", "On desktop", seg("side", [["left", "Left"], ["right", "Right"]]))),
+      row("Sidebar position", "On desktop", seg("side", [["left", "Left"], ["right", "Right"]])),
+      row("Hide the sidebar", "Desktop only: a small button in the top-left corner opens it", sw("sidehide", "on", "off", "Hide the sidebar"), true)),
     card("Effects",
       row("Background glow", "Soft colour behind the pages and show posters", sw("glow", "on", "off", "Background glow"), true),
       row("Reduce motion", "Turn off animations", sw("motion", "reduced", "full", "Reduce motion"), true))),

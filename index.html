@@ -3,15 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>My Site</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Loading...</title>
+  <meta name="color-scheme" content="dark light">
+  <!-- Sends visitors to the homepage automatically. The script keeps any #/page or ?query; the meta tag is the fallback. -->
+  <meta http-equiv="refresh" content="0; url=site/">
+  <link rel="canonical" href="site/">
+  <script>location.replace("site/" + location.search + location.hash);</script>
 </head>
 <body>
-  <main id="view" tabindex="-1"></main>
-  <noscript>This site needs JavaScript to show its content.</noscript>
-  <script src="../data/config.js"></script>
-  <script src="../data/library.js"></script>
-  <script src="theme.js"></script>
-  <script src="app.js"></script>
+  <p>Taking you to the <a href="site/">homepage</a>...</p>
 </body>
 </html>

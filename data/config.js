@@ -22,7 +22,7 @@ const SITE = {
   sections: ["projects", "movies", "about"],
 
   // Optional: rename a page. This changes both its sidebar label and its page title.
-  sectionNames: { projects: "Projects/Study tools" },
+  sectionNames: { projects: "Projects/Study tools", movies: "Movies/Shows" },
 
   // Play videos inside the site? Google Drive, YouTube and .mp4 links open in a player on the page.
   // Set to false to always open play links in a new tab instead.
