@@ -1,0 +1,20 @@
+{
+  "id": "my-show",
+  "type": "show",
+  "title": "My Show",
+  "year": 2020,
+  "description": "Write a short summary in YOUR OWN words (do not copy it from another site).",
+  "genres": ["Animation", "Comedy"],
+  "ids": { "tmdb": 123456, "tvdb": 123456, "imdb": "tt1234567" },
+  "images": { "poster": "", "backdrop": "" },
+  "links": [{ "name": "Official page", "url": "https://example.com" }],
+  "seasons": [
+    {
+      "name": "Season 1",
+      "episodes": [
+        { "title": "Episode title", "date": "2020-01-31", "overview": "", "image": "", "youtube": "" }
+      ]
+    }
+  ],
+  "contributors": ["your-github-name"]
+}

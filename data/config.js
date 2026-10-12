@@ -18,8 +18,8 @@ const SITE = {
     bodyFont: "Instrument Sans",
   },
 
-  // The pages in the sidebar, in order. Choose from "projects", "movies", "about". Home is always first.
-  sections: ["projects", "movies", "about"],
+  // The pages in the sidebar, in order. Choose from "projects", "movies", "database", "about". Home is always first.
+  sections: ["projects", "movies", "database", "about"],
 
   // Optional: rename a page. This changes both its sidebar label and its page title.
   sectionNames: { projects: "Projects/Study tools", movies: "Movies/Shows" },
@@ -32,6 +32,10 @@ const SITE = {
   // The link can contain {show} {title} {season} {episode} {name} {date}, which are filled in per episode.
   // Example: "https://example.com/watch?show={show}&s={season}&e={episode}"
   watchUrl: "",
+
+  // Optional: a link to TMDB's logo image (download it from TMDB's brand page and put it in data/). It is shown under
+  // "Credits" on the About page. The credit text itself is always shown.
+  tmdbLogo: "",
 
   // Buttons on the home page. The first one is highlighted.
   links: [

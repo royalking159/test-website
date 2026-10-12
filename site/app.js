@@ -378,6 +378,101 @@ const multiSelect = (label, options, picked, onChange) => {
   return { dd, chips };
 };
 
+// ---------------- Community database (files in community/, index in data/community-index.json) ----------------
+let COMMUNITY;
+const loadCommunity = () => (COMMUNITY ||= fetch("../data/community-index.json").then((r) => (r.ok ? r.json() : { titles: [] })).catch(() => ({ titles: [] })));
+const repoInfo = () => {                                     // "owner/name" of the GitHub repo, worked out from the site address (or SITE.repo)
+  if (SITE.repo) return SITE.repo;
+  if (!location.hostname.endsWith(".github.io")) return "";
+  const owner = location.hostname.split(".")[0], first = location.pathname.split("/")[1] || "";
+  return `${owner}/${first && first !== "site" ? first : owner + ".github.io"}`;
+};
+const ghLink = (path, query = "") => (repoInfo() ? `https://github.com/${repoInfo()}/${path}${query}` : "");
+const extLink = (href, text, cls) => href && $("a", { class: cls, href, target: "_blank", rel: "noopener noreferrer" }, text);
+const DB_TEMPLATE = JSON.stringify({ id: "my-show", type: "show", title: "My Show", year: 2020, description: "Write a short summary in your own words.",
+  genres: ["Genre"], ids: {}, seasons: [{ name: "Season 1", episodes: [{ title: "Episode title", date: "2020-01-31" }] }], contributors: ["your-github-name"] }, null, 2);
+
+const dbTile = (t, i = 0) => {
+  const blank = () => $("div", { class: "noposter" }, t.title);
+  const pic = $("div", { class: "pic" }, t.poster ? img(t.poster, t.title, blank) : blank());
+  return $("figure", { class: "poster", style: `--i:${Math.min(i, 12)}` },
+    $("a", { href: `#/db/${t.id}`, "aria-label": t.title }, pic),
+    $("figcaption", {}, $("strong", {}, t.title), ` ${t.year || ""}`,
+      $("small", {}, t.type === "show" ? `${t.episodes} episodes` : "Movie"), t.genres?.length && $("small", {}, t.genres.slice(0, 2).join(", "))));
+};
+
+function dbList() {
+  const search = $("input", { type: "search", class: "search", placeholder: "Search titles and genres...", "aria-label": "Search the database" });
+  const bar = $("div", { class: "seg" });
+  const grid = $("div", { class: "posters" }), note = $("p", { class: "empty" }, "Loading...");
+  let titles = [], kind = "All";
+  const draw = () => {
+    const q = search.value.trim().toLowerCase();
+    const list = titles.filter((t) => (kind === "All" || t.type === kind) && (!q || `${t.title} ${(t.genres || []).join(" ")} ${t.description || ""}`.toLowerCase().includes(q)));
+    grid.replaceChildren(...list.map(dbTile));
+    note.textContent = titles.length ? "No titles match." : "Nothing here yet.";
+    note.hidden = list.length > 0;
+    bar.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === kind)));
+  };
+  [["All", "All"], ["show", "Shows"], ["movie", "Movies"]].forEach(([k, t]) => bar.append($("button", { type: "button", "data-k": k }, t)));
+  bar.onclick = (e) => { if (e.target.dataset.k) { kind = e.target.dataset.k; draw(); } };
+  search.oninput = draw;
+  loadCommunity().then((d) => { titles = d.titles || []; draw(); });
+  return page(labelOf("database"),
+    $("p", { class: "lead" }, "Community-written details for shows and movies. Anyone can add or fix a title on GitHub."),
+    $("div", { class: "dbtools" }, search, bar, extLink(ghLink("new/main/community/shows", `?filename=my-show.json&value=${encodeURIComponent(DB_TEMPLATE)}`), "Add a title", "btn")),
+    grid, note);
+}
+
+function dbView(d, dir) {
+  const blank = () => $("div", { class: "noposter" }, d.title);
+  const ids = d.ids || {}, tv = d.type === "movie" ? "movie" : "tv", tvdb = d.type === "movie" ? "movie" : "series";
+  const chips = [
+    ids.tmdb && extLink(`https://www.themoviedb.org/${tv}/${ids.tmdb}`, "TMDB"),
+    ids.imdb && extLink(`https://www.imdb.com/title/${ids.imdb}/`, "IMDb"),
+    ids.tvdb && extLink(`https://thetvdb.com/dereferrer/${tvdb}/${ids.tvdb}`, "TVDB"),
+    ...(d.links || []).map((l) => extLink(l.url, l.name)),
+  ];
+  const meta = [d.year, (d.genres || []).join(", ")].filter(Boolean).join(" · ");
+  const seasons = (d.seasons || []).map((s, si) => {
+    const eps = s.episodes || [];
+    const infos = eps.map((e, j) => e.youtube && { url: `https://www.youtube.com/watch?v=${e.youtube}`, title: e.title, sub: `${d.title} · ${s.name} · Episode ${j + 1}` });
+    infos.forEach((inf, j) => { if (inf) { inf.next = () => infos[j + 1] || null; inf.prev = () => infos[j - 1] || null; } });
+    const det = $("details", { class: "dbseason" }, $("summary", {}, `${s.name} (${eps.length})`),
+      $("ol", { class: "dbeps" }, eps.map((e, j) => $("li", {},
+        $("span", { class: "dbn" }, String(j + 1)),
+        $("div", { class: "grow" }, $("strong", {}, e.title), e.date && $("small", {}, fmt(e.date)), e.overview && expandable(e.overview, "ov", 2)),
+        infos[j] && playLink(infos[j], `Play ${e.title}`)))));
+    det.open = si === 0;
+    return det;
+  });
+  return $("div", { class: "show-page" },
+    $("a", { class: "btn back", href: "#/database" }, `← Back to ${labelOf("database")}`),
+    $("div", { class: "show" },
+      $("aside", {}, $("figure", { class: "poster" }, d.images?.poster ? img(d.images.poster, d.title, blank, { loading: "eager" }) : blank()),
+        $("h1", {}, d.title), meta && $("p", { class: "meta" }, meta), $("div", { class: "idlinks" }, chips),
+        d.description && expandable(d.description, "sdesc", 5),
+        extLink(ghLink(`edit/main/community/${dir}/${d.id}.json`), "Suggest an edit", "btn"),
+        d.contributors?.length && $("p", { class: "credit" }, `Added by ${d.contributors.join(", ")}`)),
+      $("div", {}, seasons.length ? seasons : $("p", { class: "empty" }, "No episodes listed yet."))));
+}
+
+function dbDetail(id) {
+  const host = $("div", {}, $("p", { class: "empty" }, "Loading..."));
+  const missing = (msg) => host.replaceChildren($("a", { class: "btn back", href: "#/database" }, `← Back to ${labelOf("database")}`), $("p", {}, msg));
+  loadCommunity().then(async ({ titles = [] }) => {
+    const t = titles.find((x) => x.id === id);
+    if (!t) return missing("That title isn't in the database yet.");
+    const dir = t.type === "movie" ? "movies" : "shows";
+    const d = await fetch(`../community/${dir}/${encodeURIComponent(id)}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    if (!d) return missing("Couldn't load that title.");
+    host.replaceChildren(dbView(d, dir));
+    fit();
+    requestAnimationFrame(fit);
+  });
+  return host;
+}
+
 const featured = () => {
   const items = library().slice(0, 8);
   if (!items.length) return null;
@@ -435,7 +530,14 @@ const P = {
     return el;
   },
 
-  about: () => page(labelOf("about"), $("p", { class: "lead" }, SITE.about)),
+  database: () => dbList(),
+
+  about: () => page(labelOf("about"), $("p", { class: "lead" }, SITE.about),
+    $("section", { class: "credits" }, $("h2", {}, "Credits"),
+      SITE.tmdbLogo && $("img", { src: SITE.tmdbLogo, alt: "TMDB", class: "tmdb-logo" }),
+      $("p", {}, "This product uses the TMDB API but is not endorsed or certified by ",
+        $("a", { href: "https://www.themoviedb.org", target: "_blank", rel: "noopener noreferrer" }, "TMDB"), "."),
+      $("p", {}, "Some metadata is provided by ", $("a", { href: "https://thetvdb.com", target: "_blank", rel: "noopener noreferrer" }, "TheTVDB"), "."))),
 };
 
 // ---- Sidebar ----
@@ -481,6 +583,7 @@ function render() {
   const [pg, arg] = location.hash.replace(/^#\/?/, "").split("/");
   let node, active = "", label = "";
   if (!pg) { node = P.home(); active = "home"; }
+  else if (pg === "db") { node = dbDetail(arg); active = "database"; label = "Database"; }
   else if (pg === "check") { node = checkPage(arg); label = "Data check"; }
   else if (pg === "show" || pg === "movie") {
     node = pg === "show" ? showPage(arg) : moviePage(arg); active = "movies";

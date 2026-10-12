@@ -336,3 +336,27 @@ dialog.player::backdrop { background: rgb(0 0 0 / .82); backdrop-filter: blur(6p
   [data-sidehide="on"] .bdwrap { left: 0; right: 0; }
   [data-sidehide="on"] #view { padding-top: 4rem; }
 }
+
+/* ===================== Community database ===================== */
+.sidebar nav a[data-s="database"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse cx='12' cy='5' rx='8' ry='3'/%3E%3Cpath d='M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3'/%3E%3C/svg%3E"); }
+.dbtools { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin: 1.25rem 0 1rem; }
+.search { flex: 1 1 14rem; max-width: 24rem; padding: .55rem 1.1rem; font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--edge); border-radius: 99px; }
+.search:focus { border-color: var(--accent); outline: none; }
+.dbseason { margin-bottom: .7rem; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.dbseason summary { padding: .8rem 1rem; font-weight: 700; cursor: pointer; }
+.dbseason summary:hover { color: var(--accent); }
+.dbeps { display: grid; gap: .3rem; margin: 0; padding: 0 .6rem .6rem; list-style: none; }
+.dbeps li { display: flex; align-items: flex-start; gap: .8rem; padding: .55rem .6rem; border-radius: 10px; }
+.dbeps li:hover { background: color-mix(in srgb, var(--text) 5%, transparent); }
+.dbeps .play { align-self: center; }
+.dbn { flex: none; width: 1.8rem; font-weight: 700; color: var(--muted); text-align: right; }
+.idlinks { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 .9rem; }
+.idlinks a { padding: .1rem .75rem; font-size: .8rem; font-weight: 700; color: var(--accent); text-decoration: none; background: color-mix(in srgb, var(--accent) 14%, transparent); border-radius: 99px; }
+.idlinks a:hover { background: color-mix(in srgb, var(--accent) 24%, transparent); }
+.show aside .btn { margin-top: 1rem; }
+.credit { font-size: .85rem; color: var(--muted); }
+.credits { margin-top: 3rem; padding-top: 1.5rem; font-size: .9rem; color: var(--muted); border-top: 1px solid var(--line); }
+.credits h2 { margin-bottom: .6rem; font-size: 1.1rem; color: var(--text); }
+.credits p { margin: .3rem 0; }
+.credits a { color: var(--accent); }
+.tmdb-logo { display: block; height: 1.1rem; margin-bottom: .7rem; }

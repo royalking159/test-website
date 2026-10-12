@@ -1,0 +1,25 @@
+{
+ "built": "2026-10-11T19:55:39.244Z",
+ "count": 1,
+ "titles": [
+  {
+   "id": "helluva-boss",
+   "type": "show",
+   "title": "Helluva Boss",
+   "year": 2020,
+   "description": "An adult animated comedy series created by Vivienne Medrano. It follows the Immediate Murder Professionals (I.M.P.), a small crew of imps who run an assassination business in Hell.",
+   "genres": [
+    "Animation",
+    "Comedy",
+    "Fantasy"
+   ],
+   "poster": "",
+   "ids": {
+    "tmdb": 289892,
+    "imdb": "tt10691770"
+   },
+   "seasons": 4,
+   "episodes": 36
+  }
+ ]
+}
