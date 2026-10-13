@@ -1,0 +1,202 @@
+{
+  "id": "helluva-boss",
+  "type": "show",
+  "title": "Helluva Boss",
+  "year": 2020,
+  "description": "An adult animated comedy series created by Vivienne Medrano. It follows the Immediate Murder Professionals (I.M.P.), a small crew of imps who run an assassination business in Hell.",
+  "genres": [
+    "Animation",
+    "Comedy",
+    "Fantasy"
+  ],
+  "ids": {
+    "tmdb": 289892,
+    "imdb": "tt10691770"
+  },
+  "images": {
+    "poster": "",
+    "backdrop": ""
+  },
+  "links": [
+    {
+      "name": "Official YouTube playlist",
+      "url": "https://www.youtube.com/playlist?list=PL-uopgYBi65HwiiDR9Y23lomAkGr9mm-S"
+    }
+  ],
+  "seasons": [
+    {
+      "name": "Season 1",
+      "episodes": [
+        {
+          "title": "Murder Family",
+          "date": "2020-10-31"
+        },
+        {
+          "title": "Loo Loo Land",
+          "date": "2020-12-09"
+        },
+        {
+          "title": "Spring Broken",
+          "date": "2021-01-31"
+        },
+        {
+          "title": "C.H.E.R.U.B",
+          "date": "2021-03-14"
+        },
+        {
+          "title": "The Harvest Moon Festival",
+          "date": "2021-04-30"
+        },
+        {
+          "title": "Truth Seekers",
+          "date": "2021-08-21"
+        },
+        {
+          "title": "Ozzie's",
+          "date": "2021-10-31"
+        },
+        {
+          "title": "Queen Bee",
+          "date": "2023-06-24"
+        }
+      ]
+    },
+    {
+      "name": "Season 2",
+      "episodes": [
+        {
+          "title": "The Circus",
+          "date": "2022-07-30"
+        },
+        {
+          "title": "Seeing Stars",
+          "date": "2022-10-19"
+        },
+        {
+          "title": "Exes and Oohs",
+          "date": "2023-03-11"
+        },
+        {
+          "title": "Western Energy",
+          "date": "2023-05-20"
+        },
+        {
+          "title": "Unhappy Campers",
+          "date": "2023-07-08"
+        },
+        {
+          "title": "Oops",
+          "date": "2023-09-09"
+        },
+        {
+          "title": "Mammon's Magnificent Musical Mid-Season Special (ft Fizzarolli)",
+          "date": "2023-10-29"
+        },
+        {
+          "title": "The Full Moon",
+          "date": "2024-05-31"
+        },
+        {
+          "title": "Apology Tour",
+          "date": "2024-06-22"
+        },
+        {
+          "title": "Ghostf**ckers",
+          "date": "2024-10-31"
+        },
+        {
+          "title": "Mastermind",
+          "date": "2024-11-29"
+        },
+        {
+          "title": "Sinsmas",
+          "date": "2024-12-21"
+        }
+      ]
+    },
+    {
+      "name": "Specials",
+      "episodes": [
+        {
+          "title": "Pilot",
+          "date": "2019-11-25"
+        },
+        {
+          "title": "Mission: Zero",
+          "date": "2025-09-10"
+        }
+      ]
+    },
+    {
+      "name": "Shorts",
+      "episodes": [
+        {
+          "title": "Hell's Belles",
+          "date": "2024-04-26",
+          "youtube": "_38dtqdR5V4"
+        },
+        {
+          "title": "Mission: Antarctica",
+          "date": "2024-07-31"
+        },
+        {
+          "title": "Mission: Weeaboo-Boo",
+          "date": "2024-08-31",
+          "youtube": "3-NrCcr8Bcg"
+        },
+        {
+          "title": "Mission: Chupacabras",
+          "date": "2024-09-29",
+          "youtube": "pngogrW4iC4"
+        },
+        {
+          "title": "Mission: Orphan Time",
+          "date": "2025-06-28"
+        },
+        {
+          "title": "Mission: Bad Drivezo",
+          "date": "2025-08-02",
+          "youtube": "52_V04weeC4"
+        },
+        {
+          "title": "Mission: Whacked Off",
+          "date": "2025-09-06"
+        },
+        {
+          "title": "Mission: Big Boss",
+          "date": "2026-02-07",
+          "youtube": "4obZtz2jEmo"
+        },
+        {
+          "title": "Mission: Bigfoot",
+          "date": "2026-03-07"
+        },
+        {
+          "title": "Mission: It's Chaz Funeral",
+          "date": "2026-04-01",
+          "youtube": "G3XORWJ2rQc"
+        },
+        {
+          "title": "Barbie's Bad Day",
+          "date": "2026-04-25"
+        },
+        {
+          "title": "IMP Training Video",
+          "date": "2026-06-13"
+        },
+        {
+          "title": "Mission: Book Report",
+          "date": "2026-07-11"
+        },
+        {
+          "title": "The Princess & the Pupper",
+          "date": "2026-10-03",
+          "youtube": "qJuPDHE5jug"
+        }
+      ]
+    }
+  ],
+  "contributors": [
+    "royalking159"
+  ]
+}

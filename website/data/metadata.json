@@ -1,0 +1,303 @@
+{
+ "movies": {},
+ "shows": {
+  "helluva-boss": {
+   "title": "Helluva Boss",
+   "year": 2020,
+   "overview": "Blitzo and his crew run a startup in Hell that takes contracts to kill people on Earth.",
+   "seed": true,
+   "episodes": [
+    {
+     "title": "Murder Family",
+     "season": 1,
+     "number": 1,
+     "date": "2020-10-31"
+    },
+    {
+     "title": "Loo Loo Land",
+     "season": 1,
+     "number": 2,
+     "date": "2020-12-09"
+    },
+    {
+     "title": "Spring Broken",
+     "season": 1,
+     "number": 3,
+     "date": "2021-01-31"
+    },
+    {
+     "title": "C.H.E.R.U.B",
+     "season": 1,
+     "number": 4,
+     "date": "2021-03-14"
+    },
+    {
+     "title": "The Harvest Moon Festival",
+     "season": 1,
+     "number": 5,
+     "date": "2021-04-30"
+    },
+    {
+     "title": "Truth Seekers",
+     "season": 1,
+     "number": 6,
+     "date": "2021-08-21"
+    },
+    {
+     "title": "Ozzie's",
+     "season": 1,
+     "number": 7,
+     "date": "2021-10-31"
+    },
+    {
+     "title": "Queen Bee",
+     "season": 1,
+     "number": 8,
+     "date": "2023-06-24"
+    },
+    {
+     "title": "The Circus",
+     "season": 2,
+     "number": 1,
+     "date": "2022-07-30"
+    },
+    {
+     "title": "Seeing Stars",
+     "season": 2,
+     "number": 2,
+     "date": "2022-10-19"
+    },
+    {
+     "title": "Exes and Oohs",
+     "season": 2,
+     "number": 3,
+     "date": "2023-03-11"
+    },
+    {
+     "title": "Western Energy",
+     "season": 2,
+     "number": 4,
+     "date": "2023-05-20"
+    },
+    {
+     "title": "Unhappy Campers",
+     "season": 2,
+     "number": 5,
+     "date": "2023-07-08"
+    },
+    {
+     "title": "Oops",
+     "season": 2,
+     "number": 6,
+     "date": "2023-09-09"
+    },
+    {
+     "title": "Mammon's Magnificent Musical Mid-Season Special (ft Fizzarolli)",
+     "season": 2,
+     "number": 7,
+     "date": "2023-10-29"
+    },
+    {
+     "title": "The Full Moon",
+     "season": 2,
+     "number": 8,
+     "date": "2024-05-31"
+    },
+    {
+     "title": "Apology Tour",
+     "season": 2,
+     "number": 9,
+     "date": "2024-06-22"
+    },
+    {
+     "title": "Ghostf**ckers",
+     "season": 2,
+     "number": 10,
+     "date": "2024-10-31"
+    },
+    {
+     "title": "Mastermind",
+     "season": 2,
+     "number": 11,
+     "date": "2024-11-29"
+    },
+    {
+     "title": "Sinsmas",
+     "season": 2,
+     "number": 12,
+     "date": "2024-12-21"
+    },
+    {
+     "title": "TBA",
+     "season": 3,
+     "number": 1,
+     "date": "2026-10-14"
+    },
+    {
+     "title": "TBA",
+     "season": 3,
+     "number": 2,
+     "date": "2026-10-14"
+    },
+    {
+     "title": "TBA",
+     "season": 3,
+     "number": 3,
+     "date": "2026-10-14"
+    },
+    {
+     "title": "TBA",
+     "season": 3,
+     "number": 4,
+     "date": "2026-10-21"
+    },
+    {
+     "title": "TBA",
+     "season": 3,
+     "number": 5,
+     "date": "2026-10-21"
+    },
+    {
+     "title": "TBA",
+     "season": 3,
+     "number": 6,
+     "date": "2026-10-28"
+    },
+    {
+     "title": "TBA",
+     "season": 3,
+     "number": 7,
+     "date": "2026-10-28"
+    },
+    {
+     "title": "Pilot",
+     "season": 0,
+     "number": 1,
+     "date": "2019-11-25"
+    },
+    {
+     "title": "Mission: Zero",
+     "season": 0,
+     "number": 2,
+     "date": "2025-09-10"
+    }
+   ]
+  },
+  "hazbin-hotel": {
+   "title": "Hazbin Hotel",
+   "year": 2024,
+   "overview": "Charlie, the Princess of Hell, opens a hotel to rehabilitate demons and send them to Heaven.",
+   "seed": true,
+   "episodes": [
+    {
+     "title": "Overture",
+     "season": 1,
+     "number": 1,
+     "date": "2024-01-19"
+    },
+    {
+     "title": "Radio Killed the Video Star",
+     "season": 1,
+     "number": 2,
+     "date": "2024-01-19"
+    },
+    {
+     "title": "Scrambled Eggs",
+     "season": 1,
+     "number": 3,
+     "date": "2024-01-19"
+    },
+    {
+     "title": "Masquerade",
+     "season": 1,
+     "number": 4,
+     "date": "2024-01-19"
+    },
+    {
+     "title": "Dad Beat Dad",
+     "season": 1,
+     "number": 5,
+     "date": "2024-01-26"
+    },
+    {
+     "title": "Welcome to Heaven",
+     "season": 1,
+     "number": 6,
+     "date": "2024-01-26"
+    },
+    {
+     "title": "Hello Rosie!",
+     "season": 1,
+     "number": 7,
+     "date": "2024-02-02"
+    },
+    {
+     "title": "The Show Must Go On",
+     "season": 1,
+     "number": 8,
+     "date": "2024-02-02"
+    },
+    {
+     "title": "New Pentious",
+     "season": 2,
+     "number": 1,
+     "date": "2025-10-29"
+    },
+    {
+     "title": "Storyteller",
+     "season": 2,
+     "number": 2,
+     "date": "2025-10-29"
+    },
+    {
+     "title": "Behind Closed Doors",
+     "season": 2,
+     "number": 3,
+     "date": "2025-11-05"
+    },
+    {
+     "title": "It's A Deal",
+     "season": 2,
+     "number": 4,
+     "date": "2025-11-05"
+    },
+    {
+     "title": "Silenced",
+     "season": 2,
+     "number": 5,
+     "date": "2025-11-12"
+    },
+    {
+     "title": "Scream Rain",
+     "season": 2,
+     "number": 6,
+     "date": "2025-11-12"
+    },
+    {
+     "title": "Weapon of Mass Distraction",
+     "season": 2,
+     "number": 7,
+     "date": "2025-11-19"
+    },
+    {
+     "title": "Curtain Call",
+     "season": 2,
+     "number": 8,
+     "date": "2025-11-19"
+    },
+    {
+     "title": "That's Entertainment (Pilot)",
+     "season": 0,
+     "number": 1,
+     "date": "2019-10-28"
+    },
+    {
+     "title": "Hazbin Hotel: Live on Broadway",
+     "season": 0,
+     "number": 2,
+     "date": "2025-11-17"
+    }
+   ]
+  }
+ }
+}
