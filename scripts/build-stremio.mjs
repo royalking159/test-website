@@ -1,5 +1,5 @@
-// Builds a static Stremio addon from the community database (the community/ folder) directly into the root.
-// GitHub Pages serves it, so the addon address is <your site>/manifest.json
+// Builds a static Stremio addon from the community database directly into the root.
+// Uses IMDb IDs so Torrentio can recognize and match streams.
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 
@@ -9,17 +9,20 @@ const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&l
 const [owner = "", repo = ""] = (process.env.GITHUB_REPOSITORY || "").split("/");
 const root = (process.env.SITE_URL || (owner ? `https://${owner.toLowerCase()}.github.io${repo.toLowerCase() === owner.toLowerCase() + ".github.io" ? "" : "/" + repo}` : "")).replace(/\/$/, "");
 if (!root) console.warn("Set SITE_URL (or run in GitHub Actions) so index.html can show the install link.");
-const PREFIX = "mysite-";                             // every id from this addon starts with this
+
 const iso = (d) => (/^\d{4}-\d{2}-\d{2}$/.test(d || "") ? `${d}T00:00:00.000Z` : undefined);
 const load = (dir) => (existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith(".json") && !f.startsWith("_")).map((f) => JSON.parse(readFileSync(`${dir}/${f}`, "utf8"))) : []);
 const byTitle = (a, b) => a.title.localeCompare(b.title);
 const shows = load("community/shows").sort(byTitle), movies = load("community/movies").sort(byTitle);
 
-const preview = (d, type) => ({
-  id: PREFIX + d.id, type, name: d.title, poster: d.images?.poster || undefined, posterShape: "poster",
-  description: d.description || undefined, releaseInfo: d.year ? String(d.year) + (type === "series" ? "-" : "") : undefined,
-  genres: d.genres?.length ? d.genres : undefined,
-});
+const preview = (d, type) => {
+  const showId = d.ids?.imdb || d.id;
+  return {
+    id: showId, type, name: d.title, poster: d.images?.poster || undefined, posterShape: "poster",
+    description: d.description || undefined, releaseInfo: d.year ? String(d.year) + (type === "series" ? "-" : "") : undefined,
+    genres: d.genres?.length ? d.genres : undefined,
+  };
+};
 const ytStream = (id) => ({ streams: id ? [{ ytId: id, name: "YouTube", title: "Official upload" }] : [] });
 
 // Clean old generated root files and folders
@@ -32,7 +35,8 @@ rmSync("index.html", { force: true });
 let episodes = 0, withVideo = 0, undated = 0;
 
 for (const d of shows) {
-  const id = PREFIX + d.id, videos = [];
+  const showId = d.ids?.imdb || d.id;
+  const id = showId, videos = [];
   let extra = 0;
   for (const s of d.seasons || []) {
     const num = /^Season (\d+)$/i.exec(s.name)?.[1];
@@ -54,13 +58,14 @@ for (const d of shows) {
   write(`meta/series/${id}.json`, { meta: { ...preview(d, "series"), background: d.images?.backdrop || undefined, videos, behaviorHints: { hasScheduledVideos: true } } });
 }
 for (const d of movies) {
-  write(`meta/movie/${PREFIX + d.id}.json`, { meta: { ...preview(d, "movie"), background: d.images?.backdrop || undefined } });
-  write(`stream/movie/${PREFIX + d.id}.json`, ytStream(d.youtube));
+  const movieId = d.ids?.imdb || d.id;
+  write(`meta/movie/${movieId}.json`, { meta: { ...preview(d, "movie"), background: d.images?.backdrop || undefined } });
+  write(`stream/movie/${movieId}.json`, ytStream(d.youtube));
 }
 
 const catalogs = [];
-if (shows.length) { catalogs.push({ type: "series", id: PREFIX + "shows", name: "Community shows" }); write(`catalog/series/${PREFIX}shows.json`, { metas: shows.map((d) => preview(d, "series")) }); }
-if (movies.length) { catalogs.push({ type: "movie", id: PREFIX + "movies", name: "Community movies" }); write(`catalog/movie/${PREFIX}movies.json`, { metas: movies.map((d) => preview(d, "movie")) }); }
+if (shows.length) { catalogs.push({ type: "series", id: "community-shows", name: "Community shows" }); write(`catalog/series/community-shows.json`, { metas: shows.map((d) => preview(d, "series")) }); }
+if (movies.length) { catalogs.push({ type: "movie", id: "community-movies", name: "Community movies" }); write(`catalog/movie/community-movies.json`, { metas: movies.map((d) => preview(d, "movie")) }); }
 
 const name = process.env.ADDON_NAME || "Community Metadata";
 write("manifest.json", {
@@ -68,7 +73,7 @@ write("manifest.json", {
   description: "Show and movie details from a community-written database, with official YouTube links where known.",
   logo: shows.find((d) => d.images?.poster)?.images.poster || undefined,
   resources: ["catalog", "meta", "stream"], types: [...(shows.length ? ["series"] : []), ...(movies.length ? ["movie"] : [])],
-  idPrefixes: [PREFIX], catalogs, behaviorHints: { configurable: false },
+  idPrefixes: ["tt"], catalogs, behaviorHints: { configurable: false },
 });
 const manifestUrl = root ? `${root}/manifest.json` : "";
 write("index.html", `<!DOCTYPE html>
