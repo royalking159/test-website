@@ -1,6 +1,6 @@
 {
  "meta": {
-  "id": "mysite-helluva-boss",
+  "id": "tt10691770",
   "type": "series",
   "name": "Helluva Boss",
   "posterShape": "poster",
@@ -13,252 +13,252 @@
   ],
   "videos": [
    {
-    "id": "mysite-helluva-boss-specials-pilot",
+    "id": "tt10691770-specials-pilot",
     "title": "Pilot",
     "season": 0,
     "episode": 1,
     "released": "2019-11-25T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-specials-mission-zero",
+    "id": "tt10691770-specials-mission-zero",
     "title": "Mission: Zero",
     "season": 0,
     "episode": 2,
     "released": "2025-09-10T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s1e1",
+    "id": "tt10691770-s1e1",
     "title": "Murder Family",
     "season": 1,
     "episode": 1,
     "released": "2020-10-31T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s1e2",
+    "id": "tt10691770-s1e2",
     "title": "Loo Loo Land",
     "season": 1,
     "episode": 2,
     "released": "2020-12-09T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s1e3",
+    "id": "tt10691770-s1e3",
     "title": "Spring Broken",
     "season": 1,
     "episode": 3,
     "released": "2021-01-31T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s1e4",
+    "id": "tt10691770-s1e4",
     "title": "C.H.E.R.U.B",
     "season": 1,
     "episode": 4,
     "released": "2021-03-14T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s1e5",
+    "id": "tt10691770-s1e5",
     "title": "The Harvest Moon Festival",
     "season": 1,
     "episode": 5,
     "released": "2021-04-30T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s1e6",
+    "id": "tt10691770-s1e6",
     "title": "Truth Seekers",
     "season": 1,
     "episode": 6,
     "released": "2021-08-21T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s1e7",
+    "id": "tt10691770-s1e7",
     "title": "Ozzie's",
     "season": 1,
     "episode": 7,
     "released": "2021-10-31T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s1e8",
+    "id": "tt10691770-s1e8",
     "title": "Queen Bee",
     "season": 1,
     "episode": 8,
     "released": "2023-06-24T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s2e1",
+    "id": "tt10691770-s2e1",
     "title": "The Circus",
     "season": 2,
     "episode": 1,
     "released": "2022-07-30T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s2e2",
+    "id": "tt10691770-s2e2",
     "title": "Seeing Stars",
     "season": 2,
     "episode": 2,
     "released": "2022-10-19T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s2e3",
+    "id": "tt10691770-s2e3",
     "title": "Exes and Oohs",
     "season": 2,
     "episode": 3,
     "released": "2023-03-11T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s2e4",
+    "id": "tt10691770-s2e4",
     "title": "Western Energy",
     "season": 2,
     "episode": 4,
     "released": "2023-05-20T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s2e5",
+    "id": "tt10691770-s2e5",
     "title": "Unhappy Campers",
     "season": 2,
     "episode": 5,
     "released": "2023-07-08T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s2e6",
+    "id": "tt10691770-s2e6",
     "title": "Oops",
     "season": 2,
     "episode": 6,
     "released": "2023-09-09T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s2e7",
+    "id": "tt10691770-s2e7",
     "title": "Mammon's Magnificent Musical Mid-Season Special (ft Fizzarolli)",
     "season": 2,
     "episode": 7,
     "released": "2023-10-29T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s2e8",
+    "id": "tt10691770-s2e8",
     "title": "The Full Moon",
     "season": 2,
     "episode": 8,
     "released": "2024-05-31T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s2e9",
+    "id": "tt10691770-s2e9",
     "title": "Apology Tour",
     "season": 2,
     "episode": 9,
     "released": "2024-06-22T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s2e10",
+    "id": "tt10691770-s2e10",
     "title": "Ghostf**ckers",
     "season": 2,
     "episode": 10,
     "released": "2024-10-31T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s2e11",
+    "id": "tt10691770-s2e11",
     "title": "Mastermind",
     "season": 2,
     "episode": 11,
     "released": "2024-11-29T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-s2e12",
+    "id": "tt10691770-s2e12",
     "title": "Sinsmas",
     "season": 2,
     "episode": 12,
     "released": "2024-12-21T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-shorts-hell-s-belles",
+    "id": "tt10691770-shorts-hell-s-belles",
     "title": "Hell's Belles",
     "season": 100,
     "episode": 1,
     "released": "2024-04-26T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-shorts-mission-antarctica",
+    "id": "tt10691770-shorts-mission-antarctica",
     "title": "Mission: Antarctica",
     "season": 100,
     "episode": 2,
     "released": "2024-07-31T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-shorts-mission-weeaboo-boo",
+    "id": "tt10691770-shorts-mission-weeaboo-boo",
     "title": "Mission: Weeaboo-Boo",
     "season": 100,
     "episode": 3,
     "released": "2024-08-31T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-shorts-mission-chupacabras",
+    "id": "tt10691770-shorts-mission-chupacabras",
     "title": "Mission: Chupacabras",
     "season": 100,
     "episode": 4,
     "released": "2024-09-29T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-shorts-mission-orphan-time",
+    "id": "tt10691770-shorts-mission-orphan-time",
     "title": "Mission: Orphan Time",
     "season": 100,
     "episode": 5,
     "released": "2025-06-28T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-shorts-mission-bad-drivezo",
+    "id": "tt10691770-shorts-mission-bad-drivezo",
     "title": "Mission: Bad Drivezo",
     "season": 100,
     "episode": 6,
     "released": "2025-08-02T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-shorts-mission-whacked-off",
+    "id": "tt10691770-shorts-mission-whacked-off",
     "title": "Mission: Whacked Off",
     "season": 100,
     "episode": 7,
     "released": "2025-09-06T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-shorts-mission-big-boss",
+    "id": "tt10691770-shorts-mission-big-boss",
     "title": "Mission: Big Boss",
     "season": 100,
     "episode": 8,
     "released": "2026-02-07T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-shorts-mission-bigfoot",
+    "id": "tt10691770-shorts-mission-bigfoot",
     "title": "Mission: Bigfoot",
     "season": 100,
     "episode": 9,
     "released": "2026-03-07T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-shorts-mission-it-s-chaz-funeral",
+    "id": "tt10691770-shorts-mission-it-s-chaz-funeral",
     "title": "Mission: It's Chaz Funeral",
     "season": 100,
     "episode": 10,
     "released": "2026-04-01T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-shorts-barbie-s-bad-day",
+    "id": "tt10691770-shorts-barbie-s-bad-day",
     "title": "Barbie's Bad Day",
     "season": 100,
     "episode": 11,
     "released": "2026-04-25T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-shorts-imp-training-video",
+    "id": "tt10691770-shorts-imp-training-video",
     "title": "IMP Training Video",
     "season": 100,
     "episode": 12,
     "released": "2026-06-13T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-shorts-mission-book-report",
+    "id": "tt10691770-shorts-mission-book-report",
     "title": "Mission: Book Report",
     "season": 100,
     "episode": 13,
     "released": "2026-07-11T00:00:00.000Z"
    },
    {
-    "id": "mysite-helluva-boss-shorts-the-princess-the-pupper",
+    "id": "tt10691770-shorts-the-princess-the-pupper",
     "title": "The Princess & the Pupper",
     "season": 100,
     "episode": 14,

@@ -12,12 +12,12 @@
   "series"
  ],
  "idPrefixes": [
-  "mysite-"
+  "tt"
  ],
  "catalogs": [
   {
    "type": "series",
-   "id": "mysite-shows",
+   "id": "community-shows",
    "name": "Community shows"
   }
  ],
