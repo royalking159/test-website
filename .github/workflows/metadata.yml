@@ -1,29 +1,40 @@
-name: Update movie metadata
+name: Build Stremio Addon
+
 on:
-  workflow_dispatch:            # lets you run it by hand from the Actions tab
-  schedule:
-    - cron: "0 3 * * *"         # and every day, so new uploads are picked up
   push:
-    paths: ["data/library.js"]  # and whenever you edit your movies and shows
-permissions:
-  contents: write
+    branches:
+      - main
+    # This prevents an infinite loop by ignoring pushes made by the bot itself
+    paths-ignore:
+      - 'manifest.json'
+      - 'catalog/**'
+      - 'meta/**'
+      - 'stream/**'
+      - 'index.html'
+
 jobs:
-  update:
+  build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - run: node scripts/fetch-metadata.mjs
+          node-version: '20'
+
+      - name: Run build script
+        run: node scripts/build-stremio.mjs
         env:
-          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-          TVDB_API_KEY: ${{ secrets.TVDB_API_KEY }}
-          TVDB_PIN: ${{ secrets.TVDB_PIN }}
-          MDBLIST_API_KEY: ${{ secrets.MDBLIST_API_KEY }}
-          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-      - run: |
-          git config user.name "github-actions"
-          git config user.email "actions@users.noreply.github.com"
-          git add data/metadata.json
-          git diff --cached --quiet || (git commit -m "Update movie metadata" && git push)
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Commit and push generated files
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.io"
+          git add manifest.json catalog/ meta/ stream/ index.html
+          git diff --staged --quiet || git commit -m "Auto-build Stremio addon files [skip ci]"
+          git push
