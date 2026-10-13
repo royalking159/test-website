@@ -1,0 +1,17 @@
+{
+ "metas": [
+  {
+   "id": "mysite-helluva-boss",
+   "type": "series",
+   "name": "Helluva Boss",
+   "posterShape": "poster",
+   "description": "An adult animated comedy series created by Vivienne Medrano. It follows the Immediate Murder Professionals (I.M.P.), a small crew of imps who run an assassination business in Hell.",
+   "releaseInfo": "2020-",
+   "genres": [
+    "Animation",
+    "Comedy",
+    "Fantasy"
+   ]
+  }
+ ]
+}
