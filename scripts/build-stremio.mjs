@@ -1,5 +1,4 @@
-// Builds a static Stremio addon from the community database directly into the root.
-// Uses standard IMDb ID formatting (tt10691770:S:E) so Torrentio can fetch streams.
+// Builds a static Stremio addon (catalog & metadata only) so Torrentio handles all video streams.
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 
@@ -23,16 +22,14 @@ const preview = (d, type) => {
     genres: d.genres?.length ? d.genres : undefined,
   };
 };
-const ytStream = (id) => ({ streams: id ? [{ ytId: id, name: "YouTube", title: "Official upload" }] : [] });
 
 // Clean old generated root files and folders
 rmSync("catalog", { recursive: true, force: true });
 rmSync("meta", { recursive: true, force: true });
-rmSync("stream", { recursive: true, force: true });
 rmSync("manifest.json", { force: true });
 rmSync("index.html", { force: true });
 
-let episodes = 0, withVideo = 0, undated = 0;
+let episodes = 0, undated = 0;
 
 for (const d of shows) {
   const showId = d.ids?.imdb || d.id;
@@ -48,15 +45,20 @@ for (const d of shows) {
       const t = slug(e.title), c = (seen.get(t) || 0) + 1;
       seen.set(t, c);
       
-      // Use standard Stremio IMDb episode format (tt10691770:1:1) so Torrentio matches it
       const vid = num || s.name.toLowerCase() === "specials" 
         ? `${id}:${n}:${i + 1}` 
         : `${id}:${slug(s.name)}:${t}${c > 1 ? "-" + c : ""}`;
         
-      videos.push({ id: vid, title: e.title, season: n, episode: i + 1, released, thumbnail: e.image || undefined, overview: e.overview || undefined });
-      write(`stream/series/${vid}.json`, ytStream(e.youtube));
+      videos.push({ 
+        id: vid, 
+        title: e.title, 
+        season: n, 
+        episode: i + 1, 
+        released, 
+        thumbnail: e.image || undefined, 
+        overview: e.overview || (e.youtube ? `Official YouTube ID: ${e.youtube}` : undefined) 
+      });
       episodes++;
-      if (e.youtube) withVideo++;
     });
   }
   videos.sort((a, b) => a.season - b.season || a.episode - b.episode);
@@ -66,7 +68,6 @@ for (const d of shows) {
 for (const d of movies) {
   const movieId = d.ids?.imdb || d.id;
   write(`meta/movie/${movieId}.json`, { meta: { ...preview(d, "movie"), background: d.images?.backdrop || undefined } });
-  write(`stream/movie/${movieId}.json`, ytStream(d.youtube));
 }
 
 const catalogs = [];
@@ -76,9 +77,9 @@ if (movies.length) { catalogs.push({ type: "movie", id: "community-movies", name
 const name = process.env.ADDON_NAME || "Community Metadata";
 write("manifest.json", {
   id: `community.${slug(owner || "site")}.database`, version: "1.0.0", name,
-  description: "Show and movie details from a community-written database, with official YouTube links where known.",
+  description: "Show and movie details from a community-written database.",
   logo: shows.find((d) => d.images?.poster)?.images.poster || undefined,
-  resources: ["catalog", "meta", "stream"], types: [...(shows.length ? ["series"] : []), ...(movies.length ? ["movie"] : [])],
+  resources: ["catalog", "meta"], types: [...(shows.length ? ["series"] : []), ...(movies.length ? ["movie"] : [])],
   idPrefixes: ["tt"], catalogs, behaviorHints: { configurable: false },
 });
 
@@ -87,9 +88,9 @@ write("index.html", `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(name)} for Stremio</title>
 <style>body{margin:0;display:grid;place-items:center;min-height:100vh;background:#101a33;color:#eaf0ff;font:1.05rem/1.6 system-ui,sans-serif}main{max-width:34rem;padding:2rem}
 a.b{display:inline-block;margin:.5rem 0;padding:.6rem 1.4rem;color:#101010;font-weight:700;text-decoration:none;background:#ffc247;border-radius:99px}code{display:block;padding:.6rem .8rem;overflow:auto;background:#182446;border-radius:8px}</style></head>
-<body><main><h1>${esc(name)}</h1><p>${shows.length} show(s) and ${movies.length} movie(s) with their episodes, dates and official YouTube links.</p>
+<body><main><h1>${esc(name)}</h1><p>${shows.length} show(s) and ${movies.length} movie(s) with custom metadata and episode layouts.</p>
 ${manifestUrl ? `<p><a class="b" href="stremio://${esc(manifestUrl.replace(/^https?:\/\//, ""))}">Install in Stremio</a></p><p>Or add this address in Stremio under Addons:</p><code>${esc(manifestUrl)}</code>` : "<p>Install link unavailable (the site address is unknown).</p>"}
 <p><small>Built ${new Date().toISOString().slice(0, 10)}</small></p></main></body></html>
 `);
-console.log(`Stremio addon: ${shows.length} show(s), ${movies.length} movie(s), ${episodes} episode(s) (${withVideo} with a YouTube video${undated ? `, ${undated} skipped for having no date` : ""}).`);
+console.log(`Stremio addon: ${shows.length} show(s), ${movies.length} movie(s), ${episodes} episode(s).`);
 if (manifestUrl) console.log("Install address:", manifestUrl);
