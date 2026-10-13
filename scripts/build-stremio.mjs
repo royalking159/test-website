@@ -1,5 +1,5 @@
 // Builds a static Stremio addon from the community database directly into the root.
-// Uses IMDb IDs so Torrentio can recognize and match streams.
+// Uses standard IMDb ID formatting (tt10691770:S:E) so Torrentio can fetch streams.
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 
@@ -47,7 +47,12 @@ for (const d of shows) {
       if (!released) { undated++; return; }
       const t = slug(e.title), c = (seen.get(t) || 0) + 1;
       seen.set(t, c);
-      const vid = num ? `${id}-s${n}e${i + 1}` : `${id}-${slug(s.name)}-${t}${c > 1 ? "-" + c : ""}`;
+      
+      // Use standard Stremio IMDb episode format (tt10691770:1:1) so Torrentio matches it
+      const vid = num || s.name.toLowerCase() === "specials" 
+        ? `${id}:${n}:${i + 1}` 
+        : `${id}:${slug(s.name)}:${t}${c > 1 ? "-" + c : ""}`;
+        
       videos.push({ id: vid, title: e.title, season: n, episode: i + 1, released, thumbnail: e.image || undefined, overview: e.overview || undefined });
       write(`stream/series/${vid}.json`, ytStream(e.youtube));
       episodes++;
@@ -57,6 +62,7 @@ for (const d of shows) {
   videos.sort((a, b) => a.season - b.season || a.episode - b.episode);
   write(`meta/series/${id}.json`, { meta: { ...preview(d, "series"), background: d.images?.backdrop || undefined, videos, behaviorHints: { hasScheduledVideos: true } } });
 }
+
 for (const d of movies) {
   const movieId = d.ids?.imdb || d.id;
   write(`meta/movie/${movieId}.json`, { meta: { ...preview(d, "movie"), background: d.images?.backdrop || undefined } });
@@ -75,6 +81,7 @@ write("manifest.json", {
   resources: ["catalog", "meta", "stream"], types: [...(shows.length ? ["series"] : []), ...(movies.length ? ["movie"] : [])],
   idPrefixes: ["tt"], catalogs, behaviorHints: { configurable: false },
 });
+
 const manifestUrl = root ? `${root}/manifest.json` : "";
 write("index.html", `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(name)} for Stremio</title>
