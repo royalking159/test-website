@@ -2,11 +2,10 @@
  "id": "community.royalking159.database",
  "version": "1.0.0",
  "name": "Community Metadata",
- "description": "Show and movie details from a community-written database, with official YouTube links where known.",
+ "description": "Show and movie details from a community-written database.",
  "resources": [
   "catalog",
-  "meta",
-  "stream"
+  "meta"
  ],
  "types": [
   "series"

@@ -171,7 +171,8 @@
     "title": "Hell's Belles",
     "season": 100,
     "episode": 1,
-    "released": "2024-04-26T00:00:00.000Z"
+    "released": "2024-04-26T00:00:00.000Z",
+    "overview": "Official YouTube ID: _38dtqdR5V4"
    },
    {
     "id": "tt10691770:shorts:mission-antarctica",
@@ -185,14 +186,16 @@
     "title": "Mission: Weeaboo-Boo",
     "season": 100,
     "episode": 3,
-    "released": "2024-08-31T00:00:00.000Z"
+    "released": "2024-08-31T00:00:00.000Z",
+    "overview": "Official YouTube ID: 3-NrCcr8Bcg"
    },
    {
     "id": "tt10691770:shorts:mission-chupacabras",
     "title": "Mission: Chupacabras",
     "season": 100,
     "episode": 4,
-    "released": "2024-09-29T00:00:00.000Z"
+    "released": "2024-09-29T00:00:00.000Z",
+    "overview": "Official YouTube ID: pngogrW4iC4"
    },
    {
     "id": "tt10691770:shorts:mission-orphan-time",
@@ -206,7 +209,8 @@
     "title": "Mission: Bad Drivezo",
     "season": 100,
     "episode": 6,
-    "released": "2025-08-02T00:00:00.000Z"
+    "released": "2025-08-02T00:00:00.000Z",
+    "overview": "Official YouTube ID: 52_V04weeC4"
    },
    {
     "id": "tt10691770:shorts:mission-whacked-off",
@@ -220,7 +224,8 @@
     "title": "Mission: Big Boss",
     "season": 100,
     "episode": 8,
-    "released": "2026-02-07T00:00:00.000Z"
+    "released": "2026-02-07T00:00:00.000Z",
+    "overview": "Official YouTube ID: 4obZtz2jEmo"
    },
    {
     "id": "tt10691770:shorts:mission-bigfoot",
@@ -234,7 +239,8 @@
     "title": "Mission: It's Chaz Funeral",
     "season": 100,
     "episode": 10,
-    "released": "2026-04-01T00:00:00.000Z"
+    "released": "2026-04-01T00:00:00.000Z",
+    "overview": "Official YouTube ID: G3XORWJ2rQc"
    },
    {
     "id": "tt10691770:shorts:barbie-s-bad-day",
@@ -262,7 +268,8 @@
     "title": "The Princess & the Pupper",
     "season": 100,
     "episode": 14,
-    "released": "2026-10-03T00:00:00.000Z"
+    "released": "2026-10-03T00:00:00.000Z",
+    "overview": "Official YouTube ID: qJuPDHE5jug"
    }
   ],
   "behaviorHints": {
