@@ -8,8 +8,8 @@
   "catalogs": [
     {
       "type": "series",
-      "id": "helluva_boss_catalog",
-      "name": "Helluva Boss"
+      "id": "mysite-shows",
+      "name": "My Site Shows"
     }
   ],
   "idPrefixes": ["tt10691770"]
