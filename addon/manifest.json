@@ -1,27 +1,16 @@
 {
- "id": "community.royalking159.database",
- "version": "1.0.0",
- "name": "Community Metadata",
- "description": "Show and movie details from a community-written database, with official YouTube links where known.",
- "resources": [
-  "catalog",
-  "meta",
-  "stream"
- ],
- "types": [
-  "series"
- ],
- "idPrefixes": [
-  "mysite-"
- ],
- "catalogs": [
-  {
-   "type": "series",
-   "id": "mysite-shows",
-   "name": "Community shows"
-  }
- ],
- "behaviorHints": {
-  "configurable": false
- }
+  "id": "org.myaddon.helluvaboss",
+  "version": "1.0.0",
+  "name": "Helluva Boss Custom Metadata",
+  "description": "Custom metadata and YouTube links for Helluva Boss.",
+  "types": ["series"],
+  "resources": ["meta", "stream"],
+  "catalogs": [
+    {
+      "type": "series",
+      "id": "helluva_boss_catalog",
+      "name": "Helluva Boss"
+    }
+  ],
+  "idPrefixes": ["tt10691770"]
 }
