@@ -29,35 +29,43 @@
       "episodes": [
         {
           "title": "Murder Family",
-          "date": "2020-10-31"
+          "date": "2020-10-31",
+          "overview": "A schoolteacher who died in a violent betrayal hires I.M.P. to finish off her husband's mistress. The job leads the crew into the home of a family of devil-worshipping cannibals."
         },
         {
           "title": "Loo Loo Land",
-          "date": "2020-12-09"
+          "date": "2020-12-09",
+          "overview": "Stolas hires I.M.P. to guard him and his daughter Octavia on a tense family day at an amusement park, where Blitzo also runs into an old, hostile coworker."
         },
         {
           "title": "Spring Broken",
-          "date": "2021-01-31"
+          "date": "2021-01-31",
+          "overview": "A fight over the company parking space with Blitzo's ex, the pop star Verosika Mayday, turns into a contest on Earth that goes wrong when a mutated fish attacks."
         },
         {
           "title": "C.H.E.R.U.B",
-          "date": "2021-03-14"
+          "date": "2021-03-14",
+          "overview": "An inventor newly arrived in Hell wants his old business partner dead, but a trio of cherubs from Heaven turns up to convince the target his life is worth living."
         },
         {
           "title": "The Harvest Moon Festival",
-          "date": "2021-04-30"
+          "date": "2021-04-30",
+          "overview": "I.M.P. visits Millie's family in the Wrath ring during a harvest festival, where a charming farmhand turns out to be an assassin targeting Stolas."
         },
         {
           "title": "Truth Seekers",
-          "date": "2021-08-21"
+          "date": "2021-08-21",
+          "overview": "Blitzo and Moxxie are captured by a secret agency on Earth and dosed with truth serum while the rest of the crew mounts a rescue."
         },
         {
           "title": "Ozzie's",
-          "date": "2021-10-31"
+          "date": "2021-10-31",
+          "overview": "Moxxie and Millie celebrate their anniversary at an exclusive restaurant in the Lust ring, and Blitzo schemes his way in by asking Stolas on a date."
         },
         {
           "title": "Queen Bee",
-          "date": "2023-06-24"
+          "date": "2023-06-24",
+          "overview": "Loona is invited to a hellhound party in the Gluttony ring, while Blitzo is still dealing with what happened at Ozzie's."
         }
       ]
     },
@@ -66,51 +74,83 @@
       "episodes": [
         {
           "title": "The Circus",
-          "date": "2022-07-30"
+          "date": "2022-07-30",
+          "overview": "Flashbacks show how Stolas and Blitzo first met, then the story returns to the aftermath of their disastrous date."
         },
         {
           "title": "Seeing Stars",
-          "date": "2022-10-19"
+          "date": "2022-10-19",
+          "overview": "When Stolas forgets a promise to watch a meteor shower, Octavia runs off to Los Angeles with his grimoire and I.M.P. goes after her."
         },
         {
           "title": "Exes and Oohs",
-          "date": "2023-03-11"
+          "date": "2023-03-11",
+          "overview": "I.M.P. visits Moxxie's mafia-boss father, who tries to arrange Moxxie's marriage to a shark demon with a shady agenda."
         },
         {
           "title": "Western Energy",
-          "date": "2023-05-20"
+          "date": "2023-05-20",
+          "overview": "Striker kidnaps Stolas on Stella's orders, and I.M.P. steps in before a change of plan spares his life."
         },
         {
           "title": "Unhappy Campers",
-          "date": "2023-07-08"
+          "date": "2023-07-08",
+          "overview": "Moxxie leads a mission for the first time and it goes badly, while Blitzo tries to make peace with his estranged sister."
         },
         {
           "title": "Oops",
-          "date": "2023-09-09"
+          "date": "2023-09-09",
+          "overview": "Blitzo and Fizzarolli are held for ransom and have to cooperate to escape, mending an old friendship along the way."
         },
         {
           "title": "Mammon's Magnificent Musical Mid-Season Special (ft Fizzarolli)",
-          "date": "2023-10-29"
+          "date": "2023-10-29",
+          "overview": "Fizzarolli enters a clown pageant run by Mammon, with Blitzo hired as his bodyguard, and a secret relationship comes into the open."
         },
         {
           "title": "The Full Moon",
-          "date": "2024-05-31"
+          "date": "2024-05-31",
+          "overview": "Blitzo gets ready for his monthly night with Stolas while rival groups from Heaven and the human world hunt him."
         },
         {
           "title": "Apology Tour",
-          "date": "2024-06-22"
+          "date": "2024-06-22",
+          "overview": "After another fight with Stolas, Blitzo tries apologising to people he has wronged, ending at a party that forces him to face his behaviour."
         },
         {
           "title": "Ghostf**ckers",
-          "date": "2024-10-31"
+          "date": "2024-10-31",
+          "overview": "Reeling from his breakup, Blitzo drags I.M.P. to a haunted hotel for a job and ends up tormented by his own guilt."
         },
         {
           "title": "Mastermind",
-          "date": "2024-11-29"
+          "date": "2024-11-29",
+          "overview": "I.M.P. is arrested and put on trial in Hell, and Stolas makes a costly choice to save Blitzo."
         },
         {
           "title": "Sinsmas",
-          "date": "2024-12-21"
+          "date": "2024-12-21",
+          "overview": "I.M.P. celebrates Hell's version of Christmas while Stolas tries to reconnect with Octavia, and the team's holiday job doesn't go as planned."
+        }
+      ]
+    },
+    {
+      "name": "Season 3",
+      "episodes": [
+        {
+          "title": "Turtle Emoji",
+          "date": "2026-10-14",
+          "overview": "Stolas sends Blitzo a turtle emoji, setting off unexpected developments in their relationship."
+        },
+        {
+          "title": "Bad Reputation",
+          "date": "2026-10-14",
+          "overview": "Millie takes centre stage as questions about her reputation and her future come up."
+        },
+        {
+          "title": "Gimpy Gimpy",
+          "date": "2026-10-14",
+          "overview": "The crew travels to Australia for another unpredictable adventure."
         }
       ]
     },
@@ -119,11 +159,14 @@
       "episodes": [
         {
           "title": "Pilot",
-          "date": "2019-11-25"
+          "date": "2019-11-25",
+          "overview": "The original pilot introduces I.M.P. and a job that splits the team. The creator has said it is not part of the main story.",
+          "youtube": "OlahNrlcgS4"
         },
         {
           "title": "Mission: Zero",
-          "date": "2025-09-10"
+          "date": "2025-09-10",
+          "overview": "A reimagining of the pilot, in which Blitzo expands the business to target living humans and borrows Stolas's grimoire to get to Earth."
         }
       ]
     },
@@ -133,65 +176,79 @@
         {
           "title": "Hell's Belles",
           "date": "2024-04-26",
-          "youtube": "_38dtqdR5V4"
+          "youtube": "_38dtqdR5V4",
+          "overview": "Millie spends a day in Imp City with her sister Sallie May, and the two talk about how their jobs have shaped them."
         },
         {
           "title": "Mission: Antarctica",
-          "date": "2024-07-31"
+          "date": "2024-07-31",
+          "overview": "A simple job in Antarctica turns into an escape from a flock of flesh-eating penguins."
         },
         {
           "title": "Mission: Weeaboo-Boo",
           "date": "2024-08-31",
-          "youtube": "3-NrCcr8Bcg"
+          "youtube": "3-NrCcr8Bcg",
+          "overview": "Blitzo kills a young woman who is fond of demons, only to have her turn up in Hell and vow to stay by his side."
         },
         {
           "title": "Mission: Chupacabras",
           "date": "2024-09-29",
-          "youtube": "pngogrW4iC4"
+          "youtube": "pngogrW4iC4",
+          "overview": "Blitzo is captured by a goat farmer who takes him for a Chupacabra and has to improvise a way out as agents close in."
         },
         {
           "title": "Mission: Orphan Time",
-          "date": "2025-06-28"
+          "date": "2025-06-28",
+          "overview": "Blitzo and Loona are sent to kill a children's entertainer but let him say goodbye to his kids first."
         },
         {
           "title": "Mission: Bad Drivezo",
           "date": "2025-08-02",
-          "youtube": "52_V04weeC4"
+          "youtube": "52_V04weeC4",
+          "overview": "After a job, Blitzo gets so angry at a reckless driver that he chases him down."
         },
         {
           "title": "Mission: Whacked Off",
-          "date": "2025-09-06"
+          "date": "2025-09-06",
+          "overview": "While Blitzo and Millie go fishing, Moxxie is sent to kill a mobster's son and ends up sympathising with his target."
         },
         {
           "title": "Mission: Big Boss",
           "date": "2026-02-07",
-          "youtube": "4obZtz2jEmo"
+          "youtube": "4obZtz2jEmo",
+          "overview": "Annoyed by his team's pushback, Blitzo kills a CEO and takes over his identity to enjoy a secretary who agrees with everything."
         },
         {
           "title": "Mission: Bigfoot",
-          "date": "2026-03-07"
+          "date": "2026-03-07",
+          "overview": "I.M.P. is hired to hunt Bigfoot without realising he is helping them."
         },
         {
           "title": "Mission: It's Chaz Funeral",
           "date": "2026-04-01",
-          "youtube": "G3XORWJ2rQc"
+          "youtube": "G3XORWJ2rQc",
+          "overview": "Blitzo, Moxxie and Millie are invited to Chaz's \"funeral\"."
         },
         {
           "title": "Barbie's Bad Day",
-          "date": "2026-04-25"
+          "date": "2026-04-25",
+          "overview": "Barbie loses her job after the events of \"Unhappy Campers\" and struggles to get home to her girlfriend."
         },
         {
           "title": "IMP Training Video",
-          "date": "2026-06-13"
+          "date": "2026-06-13",
+          "overview": "Blitzo tries to film a staff training video, but nobody sticks to his terrible script."
         },
         {
           "title": "Mission: Book Report",
-          "date": "2026-07-11"
+          "date": "2026-07-11",
+          "overview": "Moxxie helps Stolas turn Blitzo's awful drawings of a mission into a proper report."
         },
         {
           "title": "The Princess & the Pupper",
           "date": "2026-10-03",
-          "youtube": "qJuPDHE5jug"
+          "youtube": "qJuPDHE5jug",
+          "overview": "Loona helps Octavia sneak back home after Octavia slips out to see her favourite band. (Official warning: for daddy issues.)"
         }
       ]
     }

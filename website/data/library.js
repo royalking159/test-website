@@ -90,40 +90,15 @@ const LIBRARY = [
   {
     type: "show",
     title: "Helluva Boss",
-    // YOUTUBE PLAY LINKS. The metadata Action finds each episode's official YouTube video by its name (or by season and
-    // episode number) and saves the link: Season 1, Season 2, Season 3 (as soon as it is uploaded there), all the shorts,
-    // and specials like Pilot and Mission: Zero. They play inside the site.
-    // Sources: a playlist id (works without a key) and/or a channel handle (needs the YOUTUBE_API_KEY secret, see README.md).
-    // If one episode doesn't get a link, give it by hand:  edits: { "Episode name": { youtube: "VIDEO_ID" } }
-    youtube: ["@vivziepop", "PL-uopgYBi65HwiiDR9Y23lomAkGr9mm-S"],
-    // watchUrl: "https://example.com/watch/{show}/{season}/{episode}",   // remove the // and set your own link pattern
-    moves: { "Queen Bee": "S1" },                                          // Queen Bee goes into Season 1
+    // The episodes, summaries, dates, thumbnails and YouTube ids come from the community database
+    // (community/shows/helluva-boss.json): edit them there. This entry only holds tweaks for this website.
+    // YOUTUBE: the metadata Action finds each episode's official YouTube video by name and saves the id.
+    // Sources: a playlist id (works without a key) and/or a channel handle (needs the YOUTUBE_API_KEY secret).
+    youtube: ["@SpindleHorse", "PL-uopgYBi65HwiiDR9Y23lomAkGr9mm-S"],
     // Specials: Pilot and Mission: Zero first, then everything else in its normal order.
     episodeOrder: { Specials: ["Pilot", "Mission: Zero"] },
     // The Shorts section shows the Specials poster (instead of the main show poster).
     seasonCovers: { Shorts: "Specials" },
-    // The two not-yet-released shorts that TMDB lists as just "Mission:" go into Shorts as well.
-    edits: { "Mission:": { title: "Mission: (coming soon)", season: "Shorts" } },
-    extra: {
-      Shorts: [
-        { title: "Hell's Belles", date: "2024-04-26", youtube: "_38dtqdR5V4" },
-        { title: "Mission: Antarctica", date: "2024-07-31" },
-        { title: "Mission: Weeaboo-Boo", date: "2024-08-31", youtube: "3-NrCcr8Bcg" },
-        { title: "Mission: Chupacabras", date: "2024-09-29", youtube: "pngogrW4iC4" },
-        { title: "Mission: Orphan Time", date: "2025-06-28" },
-        { title: "Mission: Bad Drivezo", date: "2025-08-02", youtube: "52_V04weeC4" },
-        { title: "Mission: Whacked Off", date: "2025-09-06" },
-        { title: "Mission: Big Boss", date: "2026-02-07", youtube: "4obZtz2jEmo" },
-        { title: "Mission: Bigfoot", date: "2026-03-07" },
-        { title: "Mission: It's Chaz Funeral", date: "2026-04-01", youtube: "G3XORWJ2rQc" },
-        { title: "Barbie's Bad Day", date: "2026-04-25" },
-        { title: "IMP Training Video", date: "2026-06-13" },
-        { title: "Mission: Book Report", date: "2026-07-11" },
-        // Helluva Shorts 14 (the date is my best guess: a Saturday release. Edit it if it is wrong)
-        { title: "The Princess & the Pupper", date: "2026-10-03", youtube: "qJuPDHE5jug",
-          overview: "WARNING: For daddy issues" }
-      ],
-    },
   },
   { type: "show", title: "Hazbin Hotel" },
 

@@ -19,13 +19,52 @@ const img = (src, alt, fallback, attrs = {}) => {
 
 // Library = what you wrote in library.js, filled in with fetched metadata.json. Your own values win.
 let META = { movies: {}, shows: {} };
-const library = () => LIBRARY.map((e) => {
-  const id = e.id || slug(e.title);
-  const md = (e.type === "show" ? META.shows : META.movies)[id] || {};
-  const m = { ...md, ...defined(e), id };
-  if (e.description) m.overview = e.description;              // "description" is a friendlier name for "overview"
-  return m;
-}).filter((m) => !m.hidden).sort((a, b) => (a.order ?? 1e9) - (b.order ?? 1e9));   // file order, unless you set `order`
+// ---- Community database titles (community/*.json) are loaded at start and merged with library.js and metadata.json ----
+let DBFULL = {};
+const fromCommunity = (d) => {                               // a community file -> the shape the site already uses
+  const episodes = [], extra = {}, seasonPosters = {}, seasonCovers = {};
+  for (const s of d.seasons || []) {
+    const n = /^Season (\d+)$/i.exec(s.name)?.[1];
+    const list = (s.episodes || []).map((e, i) => ({ title: e.title, number: i + 1, date: e.date, overview: e.overview, image: e.image, youtube: e.youtube }));
+    if (n) { list.forEach((e) => episodes.push({ ...e, season: Number(n) })); if (s.poster) seasonPosters[n] = s.poster; }
+    else if (/^specials$/i.test(s.name)) { list.forEach((e) => episodes.push({ ...e, season: 0 })); if (s.poster) seasonPosters[0] = s.poster; }
+    else { extra[s.name] = list; if (s.poster) seasonCovers[s.name] = s.poster; }   // named seasons like Shorts
+  }
+  return { type: d.type === "movie" ? "movie" : "show", title: d.title, year: d.year, overview: d.description, genres: d.genres,
+    poster: d.images?.poster, backdrop: d.images?.backdrop, episodes, extra, seasonPosters, seasonCovers };
+};
+// An episode with no picture of its own gets the TMDB still the site already fetched (same name, else same season and number).
+const fillStills = (eps, md) => {
+  const known = md.episodes || [];
+  return eps.map((e) => {
+    if (e.image) return e;
+    const t = normBase(e.title);
+    const hit = known.find((x) => normBase(x.title) === t) || (e.season > 0 ? known.find((x) => x.season === e.season && x.number === e.number) : null);
+    return hit?.image ? { ...e, image: hit.image } : e;
+  });
+};
+const library = () => {
+  const used = new Set();
+  const make = (e, d) => {
+    const id = e.id || slug(e.title || d.title);
+    const type = e.type || (d?.type === "movie" ? "movie" : "show");
+    const md = (type === "show" ? META.shows : META.movies)[id] || {};
+    const c = d ? fromCommunity(d) : {};
+    const m = { ...md, ...defined(c), ...defined(e), id, type };       // library.js tweaks > database > TMDB/TVDB data
+    if (d) {                                                            // the database decides the episodes and seasons
+      m.episodes = fillStills(c.episodes, md);
+      m.extra = { ...(e.extra || {}), ...Object.fromEntries(Object.entries(c.extra).map(([k, v]) => [k, fillStills(v, md)])) };
+      m.seasonPosters = { ...(md.seasonPosters || {}), ...c.seasonPosters };
+      m.seasonCovers = { ...c.seasonCovers, ...(e.seasonCovers || {}) };
+    }
+    if (e.description) m.overview = e.description;                      // "description" is a friendlier name for "overview"
+    used.add(id);
+    return m;
+  };
+  const list = LIBRARY.map((e) => make(e, DBFULL[e.id || slug(e.title)]));
+  for (const d of Object.values(DBFULL)) if (!used.has(d.id)) list.push(make({}, d));   // titles that only exist in the database
+  return list.filter((m) => !m.hidden).sort((a, b) => (a.order ?? 1e9) - (b.order ?? 1e9));   // file order, unless you set `order`
+};
 
 // Where an episode's play icon goes: its own `url`, else the show's `watchUrl`, else `watchUrl` in config.js.
 // A template can use {show} {title} {season} {episode} {name} {date}.
@@ -381,6 +420,13 @@ const multiSelect = (label, options, picked, onChange) => {
 // ---------------- Community database (files in community/, index in data/community-index.json) ----------------
 let COMMUNITY;
 const loadCommunity = () => (COMMUNITY ||= fetch("../data/community-index.json").then((r) => (r.ok ? r.json() : { titles: [] })).catch(() => ({ titles: [] })));
+const loadCommunityFull = async () => {                      // fetches each community title file once at start
+  const { titles = [] } = await loadCommunity();
+  await Promise.all(titles.map(async (t) => {
+    const d = await fetch(`../community/${t.type === "movie" ? "movies" : "shows"}/${encodeURIComponent(t.id)}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    if (d) DBFULL[t.id] = d;
+  }));
+};
 const repoInfo = () => {                                     // "owner/name" of the GitHub repo, worked out from the site address (or SITE.repo)
   if (SITE.repo) return SITE.repo;
   if (!location.hostname.endsWith(".github.io")) return "";
@@ -426,6 +472,9 @@ function dbList() {
 
 function dbView(d, dir) {
   const blank = () => $("div", { class: "noposter" }, d.title);
+  const poster = d.images?.poster || (META.shows?.[d.id] || {}).poster;               // the site's own data fills gaps
+  const yl = (META.shows?.[d.id] || {}).ytLinks || {};
+  const ytOf = (e, s, j) => e.youtube || yl[normBase(e.title)] || (/^Season (\d+)$/i.test(s.name) ? yl[`s${/^Season (\d+)$/i.exec(s.name)[1]}e${j + 1}`] : "");
   const ids = d.ids || {}, tv = d.type === "movie" ? "movie" : "tv", tvdb = d.type === "movie" ? "movie" : "series";
   const chips = [
     ids.tmdb && extLink(`https://www.themoviedb.org/${tv}/${ids.tmdb}`, "TMDB"),
@@ -436,7 +485,7 @@ function dbView(d, dir) {
   const meta = [d.year, (d.genres || []).join(", ")].filter(Boolean).join(" · ");
   const seasons = (d.seasons || []).map((s, si) => {
     const eps = s.episodes || [];
-    const infos = eps.map((e, j) => e.youtube && { url: `https://www.youtube.com/watch?v=${e.youtube}`, title: e.title, sub: `${d.title} · ${s.name} · Episode ${j + 1}` });
+    const infos = eps.map((e, j) => ytOf(e, s, j) && { url: `https://www.youtube.com/watch?v=${ytOf(e, s, j)}`, title: e.title, sub: `${d.title} · ${s.name} · Episode ${j + 1}` });
     infos.forEach((inf, j) => { if (inf) { inf.next = () => infos[j + 1] || null; inf.prev = () => infos[j - 1] || null; } });
     const det = $("details", { class: "dbseason" }, $("summary", {}, `${s.name} (${eps.length})`),
       $("ol", { class: "dbeps" }, eps.map((e, j) => $("li", {},
@@ -449,7 +498,7 @@ function dbView(d, dir) {
   return $("div", { class: "show-page" },
     $("a", { class: "btn back", href: "#/database" }, `← Back to ${labelOf("database")}`),
     $("div", { class: "show" },
-      $("aside", {}, $("figure", { class: "poster" }, d.images?.poster ? img(d.images.poster, d.title, blank, { loading: "eager" }) : blank()),
+      $("aside", {}, $("figure", { class: "poster" }, poster ? img(poster, d.title, blank, { loading: "eager" }) : blank()),
         $("h1", {}, d.title), meta && $("p", { class: "meta" }, meta), $("div", { class: "idlinks" }, chips),
         d.description && expandable(d.description, "sdesc", 5),
         extLink(ghLink(`edit/main/community/${dir}/${d.id}.json`), "Suggest an edit", "btn"),
@@ -601,8 +650,8 @@ addEventListener("hashchange", () => { render(); scrollTo(0, 0); view.focus({ pr
 
 addEventListener("resize", fit);
 document.fonts?.ready.then(fit);
-fetch("../data/metadata.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({}))
-  .then((j) => {
+Promise.all([fetch("../data/metadata.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})), loadCommunityFull().catch(() => {})])
+  .then(([j]) => {
     META = { movies: j.movies || {}, shows: j.shows || {} };
     document.querySelector(".settings-body").append($("p", { class: "status" }, j.updated
       ? `Posters and episodes last updated ${fmt(j.updated)}.`
