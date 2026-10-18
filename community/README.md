@@ -26,6 +26,13 @@ community/
 `id`, `type` ("show" or "movie"), `title` are required. Everything else is optional: `year`, `description`,
 `genres`, `ids` (`tmdb`, `tvdb`, `imdb`), `images` (`poster`, `backdrop`), `links`, `contributors`.
 Shows also have `seasons`, each with a `name` and `episodes` (`title`, and optionally `date`, `overview`, `image`, `youtube`).
+A season can also have a `poster` (an https link). Episode thumbnails: give an episode an `image`, or leave it out and the site and the Stremio addon
+use the TMDB still the website already fetched, then the YouTube thumbnail if the episode has a `youtube` id.
+The metadata Action fills in missing `youtube` ids for you (`node scripts/community.mjs fill`).
+
+## Where the data is used
+- **Website:** the Movies/Shows page and each title's page read these files (library.js tweaks win over the database, the database wins over TMDB/TVDB data). Titles that only exist in `data/library.js` still show.
+- **Stremio addon:** built from the same files by `scripts/build-stremio.mjs`.
 
 ## Status
 - [x] Data format, checker and index builder (`scripts/community.mjs`), GitHub Action, template, Helluva Boss as the first entry
@@ -38,5 +45,5 @@ After a change is merged, the Action rebuilds the `addon/` folder. It is served 
 `https://<your-name>.github.io/<repo>/addon/manifest.json`. In Stremio open **Addons** and add that address
 (or open `.../addon/` in a browser and tap **Install in Stremio**). It lists every title with its episodes and dates,
 and episodes that have a `youtube` id get an official YouTube stream.
-Stremio only knows season numbers, so "Specials" becomes season 0 and any other named season (like Shorts) becomes season 100 and up.
+Stremio only knows season numbers, so "Specials" becomes season 0, and any other named season (like Shorts) becomes its own series, for example "Helluva Boss: Shorts".
 Episodes without a `date` are left out of the addon.

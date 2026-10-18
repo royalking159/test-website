@@ -3,6 +3,7 @@
 //   node scripts/community.mjs build       check, then write data/community-index.json
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 
+const siteData = existsSync("data/metadata.json") ? JSON.parse(readFileSync("data/metadata.json", "utf8")) : {};   // fills a missing poster
 const DIRS = { show: "community/shows", movie: "community/movies" };
 const errors = [];
 const titles = [];
@@ -36,6 +37,7 @@ function check(file, d, type) {
   d.seasons.forEach((s, i) => {
     const at = `seasons[${i}]`;
     if (!isStr(s?.name, 60)) err(file, `${at}.name is required`);
+    if (s?.poster && !isUrl(s.poster)) err(file, `${at}.poster must be a link starting with https://`);
     if (!Array.isArray(s?.episodes)) return err(file, `${at}.episodes must be a list`);
     s.episodes.forEach((e, j) => {
       const ep = `${at}.episodes[${j}]`;
@@ -46,6 +48,30 @@ function check(file, d, type) {
       if (e?.youtube && !/^[\w-]{11}$/.test(e.youtube)) err(file, `${ep}.youtube must be an 11-character YouTube video id`);
     });
   });
+}
+
+
+// "fill": copy YouTube ids the metadata Action found (data/metadata.json) into episodes that have none, so the database keeps them.
+if (process.argv[2] === "fill") {
+  const normBase = (t) => String(t || "").replace(/\(.*?\)/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  let added = 0;
+  for (const f of existsSync(DIRS.show) ? readdirSync(DIRS.show).filter((x) => x.endsWith(".json") && !x.startsWith("_")) : []) {
+    const file = `${DIRS.show}/${f}`;
+    const d = JSON.parse(readFileSync(file, "utf8"));
+    const links = siteData.shows?.[d.id]?.ytLinks || {};
+    let changed = false;
+    for (const se of d.seasons || []) {
+      const n = /^Season (\d+)$/i.exec(se.name)?.[1];
+      (se.episodes || []).forEach((e, i) => {
+        if (e.youtube) return;
+        const id = links[normBase(e.title)] || (n && links[`s${n}e${i + 1}`]);
+        if (id && /^[\w-]{11}$/.test(id)) { e.youtube = id; changed = true; added++; }
+      });
+    }
+    if (changed) writeFileSync(file, JSON.stringify(d, null, 2) + "\n");
+  }
+  console.log(`Filled ${added} YouTube id(s) into the community files.`);
+  process.exit(0);
 }
 
 for (const [type, dir] of Object.entries(DIRS)) {
@@ -59,7 +85,7 @@ for (const [type, dir] of Object.entries(DIRS)) {
     if (seen.has(d?.id)) err(file, `id "${d.id}" is already used by ${seen.get(d.id)}`); else seen.set(d?.id, file);
     const eps = (d.seasons || []).reduce((n, s) => n + (s.episodes?.length || 0), 0);
     titles.push({ id: d.id, type, title: d.title, year: d.year, description: (d.description || "").slice(0, 240), genres: d.genres || [],
-      poster: d.images?.poster || "", ids: d.ids || {}, seasons: (d.seasons || []).length, episodes: eps });
+      poster: d.images?.poster || siteData[type === "show" ? "shows" : "movies"]?.[d.id]?.poster || "", ids: d.ids || {}, seasons: (d.seasons || []).length, episodes: eps });
   }
 }
 

@@ -1,0 +1,139 @@
+{
+ "meta": {
+  "id": "mysite-helluva-boss-shorts",
+  "type": "series",
+  "name": "Helluva Boss: Shorts",
+  "posterShape": "poster",
+  "description": "Shorts from Helluva Boss.",
+  "releaseInfo": "2020-",
+  "genres": [
+   "Animation",
+   "Comedy",
+   "Fantasy"
+  ],
+  "videos": [
+   {
+    "id": "mysite-helluva-boss-shorts-hell-s-belles",
+    "title": "Hell's Belles",
+    "season": 1,
+    "episode": 1,
+    "released": "2024-04-26T00:00:00.000Z",
+    "overview": "Millie spends a day in Imp City with her sister Sallie May, and the two talk about how their jobs have shaped them.",
+    "thumbnail": "https://i.ytimg.com/vi/_38dtqdR5V4/mqdefault.jpg"
+   },
+   {
+    "id": "mysite-helluva-boss-shorts-mission-antarctica",
+    "title": "Mission: Antarctica",
+    "season": 1,
+    "episode": 2,
+    "released": "2024-07-31T00:00:00.000Z",
+    "overview": "A simple job in Antarctica turns into an escape from a flock of flesh-eating penguins."
+   },
+   {
+    "id": "mysite-helluva-boss-shorts-mission-weeaboo-boo",
+    "title": "Mission: Weeaboo-Boo",
+    "season": 1,
+    "episode": 3,
+    "released": "2024-08-31T00:00:00.000Z",
+    "overview": "Blitzo kills a young woman who is fond of demons, only to have her turn up in Hell and vow to stay by his side.",
+    "thumbnail": "https://i.ytimg.com/vi/3-NrCcr8Bcg/mqdefault.jpg"
+   },
+   {
+    "id": "mysite-helluva-boss-shorts-mission-chupacabras",
+    "title": "Mission: Chupacabras",
+    "season": 1,
+    "episode": 4,
+    "released": "2024-09-29T00:00:00.000Z",
+    "overview": "Blitzo is captured by a goat farmer who takes him for a Chupacabra and has to improvise a way out as agents close in.",
+    "thumbnail": "https://i.ytimg.com/vi/pngogrW4iC4/mqdefault.jpg"
+   },
+   {
+    "id": "mysite-helluva-boss-shorts-mission-orphan-time",
+    "title": "Mission: Orphan Time",
+    "season": 1,
+    "episode": 5,
+    "released": "2025-06-28T00:00:00.000Z",
+    "overview": "Blitzo and Loona are sent to kill a children's entertainer but let him say goodbye to his kids first."
+   },
+   {
+    "id": "mysite-helluva-boss-shorts-mission-bad-drivezo",
+    "title": "Mission: Bad Drivezo",
+    "season": 1,
+    "episode": 6,
+    "released": "2025-08-02T00:00:00.000Z",
+    "overview": "After a job, Blitzo gets so angry at a reckless driver that he chases him down.",
+    "thumbnail": "https://i.ytimg.com/vi/52_V04weeC4/mqdefault.jpg"
+   },
+   {
+    "id": "mysite-helluva-boss-shorts-mission-whacked-off",
+    "title": "Mission: Whacked Off",
+    "season": 1,
+    "episode": 7,
+    "released": "2025-09-06T00:00:00.000Z",
+    "overview": "While Blitzo and Millie go fishing, Moxxie is sent to kill a mobster's son and ends up sympathising with his target."
+   },
+   {
+    "id": "mysite-helluva-boss-shorts-mission-big-boss",
+    "title": "Mission: Big Boss",
+    "season": 1,
+    "episode": 8,
+    "released": "2026-02-07T00:00:00.000Z",
+    "overview": "Annoyed by his team's pushback, Blitzo kills a CEO and takes over his identity to enjoy a secretary who agrees with everything.",
+    "thumbnail": "https://i.ytimg.com/vi/4obZtz2jEmo/mqdefault.jpg"
+   },
+   {
+    "id": "mysite-helluva-boss-shorts-mission-bigfoot",
+    "title": "Mission: Bigfoot",
+    "season": 1,
+    "episode": 9,
+    "released": "2026-03-07T00:00:00.000Z",
+    "overview": "I.M.P. is hired to hunt Bigfoot without realising he is helping them."
+   },
+   {
+    "id": "mysite-helluva-boss-shorts-mission-it-s-chaz-funeral",
+    "title": "Mission: It's Chaz Funeral",
+    "season": 1,
+    "episode": 10,
+    "released": "2026-04-01T00:00:00.000Z",
+    "overview": "Blitzo, Moxxie and Millie are invited to Chaz's \"funeral\".",
+    "thumbnail": "https://i.ytimg.com/vi/G3XORWJ2rQc/mqdefault.jpg"
+   },
+   {
+    "id": "mysite-helluva-boss-shorts-barbie-s-bad-day",
+    "title": "Barbie's Bad Day",
+    "season": 1,
+    "episode": 11,
+    "released": "2026-04-25T00:00:00.000Z",
+    "overview": "Barbie loses her job after the events of \"Unhappy Campers\" and struggles to get home to her girlfriend."
+   },
+   {
+    "id": "mysite-helluva-boss-shorts-imp-training-video",
+    "title": "IMP Training Video",
+    "season": 1,
+    "episode": 12,
+    "released": "2026-06-13T00:00:00.000Z",
+    "overview": "Blitzo tries to film a staff training video, but nobody sticks to his terrible script."
+   },
+   {
+    "id": "mysite-helluva-boss-shorts-mission-book-report",
+    "title": "Mission: Book Report",
+    "season": 1,
+    "episode": 13,
+    "released": "2026-07-11T00:00:00.000Z",
+    "overview": "Moxxie helps Stolas turn Blitzo's awful drawings of a mission into a proper report."
+   },
+   {
+    "id": "mysite-helluva-boss-shorts-the-princess-the-pupper",
+    "title": "The Princess & the Pupper",
+    "season": 1,
+    "episode": 14,
+    "released": "2026-10-03T00:00:00.000Z",
+    "overview": "Loona helps Octavia sneak back home after Octavia slips out to see her favourite band. (Official warning: for daddy issues.)",
+    "thumbnail": "https://i.ytimg.com/vi/qJuPDHE5jug/mqdefault.jpg"
+   }
+  ],
+  "behaviorHints": {
+   "hasScheduledVideos": true
+  }
+ }
+}

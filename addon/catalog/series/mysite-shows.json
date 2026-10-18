@@ -12,6 +12,19 @@
     "Comedy",
     "Fantasy"
    ]
+  },
+  {
+   "id": "mysite-helluva-boss-shorts",
+   "type": "series",
+   "name": "Helluva Boss: Shorts",
+   "posterShape": "poster",
+   "description": "Shorts from Helluva Boss.",
+   "releaseInfo": "2020-",
+   "genres": [
+    "Animation",
+    "Comedy",
+    "Fantasy"
+   ]
   }
  ]
 }
