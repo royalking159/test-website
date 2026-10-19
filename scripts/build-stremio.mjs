@@ -82,7 +82,7 @@ for (const it of items) {
     });
   }
   videos.sort((a, b) => a.season - b.season || a.episode - b.episode);
-  write(`addon/meta/series/${it.id}.json`, { meta: { ...preview(it), background: it.backdrop, videos, behaviorHints: { hasScheduledVideos: true } } });
+  write(`addon/meta/series/${it.id}.json`, { meta: { ...preview(it), background: it.backdrop, director: it.d.directors?.length ? it.d.directors : undefined, cast: it.d.cast?.length ? it.d.cast : undefined, videos, behaviorHints: { hasScheduledVideos: true } } });
 }
 const movieMeta = (d) => ({ id: d.stremioImdb && d.ids?.imdb ? d.ids.imdb : PREFIX + d.id, type: "movie", name: d.title, poster: web(d.images?.poster) || web(mine(d, "movies").poster),
   posterShape: "poster", description: d.description || undefined, releaseInfo: d.year ? String(d.year) : undefined, genres: d.genres?.length ? d.genres : undefined });

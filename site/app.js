@@ -31,7 +31,7 @@ const fromCommunity = (d) => {                               // a community file
     else { extra[s.name] = list; if (s.poster) seasonCovers[s.name] = s.poster; }   // named seasons like Shorts
   }
   return { type: d.type === "movie" ? "movie" : "show", title: d.title, year: d.year, overview: d.description, genres: d.genres,
-    poster: d.images?.poster, backdrop: d.images?.backdrop, episodes, extra, seasonPosters, seasonCovers };
+    poster: d.images?.poster, backdrop: d.images?.backdrop, cast: d.cast, directors: d.directors, episodes, extra, seasonPosters, seasonCovers };
 };
 // An episode with no picture of its own gets the TMDB still the site already fetched (same name, else same season and number).
 const fillStills = (eps, md) => {
@@ -335,7 +335,9 @@ function showPage(id) {
   const el = $("div", { class: "show" },
     $("aside", {}, figure, $("h1", {}, m.title),
       metaLine(m) && $("p", { class: "meta" }, metaLine(m)), ratingLine(m),
-      m.overview && expandable(m.overview, "sdesc", 5)),
+      m.overview && expandable(m.overview, "sdesc", 5),
+      m.directors?.length && $("p", { class: "credit" }, `Created by ${m.directors.join(", ")}`),
+      m.cast?.length && $("p", { class: "credit" }, `Starring ${m.cast.join(", ")}`)),
     $("div", {}, names.length
       ? [bar, list]
       : $("p", { class: "empty" }, "No episodes yet. They appear after the metadata update runs.")));
@@ -501,6 +503,8 @@ function dbView(d, dir) {
       $("aside", {}, $("figure", { class: "poster" }, poster ? img(poster, d.title, blank, { loading: "eager" }) : blank()),
         $("h1", {}, d.title), meta && $("p", { class: "meta" }, meta), $("div", { class: "idlinks" }, chips),
         d.description && expandable(d.description, "sdesc", 5),
+        d.directors?.length && $("p", { class: "credit" }, `Created by ${d.directors.join(", ")}`),
+        d.cast?.length && $("p", { class: "credit" }, `Starring ${d.cast.join(", ")}`),
         extLink(ghLink(`edit/main/community/${dir}/${d.id}.json`), "Suggest an edit", "btn"),
         d.contributors?.length && $("p", { class: "credit" }, `Added by ${d.contributors.join(", ")}`)),
       $("div", {}, seasons.length ? seasons : $("p", { class: "empty" }, "No episodes listed yet."))));

@@ -11,6 +11,15 @@
    "Comedy",
    "Fantasy"
   ],
+  "director": [
+   "Vivienne Medrano"
+  ],
+  "cast": [
+   "Brandon Rogers",
+   "Erica Lindbeck",
+   "Richard Steven Horvitz",
+   "Brock Baker"
+  ],
   "videos": [
    {
     "id": "mysite-helluva-boss-specials-pilot",
