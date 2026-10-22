@@ -360,3 +360,21 @@ dialog.player::backdrop { background: rgb(0 0 0 / .82); backdrop-filter: blur(6p
 .credits p { margin: .3rem 0; }
 .credits a { color: var(--accent); }
 .tmdb-logo { display: block; height: 1.1rem; margin-bottom: .7rem; }
+
+/* ===================== Trailer button and the "Add a title" form ===================== */
+.btn.primary { color: var(--on-accent); font-weight: 700; background: var(--accent); border-color: var(--accent); }
+.trailer { margin: 0 0 .9rem; }
+.addform { display: grid; gap: 1rem; max-width: 46rem; }
+.addform h2 { margin-top: .6rem; font-size: 1.3rem; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.field { display: grid; gap: .3rem; }
+.field > span { font-weight: 700; }
+.field input, .field select, .field textarea { width: 100%; padding: .6rem .85rem; font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--edge); border-radius: 10px; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); outline: none; }
+.field textarea { resize: vertical; }
+.seasonbox { display: grid; gap: .8rem; margin-bottom: .8rem; padding: 1rem; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.seasonbox .btn { justify-self: start; }
+.jsonout { max-height: 22rem; margin: 0; padding: 1rem; overflow: auto; font-size: .85rem; line-height: 1.5; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.problems { margin: 0; padding-left: 1.2rem; color: #ff8a8a; }
+.problems:empty { display: none; }
+@media (max-width: 800px) { .row2 { grid-template-columns: 1fr; } }

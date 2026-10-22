@@ -5,6 +5,8 @@ import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "
 
 const siteData = existsSync("data/metadata.json") ? JSON.parse(readFileSync("data/metadata.json", "utf8")) : {};   // fills a missing poster
 const DIRS = { show: "community/shows", movie: "community/movies" };
+const normBase = (t) => String(t || "").replace(/\(.*?\)/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+const isGeneric = (t) => { const n = normBase(t); return n.length < 4 || n === "mission" || /^episode\d+$/.test(n); };
 const errors = [];
 const titles = [];
 const seen = new Map();
@@ -31,6 +33,7 @@ function check(file, d, type) {
   for (const k of ["poster", "backdrop"]) if (d.images?.[k] && !isUrl(d.images[k])) err(file, `images.${k} must be a link starting with https://`);
   (d.links || []).forEach((l, i) => { if (!isStr(l?.name, 80) || !isUrl(l?.url)) err(file, `links[${i}] needs a name and an https:// url`); });
   for (const k of ["cast", "directors"]) if (d[k] != null && !(Array.isArray(d[k]) && d[k].length <= 40 && d[k].every((c) => isStr(c, 80)))) err(file, `${k} must be a list of names`);
+  if (d.trailer && !/^[\w-]{11}$/.test(d.trailer)) err(file, "trailer must be an 11-character YouTube video id");
   if (d.contributors != null && !(Array.isArray(d.contributors) && d.contributors.every((c) => isStr(c, 60)))) err(file, "contributors must be a list of names");
   if (d.youtube && !/^[\w-]{11}$/.test(d.youtube)) err(file, "youtube must be an 11-character YouTube video id");
   if (type !== "show") return;
@@ -38,6 +41,7 @@ function check(file, d, type) {
   d.seasons.forEach((s, i) => {
     const at = `seasons[${i}]`;
     if (!isStr(s?.name, 60)) err(file, `${at}.name is required`);
+    if (s?.trailer && !/^[\w-]{11}$/.test(s.trailer)) err(file, `${at}.trailer must be an 11-character YouTube video id`);
     if (s?.poster && !isUrl(s.poster)) err(file, `${at}.poster must be a link starting with https://`);
     if (!Array.isArray(s?.episodes)) return err(file, `${at}.episodes must be a list`);
     s.episodes.forEach((e, j) => {
@@ -51,6 +55,31 @@ function check(file, d, type) {
   });
 }
 
+
+// "ids": read community/youtube-ids.txt (lines like  VIDEOID  Title of the video) and save matching ids into episodes that have none.
+if (process.argv[2] === "ids") {
+  const raw = existsSync("community/youtube-ids.txt") ? readFileSync("community/youtube-ids.txt", "utf8").split("\n") : [];
+  const vids = raw.map((l) => /^([\w-]{11})\s+(.+)$/.exec(l.trim())).filter((m) => m && !m[0].startsWith("#")).map((m) => ({
+    id: m[1], title: m[2], n: normBase(m[2]), code: (m[2].match(/\bS(\d+)\s*[:.]?\s*(?:Episode|Ep\.?|E)\s*(\d+)/i) || []).slice(1).map(Number).join("x") }));
+  let added = 0;
+  for (const f of existsSync(DIRS.show) ? readdirSync(DIRS.show).filter((x) => x.endsWith(".json") && !x.startsWith("_")) : []) {
+    const file = `${DIRS.show}/${f}`, d = JSON.parse(readFileSync(file, "utf8")), key = normBase(d.title.split(/\s+/)[0]);
+    const mine = vids.filter((v) => v.n.includes(key));
+    let changed = false;
+    for (const se of d.seasons || []) {
+      const n = /^Season (\d+)$/i.exec(se.name)?.[1];
+      (se.episodes || []).forEach((e, i) => {
+        if (e.youtube) return;
+        const t = normBase(e.title);
+        const hit = (!isGeneric(e.title) && (mine.find((v) => v.n.includes(t)) || (t.length >= 12 && vids.find((v) => v.n.includes(t))))) || (n && mine.find((v) => v.code === `${n}x${i + 1}`));
+        if (hit) { e.youtube = hit.id; changed = true; added++; }
+      });
+    }
+    if (changed) writeFileSync(file, JSON.stringify(d, null, 2) + "\n");
+  }
+  console.log(`Saved ${added} YouTube id(s) from community/youtube-ids.txt (${vids.length} video line(s) read).`);
+  process.exit(0);
+}
 
 // "fill": copy YouTube ids the metadata Action found (data/metadata.json) into episodes that have none, so the database keeps them.
 if (process.argv[2] === "fill") {

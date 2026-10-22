@@ -60,6 +60,15 @@ const tmdb = (path, q = "") =>
   get(`https://api.themoviedb.org/3${path}?${bearer ? "" : `api_key=${TMDB_API_KEY}&`}${q}`,
     bearer ? { headers: { Authorization: `Bearer ${TMDB_API_KEY}` } } : undefined);
 const tImg = (p, size) => (p ? `https://image.tmdb.org/t/p/${size}${p}` : undefined);
+async function pickTrailer(path) {                          // an official YouTube trailer id from TMDB, if it lists one
+  try {
+    const r = await tmdb(path);
+    const t = (r.results || []).filter((v) => v.site === "YouTube" && /^[\w-]{11}$/.test(v.key || ""));
+    const best = t.filter((v) => v.type === "Trailer").sort((a, b) => (b.official - a.official) || String(b.published_at).localeCompare(String(a.published_at)))[0]
+      || t.find((v) => v.type === "Teaser");
+    return best?.key;
+  } catch { return undefined; }
+}
 async function tmdbId(e, kind) {                              // kind: "tv" or "movie"
   if (e.tmdb) return e.tmdb;
   if (e.imdb) {
@@ -156,9 +165,13 @@ for (const e of LIBRARY) {
           backdrop: tImg(info.backdrop_path, "w780"), overview: info.overview, genres: (info.genres || []).map((g) => g.name),
         });
         if (info.vote_average) md.score = Math.round(info.vote_average * 10) / 10;   // TMDB rating out of 10
+        const tr = await pickTrailer(`/tv/${tid}/videos`);
+        if (tr) md.trailer = tr;
         for (const s of info.seasons || []) {
           const r = await tmdb(`/tv/${tid}/season/${s.season_number}`);
           if (r.poster_path) (md.seasonPosters ??= {})[s.season_number] = tImg(r.poster_path, "w500");
+          const st = await pickTrailer(`/tv/${tid}/season/${s.season_number}/videos`);
+          if (st) (md.seasonTrailers ??= {})[s.season_number] = st;
           tmdbEps.push(...(r.episodes || []).map((x) => ({
             title: x.name, season: s.season_number, number: x.episode_number, date: x.air_date,
             image: tImg(x.still_path, "w300"), overview: x.overview,
@@ -215,7 +228,10 @@ for (const e of LIBRARY) {
   }
   if (TMDB_API_KEY) {
     try {
-      const info = await tmdb(`/movie/${await tmdbId(e, "movie")}`);
+      const mid = await tmdbId(e, "movie");
+      const info = await tmdb(`/movie/${mid}`);
+      const mt = await pickTrailer(`/movie/${mid}/videos`);
+      if (mt) md.trailer = mt;
       put(md, {
         title: info.title, year: (info.release_date || "").slice(0, 4), poster: tImg(info.poster_path, "w500"),
         overview: info.overview, runtime: info.runtime, genres: (info.genres || []).map((g) => g.name),

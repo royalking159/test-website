@@ -27,16 +27,16 @@ const site = existsSync("data/metadata.json") ? JSON.parse(readFileSync("data/me
 const mine = (d, kind) => site[kind]?.[d.id] || {};              // the website's own TMDB/TVDB/YouTube data for the same title
 const ytStream = (id) => ({ streams: id ? [{ ytId: id, name: "YouTube", title: "Official upload" }] : [] });
 const ytThumb = (id) => `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
+const generic = (t) => { const n = normBase(t); return n.length < 4 || /^episode\d+$/.test(n); };   // TBA / "Episode 4" placeholders
 
 const ytFor = (d, e, i, num) => {                             // the episode's YouTube id: from its file, else from the site's own data
   if (e.youtube) return e.youtube;
   const links = mine(d, "shows").ytLinks || {};
   return links[normBase(e.title)] || (num && links[`s${num}e${i + 1}`]) || "";
 };
-const stillFor = (d, e, i, num) => {                          // a TMDB still the website already has (same name, else same season and number)
+const tmdbEp = (d, e, i, num) => {                            // the website's TMDB data for this episode (same name, else same season and number)
   const eps = mine(d, "shows").episodes || [];
-  const hit = eps.find((x) => normBase(x.title) === normBase(e.title)) || (num ? eps.find((x) => x.season === Number(num) && x.number === i + 1) : null);
-  return web(hit?.image);
+  return eps.find((x) => normBase(x.title) === normBase(e.title)) || (num ? eps.find((x) => x.season === Number(num) && x.number === i + 1) : null);
 };
 
 // ---- Work out every Stremio series: each show, plus one extra series per named season (like Shorts) ----
@@ -44,7 +44,7 @@ const items = [];
 for (const d of shows) {
   const imdbMode = !!(d.stremioImdb && d.ids?.imdb);
   const showPoster = web(d.images?.poster) || web(mine(d, "shows").poster);
-  const main = { id: imdbMode ? d.ids.imdb : PREFIX + d.id, name: d.title, d, imdbMode, poster: showPoster, backdrop: web(d.images?.backdrop) || web(mine(d, "shows").backdrop), seasons: [] };
+  const main = { id: imdbMode ? d.ids.imdb : PREFIX + d.id, name: d.title, d, imdbMode, poster: showPoster, trailer: d.trailer || mine(d, "shows").trailer, backdrop: web(d.images?.backdrop) || web(mine(d, "shows").backdrop), seasons: [] };
   items.push(main);
   for (const s of d.seasons || []) {
     const num = /^Season (\d+)$/i.exec(s.name)?.[1], special = /^specials$/i.test(s.name);
@@ -52,6 +52,11 @@ for (const d of shows) {
     else items.push({ id: `${PREFIX}${d.id}-${slug(s.name)}`, name: `${d.title}: ${s.name}`, d, imdbMode: false, description: `${s.name} from ${d.title}.`,
       poster: web(s.poster) || web(mine(d, "shows").seasonPosters?.[0]) || showPoster, backdrop: main.backdrop, seasons: [{ n: 1, num: null, named: true, s }] });
   }
+  // A numbered season the database doesn't list at all comes from TMDB (placeholder titles like "TBA" are skipped)
+  const have = new Set(main.seasons.map((x) => x.n)), extra = {};
+  for (const x of mine(d, "shows").episodes || []) if (x.season > 0 && !have.has(x.season) && !generic(x.title)) (extra[x.season] ||= []).push(x);
+  for (const [n, list] of Object.entries(extra)) main.seasons.push({ n: Number(n), num: n, special: false,
+    s: { name: `Season ${n}`, episodes: list.sort((a, b) => a.number - b.number).map((x) => ({ title: x.title, date: x.date, overview: x.overview, image: x.image })) } });
 }
 const preview = (it) => ({
   id: it.id, type: "series", name: it.name, poster: it.poster, posterShape: "poster", description: it.description || it.d.description || undefined,
@@ -65,7 +70,8 @@ for (const it of items) {
   for (const { n, num, special, s } of it.seasons) {
     const seen = new Map();
     (s.episodes || []).forEach((e, i) => {
-      const released = iso(e.date);
+      const hit = tmdbEp(it.d, e, i, num);                    // TMDB fills anything the database leaves out
+      const released = iso(e.date) || iso(hit?.date);
       if (!released) { undated++; return; }                   // Stremio needs a date for every episode
       const t = slug(e.title), c = (seen.get(t) || 0) + 1;
       seen.set(t, c);
@@ -73,8 +79,8 @@ for (const it of items) {
       const vid = num ? (it.imdbMode ? `${it.id}:${n}:${i + 1}` : `${it.id}-s${n}e${i + 1}`)
         : special ? (it.imdbMode ? `${it.id}:0:${i + 1}` : `${it.id}-specials-${t}${dup}`) : `${it.id}-${t}${dup}`;
       const yt = ytFor(it.d, e, i, num);
-      const thumbnail = web(e.image) || stillFor(it.d, e, i, num) || (yt ? ytThumb(yt) : undefined);
-      videos.push({ id: vid, title: e.title, season: n, episode: i + 1, released, overview: e.overview || undefined, thumbnail });
+      const thumbnail = web(e.image) || web(hit?.image) || (yt ? ytThumb(yt) : undefined);
+      videos.push({ id: vid, title: e.title, season: n, episode: i + 1, released, overview: e.overview || hit?.overview || undefined, thumbnail });
       write(`addon/stream/series/${vid}.json`, ytStream(yt));
       episodes++;
       if (yt) withVideo++;
@@ -82,7 +88,8 @@ for (const it of items) {
     });
   }
   videos.sort((a, b) => a.season - b.season || a.episode - b.episode);
-  write(`addon/meta/series/${it.id}.json`, { meta: { ...preview(it), background: it.backdrop, director: it.d.directors?.length ? it.d.directors : undefined, cast: it.d.cast?.length ? it.d.cast : undefined, videos, behaviorHints: { hasScheduledVideos: true } } });
+  write(`addon/meta/series/${it.id}.json`, { meta: { ...preview(it), background: it.backdrop, director: it.d.directors?.length ? it.d.directors : undefined, cast: it.d.cast?.length ? it.d.cast : undefined,
+    ...(it.trailer ? { trailers: [{ source: it.trailer, type: "Trailer" }], trailerStreams: [{ title: "Trailer", ytId: it.trailer }] } : {}), videos, behaviorHints: { hasScheduledVideos: true } } });
 }
 const movieMeta = (d) => ({ id: d.stremioImdb && d.ids?.imdb ? d.ids.imdb : PREFIX + d.id, type: "movie", name: d.title, poster: web(d.images?.poster) || web(mine(d, "movies").poster),
   posterShape: "poster", description: d.description || undefined, releaseInfo: d.year ? String(d.year) : undefined, genres: d.genres?.length ? d.genres : undefined });
