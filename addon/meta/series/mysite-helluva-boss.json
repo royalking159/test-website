@@ -3,6 +3,7 @@
   "id": "mysite-helluva-boss",
   "type": "series",
   "name": "Helluva Boss",
+  "poster": "https://image.tmdb.org/t/p/w500/bcrp2ovxirKH81XSMYQZ7eEunzX.jpg",
   "posterShape": "poster",
   "description": "An adult animated comedy series created by Vivienne Medrano. It follows the Immediate Murder Professionals (I.M.P.), a small crew of imps who run an assassination business in Hell.",
   "releaseInfo": "2020-",
@@ -11,6 +12,7 @@
    "Comedy",
    "Fantasy"
   ],
+  "background": "https://image.tmdb.org/t/p/w780/20OP4f0xDbPttORm9OyIbNu3cNN.jpg",
   "director": [
    "Vivienne Medrano"
   ],
@@ -19,6 +21,18 @@
    "Erica Lindbeck",
    "Richard Steven Horvitz",
    "Brock Baker"
+  ],
+  "trailers": [
+   {
+    "source": "iN0rFuCCA-Y",
+    "type": "Trailer"
+   }
+  ],
+  "trailerStreams": [
+   {
+    "title": "Trailer",
+    "ytId": "iN0rFuCCA-Y"
+   }
   ],
   "videos": [
    {
@@ -36,7 +50,8 @@
     "season": 0,
     "episode": 2,
     "released": "2025-09-10T00:00:00.000Z",
-    "overview": "A reimagining of the pilot, in which Blitzo expands the business to target living humans and borrows Stolas's grimoire to get to Earth."
+    "overview": "A reimagining of the pilot, in which Blitzo expands the business to target living humans and borrows Stolas's grimoire to get to Earth.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/uRAoKIUkm5kIL8qj74TcZVkMKoq.jpg"
    },
    {
     "id": "mysite-helluva-boss-s1e1",
@@ -44,7 +59,8 @@
     "season": 1,
     "episode": 1,
     "released": "2020-10-31T00:00:00.000Z",
-    "overview": "A schoolteacher who died in a violent betrayal hires I.M.P. to finish off her husband's mistress. The job leads the crew into the home of a family of devil-worshipping cannibals."
+    "overview": "A schoolteacher who died in a violent betrayal hires I.M.P. to finish off her husband's mistress. The job leads the crew into the home of a family of devil-worshipping cannibals.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/jARS4wf4HxrAhAZDdJjyrqvlfgm.jpg"
    },
    {
     "id": "mysite-helluva-boss-s1e2",
@@ -52,7 +68,8 @@
     "season": 1,
     "episode": 2,
     "released": "2020-12-09T00:00:00.000Z",
-    "overview": "Stolas hires I.M.P. to guard him and his daughter Octavia on a tense family day at an amusement park, where Blitzo also runs into an old, hostile coworker."
+    "overview": "Stolas hires I.M.P. to guard him and his daughter Octavia on a tense family day at an amusement park, where Blitzo also runs into an old, hostile coworker.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/uMB98DuIWmSG2jXfY9vuwLCuuXS.jpg"
    },
    {
     "id": "mysite-helluva-boss-s1e3",
@@ -60,7 +77,8 @@
     "season": 1,
     "episode": 3,
     "released": "2021-01-31T00:00:00.000Z",
-    "overview": "A fight over the company parking space with Blitzo's ex, the pop star Verosika Mayday, turns into a contest on Earth that goes wrong when a mutated fish attacks."
+    "overview": "A fight over the company parking space with Blitzo's ex, the pop star Verosika Mayday, turns into a contest on Earth that goes wrong when a mutated fish attacks.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/zWXZMjUsallNKWV4NtV0geiXdrB.jpg"
    },
    {
     "id": "mysite-helluva-boss-s1e4",
@@ -68,7 +86,8 @@
     "season": 1,
     "episode": 4,
     "released": "2021-03-14T00:00:00.000Z",
-    "overview": "An inventor newly arrived in Hell wants his old business partner dead, but a trio of cherubs from Heaven turns up to convince the target his life is worth living."
+    "overview": "An inventor newly arrived in Hell wants his old business partner dead, but a trio of cherubs from Heaven turns up to convince the target his life is worth living.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/y1bHtTJDRJYH4odI6XEe5tK00IW.jpg"
    },
    {
     "id": "mysite-helluva-boss-s1e5",
@@ -76,7 +95,8 @@
     "season": 1,
     "episode": 5,
     "released": "2021-04-30T00:00:00.000Z",
-    "overview": "I.M.P. visits Millie's family in the Wrath ring during a harvest festival, where a charming farmhand turns out to be an assassin targeting Stolas."
+    "overview": "I.M.P. visits Millie's family in the Wrath ring during a harvest festival, where a charming farmhand turns out to be an assassin targeting Stolas.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/dfEWnnxkRbd64FmS0kLHajFoevg.jpg"
    },
    {
     "id": "mysite-helluva-boss-s1e6",
@@ -84,7 +104,8 @@
     "season": 1,
     "episode": 6,
     "released": "2021-08-21T00:00:00.000Z",
-    "overview": "Blitzo and Moxxie are captured by a secret agency on Earth and dosed with truth serum while the rest of the crew mounts a rescue."
+    "overview": "Blitzo and Moxxie are captured by a secret agency on Earth and dosed with truth serum while the rest of the crew mounts a rescue.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/iGj8vjAKSkTWfTkYVC0o1sSl4id.jpg"
    },
    {
     "id": "mysite-helluva-boss-s1e7",
@@ -92,7 +113,8 @@
     "season": 1,
     "episode": 7,
     "released": "2021-10-31T00:00:00.000Z",
-    "overview": "Moxxie and Millie celebrate their anniversary at an exclusive restaurant in the Lust ring, and Blitzo schemes his way in by asking Stolas on a date."
+    "overview": "Moxxie and Millie celebrate their anniversary at an exclusive restaurant in the Lust ring, and Blitzo schemes his way in by asking Stolas on a date.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/yIjWBVWkPhFrXfC41ox7ie992yZ.jpg"
    },
    {
     "id": "mysite-helluva-boss-s1e8",
@@ -100,7 +122,8 @@
     "season": 1,
     "episode": 8,
     "released": "2023-06-24T00:00:00.000Z",
-    "overview": "Loona is invited to a hellhound party in the Gluttony ring, while Blitzo is still dealing with what happened at Ozzie's."
+    "overview": "Loona is invited to a hellhound party in the Gluttony ring, while Blitzo is still dealing with what happened at Ozzie's.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/ww0ocxVg4BsNgOcHGi7ePlm3mwF.jpg"
    },
    {
     "id": "mysite-helluva-boss-s2e1",
@@ -108,7 +131,8 @@
     "season": 2,
     "episode": 1,
     "released": "2022-07-30T00:00:00.000Z",
-    "overview": "Flashbacks show how Stolas and Blitzo first met, then the story returns to the aftermath of their disastrous date."
+    "overview": "Flashbacks show how Stolas and Blitzo first met, then the story returns to the aftermath of their disastrous date.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/dR4gvVObCVo7KeUHWyLVVVlhCX6.jpg"
    },
    {
     "id": "mysite-helluva-boss-s2e2",
@@ -116,7 +140,8 @@
     "season": 2,
     "episode": 2,
     "released": "2022-10-19T00:00:00.000Z",
-    "overview": "When Stolas forgets a promise to watch a meteor shower, Octavia runs off to Los Angeles with his grimoire and I.M.P. goes after her."
+    "overview": "When Stolas forgets a promise to watch a meteor shower, Octavia runs off to Los Angeles with his grimoire and I.M.P. goes after her.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/wIIlfiiRLXoghn3OUsVHrovpH28.jpg"
    },
    {
     "id": "mysite-helluva-boss-s2e3",
@@ -124,7 +149,8 @@
     "season": 2,
     "episode": 3,
     "released": "2023-03-11T00:00:00.000Z",
-    "overview": "I.M.P. visits Moxxie's mafia-boss father, who tries to arrange Moxxie's marriage to a shark demon with a shady agenda."
+    "overview": "I.M.P. visits Moxxie's mafia-boss father, who tries to arrange Moxxie's marriage to a shark demon with a shady agenda.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/dILaz08CVuTudjE1J8LLvTuOMoR.jpg"
    },
    {
     "id": "mysite-helluva-boss-s2e4",
@@ -132,7 +158,8 @@
     "season": 2,
     "episode": 4,
     "released": "2023-05-20T00:00:00.000Z",
-    "overview": "Striker kidnaps Stolas on Stella's orders, and I.M.P. steps in before a change of plan spares his life."
+    "overview": "Striker kidnaps Stolas on Stella's orders, and I.M.P. steps in before a change of plan spares his life.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/gAKidRnvB4ZQWMLAqtMfWG0wCAo.jpg"
    },
    {
     "id": "mysite-helluva-boss-s2e5",
@@ -140,7 +167,8 @@
     "season": 2,
     "episode": 5,
     "released": "2023-07-08T00:00:00.000Z",
-    "overview": "Moxxie leads a mission for the first time and it goes badly, while Blitzo tries to make peace with his estranged sister."
+    "overview": "Moxxie leads a mission for the first time and it goes badly, while Blitzo tries to make peace with his estranged sister.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/sHac2TwzCWtVYbzud7f0JBEkHLB.jpg"
    },
    {
     "id": "mysite-helluva-boss-s2e6",
@@ -148,7 +176,8 @@
     "season": 2,
     "episode": 6,
     "released": "2023-09-09T00:00:00.000Z",
-    "overview": "Blitzo and Fizzarolli are held for ransom and have to cooperate to escape, mending an old friendship along the way."
+    "overview": "Blitzo and Fizzarolli are held for ransom and have to cooperate to escape, mending an old friendship along the way.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/hjxcoZm3WhIwD4Zf38tnSWemjvU.jpg"
    },
    {
     "id": "mysite-helluva-boss-s2e7",
@@ -156,7 +185,8 @@
     "season": 2,
     "episode": 7,
     "released": "2023-10-29T00:00:00.000Z",
-    "overview": "Fizzarolli enters a clown pageant run by Mammon, with Blitzo hired as his bodyguard, and a secret relationship comes into the open."
+    "overview": "Fizzarolli enters a clown pageant run by Mammon, with Blitzo hired as his bodyguard, and a secret relationship comes into the open.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/wqOqSoc8Rq5kJVOIvfcPo0ry37G.jpg"
    },
    {
     "id": "mysite-helluva-boss-s2e8",
@@ -164,7 +194,8 @@
     "season": 2,
     "episode": 8,
     "released": "2024-05-31T00:00:00.000Z",
-    "overview": "Blitzo gets ready for his monthly night with Stolas while rival groups from Heaven and the human world hunt him."
+    "overview": "Blitzo gets ready for his monthly night with Stolas while rival groups from Heaven and the human world hunt him.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/kU6yt3CWhLSKbQqMEGDVONDxZck.jpg"
    },
    {
     "id": "mysite-helluva-boss-s2e9",
@@ -172,7 +203,8 @@
     "season": 2,
     "episode": 9,
     "released": "2024-06-22T00:00:00.000Z",
-    "overview": "After another fight with Stolas, Blitzo tries apologising to people he has wronged, ending at a party that forces him to face his behaviour."
+    "overview": "After another fight with Stolas, Blitzo tries apologising to people he has wronged, ending at a party that forces him to face his behaviour.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/uHUaPZxfFTD38yNH8acb9e3wtTs.jpg"
    },
    {
     "id": "mysite-helluva-boss-s2e10",
@@ -180,7 +212,8 @@
     "season": 2,
     "episode": 10,
     "released": "2024-10-31T00:00:00.000Z",
-    "overview": "Reeling from his breakup, Blitzo drags I.M.P. to a haunted hotel for a job and ends up tormented by his own guilt."
+    "overview": "Reeling from his breakup, Blitzo drags I.M.P. to a haunted hotel for a job and ends up tormented by his own guilt.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/uHUaPZxfFTD38yNH8acb9e3wtTs.jpg"
    },
    {
     "id": "mysite-helluva-boss-s2e11",
@@ -188,7 +221,8 @@
     "season": 2,
     "episode": 11,
     "released": "2024-11-29T00:00:00.000Z",
-    "overview": "I.M.P. is arrested and put on trial in Hell, and Stolas makes a costly choice to save Blitzo."
+    "overview": "I.M.P. is arrested and put on trial in Hell, and Stolas makes a costly choice to save Blitzo.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/cuxPJfmk2Jq217QX7OLrmBlyvWM.jpg"
    },
    {
     "id": "mysite-helluva-boss-s2e12",
@@ -196,7 +230,8 @@
     "season": 2,
     "episode": 12,
     "released": "2024-12-21T00:00:00.000Z",
-    "overview": "I.M.P. celebrates Hell's version of Christmas while Stolas tries to reconnect with Octavia, and the team's holiday job doesn't go as planned."
+    "overview": "I.M.P. celebrates Hell's version of Christmas while Stolas tries to reconnect with Octavia, and the team's holiday job doesn't go as planned.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/a3tT9nExVnPpzc21ijcONWRUJjE.jpg"
    },
    {
     "id": "mysite-helluva-boss-s3e1",
@@ -204,7 +239,8 @@
     "season": 3,
     "episode": 1,
     "released": "2026-10-14T00:00:00.000Z",
-    "overview": "Stolas sends Blitzo a turtle emoji, setting off unexpected developments in their relationship."
+    "overview": "Stolas sends Blitzo a turtle emoji, setting off unexpected developments in their relationship.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/wG0K2RIdNZmgCifYMy3mzcLUrrY.jpg"
    },
    {
     "id": "mysite-helluva-boss-s3e2",
@@ -212,7 +248,8 @@
     "season": 3,
     "episode": 2,
     "released": "2026-10-14T00:00:00.000Z",
-    "overview": "Millie takes centre stage as questions about her reputation and her future come up."
+    "overview": "Millie takes centre stage as questions about her reputation and her future come up.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/vq109BIPB02zQ01ZaeYjK5QL80k.jpg"
    },
    {
     "id": "mysite-helluva-boss-s3e3",
@@ -220,7 +257,8 @@
     "season": 3,
     "episode": 3,
     "released": "2026-10-14T00:00:00.000Z",
-    "overview": "The crew travels to Australia for another unpredictable adventure."
+    "overview": "The crew travels to Australia for another unpredictable adventure.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/qez4KQFME2YogL96hArFjuVb4XR.jpg"
    }
   ],
   "behaviorHints": {
