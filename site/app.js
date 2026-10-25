@@ -762,6 +762,6 @@ Promise.all([fetch("../data/metadata.json").then((r) => (r.ok ? r.json() : {})).
     META = { movies: j.movies || {}, shows: j.shows || {} };
     document.querySelector(".settings-body").append($("p", { class: "status" }, j.updated
       ? `Posters and episodes last updated ${fmt(j.updated)}.`
-      : "Posters and episodes haven't been fetched yet (placeholder data)."));
+      : "Posters and episodes haven't been fetched yet. On GitHub: open Actions, choose Update movie metadata, then Run workflow."));
     render();
   });
