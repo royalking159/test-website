@@ -3,6 +3,7 @@
   "id": "mysite-helluva-boss-shorts",
   "type": "series",
   "name": "Helluva Boss: Shorts",
+  "poster": "https://image.tmdb.org/t/p/w500/zfZG7izmTqwAuViqrclYJfbRoGc.jpg",
   "posterShape": "poster",
   "description": "Shorts from Helluva Boss.",
   "releaseInfo": "2020-",
@@ -11,6 +12,7 @@
    "Comedy",
    "Fantasy"
   ],
+  "background": "https://image.tmdb.org/t/p/w780/20OP4f0xDbPttORm9OyIbNu3cNN.jpg",
   "director": [
    "Vivienne Medrano"
   ],

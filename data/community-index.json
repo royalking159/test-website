@@ -1,5 +1,5 @@
 {
- "built": "2026-10-27T03:02:48.665Z",
+ "built": "2026-10-28T09:43:08.188Z",
  "count": 1,
  "titles": [
   {
@@ -13,7 +13,7 @@
     "Comedy",
     "Fantasy"
    ],
-   "poster": "",
+   "poster": "https://image.tmdb.org/t/p/w500/bcrp2ovxirKH81XSMYQZ7eEunzX.jpg",
    "ids": {
     "tmdb": 289892,
     "imdb": "tt10691770"
