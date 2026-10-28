@@ -1,4 +1,4 @@
 # Paste YouTube video ids here (one per line:  VIDEOID  Title of the video). The Action then saves them into the right episodes.
-# Easy way to get the list: open the official playlist on a computer, scroll down so every video loads,
-# press F12, open the Console and paste this, then paste the result below this note:
-#   copy([...document.querySelectorAll('a#video-title')].map(a => a.href.match(/v=([\w-]{11})/)[1] + '  ' + a.textContent.trim()).join('\n'))
+# Easy way to get the list (on a computer): open the channel's Videos tab (youtube.com/c/SpindleHorse/videos) or the official playlist,
+# scroll down so every video loads, press F12, open the Console, paste this, and paste the result below this note:
+#   copy([...document.querySelectorAll('a#video-title, a#video-title-link')].map(a => (a.href.match(/v=([\w-]{11})/) || [])[1] + '  ' + a.textContent.trim()).filter(l => !l.startsWith('undefined')).join('\n'))

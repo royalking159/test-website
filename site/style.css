@@ -378,3 +378,27 @@ dialog.player::backdrop { background: rgb(0 0 0 / .82); backdrop-filter: blur(6p
 .problems { margin: 0; padding-left: 1.2rem; color: #ff8a8a; }
 .problems:empty { display: none; }
 @media (max-width: 800px) { .row2 { grid-template-columns: 1fr; } }
+
+/* ===================== Better season and episode editor ===================== */
+details.seasonbox { display: block; padding: 0; }
+.seasonbox > summary { padding: .85rem 1rem; font-weight: 700; cursor: pointer; }
+.seasonbox > :not(summary) { margin: 0 1rem 1rem; }
+.seasonhead { display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: end; }
+.eplist { display: grid; gap: .7rem; }
+.eprow { display: grid; grid-template-columns: 2rem minmax(0, 1.6fr) 9.5rem minmax(0, 1fr) auto; gap: .5rem; align-items: center; padding: .6rem; background: color-mix(in srgb, var(--bg) 55%, var(--surface)); border: 1px solid var(--line); border-radius: 12px; }
+.eprow input, .eprow textarea, .seasonhead input, .bulk textarea { width: 100%; padding: .5rem .7rem; font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--edge); border-radius: 9px; }
+.eprow input:focus, .eprow textarea:focus, .seasonhead input:focus, .bulk textarea:focus { border-color: var(--accent); outline: none; }
+.eprow textarea { grid-column: 2 / -1; resize: vertical; }
+.epn { font-weight: 700; color: var(--muted); text-align: right; }
+.epbtns { display: flex; gap: .3rem; }
+.mini { width: 2rem; height: 2rem; padding: 0; font: inherit; color: var(--text); background: color-mix(in srgb, var(--text) 9%, transparent); border: 0; border-radius: 8px; cursor: pointer; transition: background .2s; }
+.mini:hover { background: color-mix(in srgb, var(--accent) 28%, transparent); }
+.bulk { margin-top: .8rem; }
+.bulk summary { cursor: pointer; color: var(--accent); }
+.bulk textarea { display: block; margin: .6rem 0; }
+@media (max-width: 800px) {
+  .eprow { grid-template-columns: 2rem minmax(0, 1fr) auto; }
+  .eprow .epbtns { grid-column: 3; grid-row: 1; }
+  .ep-d, .ep-y { grid-column: 2 / -1; }
+  .seasonhead { grid-template-columns: 1fr; }
+}

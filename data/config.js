@@ -24,6 +24,10 @@ const SITE = {
   // Optional: rename a page. This changes both its sidebar label and its page title.
   sectionNames: { projects: "Projects/Study tools", movies: "Movies/Shows" },
 
+  // Where episode descriptions come from. "tmdb" (default) shows TMDB's description whenever it has one (it holds the official
+  // blurbs, like the WARNING lines on the shorts) and uses the database's text where TMDB has none. "database" does the opposite.
+  descriptionSource: "tmdb",
+
   // Play videos inside the site? Google Drive, YouTube and .mp4 links open in a player on the page.
   // Set to false to always open play links in a new tab instead.
   playInSite: true,

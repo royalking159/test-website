@@ -9,6 +9,7 @@
 //   addons you have installed (for example Torrentio) can answer next to the YouTube stream this addon gives.
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
+import vm from "node:vm";
 
 const write = (p, data) => { mkdirSync(dirname(p), { recursive: true }); writeFileSync(p, typeof data === "string" ? data : JSON.stringify(data, null, 1) + "\n"); };
 const slug = (t) => String(t).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "x";
@@ -23,6 +24,8 @@ const iso = (d) => (/^\d{4}-\d{2}-\d{2}$/.test(d || "") ? `${d}T00:00:00.000Z` :
 const load = (dir) => (existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith(".json") && !f.startsWith("_")).map((f) => JSON.parse(readFileSync(`${dir}/${f}`, "utf8"))) : []);
 const byTitle = (a, b) => a.title.localeCompare(b.title);
 const shows = load("community/shows").sort(byTitle), movies = load("community/movies").sort(byTitle);
+const cfg = (() => { try { const c = vm.createContext({}); vm.runInContext(readFileSync("data/config.js", "utf8"), c); return vm.runInContext("SITE", c) || {}; } catch { return {}; } })();
+const tmdbText = cfg.descriptionSource !== "database";        // TMDB's description first (default), or the database's
 const site = existsSync("data/metadata.json") ? JSON.parse(readFileSync("data/metadata.json", "utf8")) : {};
 const mine = (d, kind) => site[kind]?.[d.id] || {};              // the website's own TMDB/TVDB/YouTube data for the same title
 const ytStream = (id) => ({ streams: id ? [{ ytId: id, name: "YouTube", title: "Official upload" }] : [] });
@@ -44,7 +47,7 @@ const items = [];
 for (const d of shows) {
   const imdbMode = !!(d.stremioImdb && d.ids?.imdb);
   const showPoster = web(d.images?.poster) || web(mine(d, "shows").poster);
-  const main = { id: imdbMode ? d.ids.imdb : PREFIX + d.id, name: d.title, d, imdbMode, poster: showPoster, trailer: d.trailer || mine(d, "shows").trailer, backdrop: web(d.images?.backdrop) || web(mine(d, "shows").backdrop), seasons: [] };
+  const main = { id: imdbMode ? d.ids.imdb : PREFIX + d.id, name: d.title, d, imdbMode, poster: showPoster, trailer: d.trailer || mine(d, "shows").trailer, description: tmdbText ? mine(d, "shows").overview : undefined, backdrop: web(d.images?.backdrop) || web(mine(d, "shows").backdrop), seasons: [] };
   items.push(main);
   for (const s of d.seasons || []) {
     const num = /^Season (\d+)$/i.exec(s.name)?.[1], special = /^specials$/i.test(s.name);
@@ -57,6 +60,14 @@ for (const d of shows) {
   for (const x of mine(d, "shows").episodes || []) if (x.season > 0 && !have.has(x.season) && !generic(x.title)) (extra[x.season] ||= []).push(x);
   for (const [n, list] of Object.entries(extra)) main.seasons.push({ n: Number(n), num: n, special: false,
     s: { name: `Season ${n}`, episodes: list.sort((a, b) => a.number - b.number).map((x) => ({ title: x.title, date: x.date, overview: x.overview, image: x.image })) } });
+  // Other TMDB specials (music videos, clips...) that the database doesn't list yet are added to Specials
+  const seenT = new Set((d.seasons || []).flatMap((s) => (s.episodes || []).map((x) => normBase(x.title))));
+  const more = (mine(d, "shows").episodes || []).filter((x) => x.season === 0 && !generic(x.title) && normBase(x.title) !== "mission" && !seenT.has(normBase(x.title)));
+  if (more.length) {
+    let sp = main.seasons.find((x) => x.special);
+    if (!sp) { sp = { n: 0, num: null, special: true, s: { name: "Specials", episodes: [] } }; main.seasons.push(sp); }
+    sp.s = { ...sp.s, episodes: [...sp.s.episodes, ...more.sort((a, b) => a.number - b.number).map((x) => ({ title: x.title, date: x.date, overview: x.overview, image: x.image }))] };
+  }
 }
 const preview = (it) => ({
   id: it.id, type: "series", name: it.name, poster: it.poster, posterShape: "poster", description: it.description || it.d.description || undefined,
@@ -80,7 +91,7 @@ for (const it of items) {
         : special ? (it.imdbMode ? `${it.id}:0:${i + 1}` : `${it.id}-specials-${t}${dup}`) : `${it.id}-${t}${dup}`;
       const yt = ytFor(it.d, e, i, num);
       const thumbnail = web(e.image) || web(hit?.image) || (yt ? ytThumb(yt) : undefined);
-      videos.push({ id: vid, title: e.title, season: n, episode: i + 1, released, overview: e.overview || hit?.overview || undefined, thumbnail });
+      videos.push({ id: vid, title: e.title, season: n, episode: i + 1, released, overview: (tmdbText ? hit?.overview || e.overview : e.overview || hit?.overview) || undefined, thumbnail });
       write(`addon/stream/series/${vid}.json`, ytStream(yt));
       episodes++;
       if (yt) withVideo++;

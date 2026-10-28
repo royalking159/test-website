@@ -21,6 +21,7 @@ const img = (src, alt, fallback, attrs = {}) => {
 let META = { movies: {}, shows: {} };
 // ---- Community database titles (community/*.json) are loaded at start and merged with library.js and metadata.json ----
 let DBFULL = {};
+const tmdbText = () => SITE.descriptionSource !== "database";   // descriptionSource in config.js: "tmdb" (default) or "database"
 const fromCommunity = (d) => {                               // a community file -> the shape the site already uses
   const episodes = [], extra = {}, seasonPosters = {}, seasonCovers = {}, seasonTrailers = {};
   for (const s of d.seasons || []) {
@@ -39,7 +40,7 @@ const fillStills = (eps, md) => {
   return eps.map((e) => {
     const t = normBase(e.title);
     const hit = known.find((x) => normBase(x.title) === t) || (e.season > 0 ? known.find((x) => x.season === e.season && x.number === e.number) : null);
-    return hit ? { ...e, image: e.image || hit.image, overview: e.overview || hit.overview, date: e.date || hit.date } : e;   // only what is missing
+    return hit ? { ...e, image: e.image || hit.image, overview: tmdbText() ? (hit.overview || e.overview) : (e.overview || hit.overview), date: e.date || hit.date } : e;   // only what is missing
   });
 };
 const library = () => {
@@ -56,10 +57,15 @@ const library = () => {
       for (const x of md.episodes || [])                                // a numbered season the database doesn't list comes from TMDB
         if (x.season > 0 && !have.has(x.season) && !skip(x.title)) m.episodes.push({ title: x.title, number: x.number, season: x.season, date: x.date, overview: x.overview, image: x.image });
       m.seasonTrailers = { ...(md.seasonTrailers || {}), ...c.seasonTrailers };
+      const seenAll = new Set([...c.episodes, ...Object.values(c.extra).flat()].map((x) => normBase(x.title)));      // other TMDB specials (music videos, clips...)
+      for (const x of md.episodes || [])
+        if (x.season === 0 && !skip(x.title) && normBase(x.title) !== "mission" && !seenAll.has(normBase(x.title)))
+          m.episodes.push({ title: x.title, number: x.number, season: 0, date: x.date, overview: x.overview, image: x.image });
       m.extra = { ...(e.extra || {}), ...Object.fromEntries(Object.entries(c.extra).map(([k, v]) => [k, fillStills(v, md)])) };
       m.seasonPosters = { ...(md.seasonPosters || {}), ...c.seasonPosters };
       m.seasonCovers = { ...c.seasonCovers, ...(e.seasonCovers || {}) };
     }
+    if (tmdbText() && md.overview) m.overview = md.overview;           // the show's TMDB description first
     if (e.description) m.overview = e.description;                      // "description" is a friendlier name for "overview"
     used.add(id);
     return m;
@@ -436,68 +442,146 @@ const multiSelect = (label, options, picked, onChange) => {
   return { dd, chips };
 };
 
-// ---------------- "Add a title" form: builds the database file for you ----------------
-function dbAdd() {
+// ---------------- Add or edit a title: builds the database file for you ----------------
+function dbEditor(id) {
+  const host = $("div", {}, $("p", { class: "empty" }, "Loading..."));
+  if (!id) { host.replaceChildren(editorView(null)); return host; }
+  loadCommunity().then(async ({ titles = [] }) => {
+    const t = titles.find((x) => x.id === id);
+    const d = DBFULL[id] || (t && await fetch(`../community/${t.type === "movie" ? "movies" : "shows"}/${encodeURIComponent(id)}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+    host.replaceChildren(d ? editorView(JSON.parse(JSON.stringify(d))) : $("div", {}, $("a", { class: "btn back", href: "#/database" }, "← Back"), $("p", {}, "That title isn't in the database yet.")));
+  });
+  return host;
+}
+
+function editorView(base) {
+  const editing = !!base;
   const yid = (v) => { v = String(v || "").trim(); return /^[\w-]{11}$/.test(v) ? v : (v.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/) || [])[1] || ""; };
   const input = (ph, attrs = {}) => $("input", { type: "text", placeholder: ph, ...attrs });
   const field = (label, el, hint) => $("label", { class: "field" }, $("span", {}, label), el, hint && $("small", {}, hint));
+  const val = (el, v) => { el.value = v ?? ""; return el; };
   const kind = $("select", {}, $("option", { value: "show" }, "TV show"), $("option", { value: "movie" }, "Movie"));
-  const title = input("Helluva Boss"), year = input("2020", { inputmode: "numeric" }), genres = input("Animation, Comedy");
+  kind.value = base?.type || "show";
+  kind.disabled = editing;
+  const title = val(input("Helluva Boss"), base?.title), year = val(input("2020", { inputmode: "numeric" }), base?.year);
+  const genres = val(input("Animation, Comedy"), (base?.genres || []).join(", "));
   const desc = $("textarea", { rows: "4", placeholder: "A short summary in your own words" });
-  const tmdb = input("289892", { inputmode: "numeric" }), imdb = input("tt10691770"), tvdb = input("(optional)", { inputmode: "numeric" });
-  const poster = input("https://..."), trailer = input("YouTube link or id"), who = input("your GitHub name");
+  desc.value = base?.description || "";
+  const tmdb = val(input("289892", { inputmode: "numeric" }), base?.ids?.tmdb), imdb = val(input("tt10691770"), base?.ids?.imdb);
+  const tvdb = val(input("(optional)", { inputmode: "numeric" }), base?.ids?.tvdb), poster = val(input("https://..."), base?.images?.poster);
+  const trailer = val(input("YouTube link or id"), base?.trailer), who = input("your GitHub name");
+
   const seasons = $("div", { class: "seasonsform" });
-  const addSeason = (name = "") => {
-    const nm = input("Season 1", { value: name });
-    const eps = $("textarea", { rows: "5", placeholder: "One episode per line:\nTitle | 2024-05-31 | short summary | YouTube link or id\n(only the title is needed)" });
-    const rm = $("button", { type: "button", class: "btn" }, "Remove season");
-    const box = $("div", { class: "seasonbox" }, field("Season name", nm), field("Episodes", eps), rm);
-    Object.assign(box, { nm, eps });
-    rm.onclick = () => { box.remove(); update(); };
+  const renumber = (box) => {
+    [...box.list.children].forEach((r, i) => { r.num.textContent = i + 1; });
+    const n = box.list.children.length;
+    box.sum.textContent = `${box.nm.value.trim() || "Season"} (${n} episode${n === 1 ? "" : "s"})`;
+  };
+  const mini = (label, text) => $("button", { type: "button", class: "mini", "aria-label": label, title: label }, text);
+  const addEp = (box, src = {}) => {
+    const t = input("Episode title", { class: "ep-t", value: src.title || "" });
+    const d = $("input", { type: "date", class: "ep-d", "aria-label": "Air date" });
+    d.value = /^\d{4}-\d{2}-\d{2}$/.test(src.date || "") ? src.date : "";
+    const y = val(input("YouTube link or id", { class: "ep-y" }), src.youtube);
+    const s = $("textarea", { rows: "2", placeholder: "Short summary in your own words (optional)" });
+    s.value = src.overview || "";
+    const num = $("span", { class: "epn" });
+    const up = mini("Move up", "↑"), down = mini("Move down", "↓"), del = mini("Remove episode", "✕");
+    const row = $("div", { class: "eprow" }, num, t, d, y, $("div", { class: "epbtns" }, up, down, del), s);
+    Object.assign(row, { num, src, t, d, y, s });
+    up.onclick = () => { const p = row.previousElementSibling; if (p) row.parentNode.insertBefore(row, p); renumber(box); update(); };
+    down.onclick = () => { const n = row.nextElementSibling; if (n) row.parentNode.insertBefore(n, row); renumber(box); update(); };
+    del.onclick = () => { row.remove(); renumber(box); update(); };
+    box.list.append(row);
+    renumber(box);
+    return row;
+  };
+  const addSeason = (src = {}, name = src.name || "") => {
+    const nm = input("Season 1", { value: name }), sum = $("summary"), list = $("div", { class: "eplist" });
+    const bulk = $("textarea", { rows: "3", placeholder: "Paste episode titles here, one per line" });
+    const bulkBtn = $("button", { type: "button", class: "btn" }, "Add these titles"), addBtn = $("button", { type: "button", class: "btn" }, "Add an episode");
+    const upS = mini("Move season up", "↑"), downS = mini("Move season down", "↓"), rmS = mini("Remove season", "✕");
+    const box = $("details", { class: "seasonbox" }, sum,
+      $("div", { class: "seasonhead" }, field("Season name", nm, "For example Season 1, Specials or Shorts"), $("div", { class: "epbtns" }, upS, downS, rmS)),
+      list, $("div", { class: "actions" }, addBtn),
+      $("details", { class: "bulk" }, $("summary", {}, "Paste a list of titles"), bulk, bulkBtn));
+    box.open = true;
+    Object.assign(box, { src, nm, sum, list });
+    (src.episodes || []).forEach((e) => addEp(box, e));
+    if (!(src.episodes || []).length) addEp(box);
+    nm.addEventListener("input", () => renumber(box));
+    addBtn.onclick = () => { addEp(box).t.focus(); update(); };
+    bulkBtn.onclick = () => { bulk.value.split("\n").map((x) => x.trim()).filter(Boolean).forEach((x) => addEp(box, { title: x })); bulk.value = ""; update(); };
+    upS.onclick = () => { const p = box.previousElementSibling; if (p) seasons.insertBefore(box, p); update(); };
+    downS.onclick = () => { const n = box.nextElementSibling; if (n) seasons.insertBefore(n, box); update(); };
+    rmS.onclick = () => { box.remove(); update(); };
     box.addEventListener("input", update);
     seasons.append(box);
+    renumber(box);
     return box;
   };
-  const addBtn = $("button", { type: "button", class: "btn" }, "Add a season");
-  addBtn.onclick = () => { addSeason(); update(); };
-  const seasonsWrap = $("div", {}, $("h2", {}, "Seasons and episodes"), seasons, addBtn);
+  const nextSeason = () => {
+    const nums = [...seasons.children].map((b) => /^Season (\d+)$/i.exec(b.nm.value.trim())?.[1]).filter(Boolean).map(Number);
+    return `Season ${(nums.length ? Math.max(...nums) : 0) + 1}`;
+  };
+  const quick = (label, name) => { const b = $("button", { type: "button", class: "btn" }, label); b.onclick = () => { addSeason({}, typeof name === "function" ? name() : name); update(); }; return b; };
+  const seasonsWrap = $("div", {}, $("h2", {}, "Seasons and episodes"), seasons,
+    $("div", { class: "actions" }, quick("+ Season", nextSeason), quick("+ Specials", "Specials"), quick("+ Shorts", "Shorts")));
+
   const out = $("pre", { class: "jsonout" }), problems = $("ul", { class: "problems" });
   const copy = $("button", { type: "button", class: "btn primary" }, "Copy file contents");
-  const open = $("a", { class: "btn", target: "_blank", rel: "noopener noreferrer" }, "Open on GitHub");
+  const open = $("a", { class: "btn", target: "_blank", rel: "noopener noreferrer" }, editing ? "Open the file on GitHub" : "Open on GitHub");
   let json = "";
   function update() {
-    const bad = [], t = title.value.trim(), isShow = kind.value === "show";
-    const id = t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    const o = { id, type: kind.value, title: t };
+    const bad = [], isShow = kind.value === "show", t = title.value.trim();
+    const o = base ? JSON.parse(JSON.stringify(base)) : {};
+    const put = (k, v) => { if (v === "" || v == null) delete o[k]; else o[k] = v; };
+    o.id = base ? base.id : t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    o.type = kind.value;
+    o.title = t;
     if (!t) bad.push("Add a title.");
-    if (year.value.trim()) { if (/^\d{4}$/.test(year.value.trim())) o.year = Number(year.value); else bad.push("The year should be 4 digits."); }
-    if (desc.value.trim()) o.description = desc.value.trim().replace(/\s+/g, " ");
+    const yr = year.value.trim();
+    if (yr && !/^\d{4}$/.test(yr)) bad.push("The year should be 4 digits.");
+    put("year", /^\d{4}$/.test(yr) ? Number(yr) : "");
+    put("description", desc.value.trim().replace(/\s+/g, " "));
     const g = genres.value.split(",").map((x) => x.trim()).filter(Boolean);
-    if (g.length) o.genres = g;
-    const ids = {};
-    if (/^\d+$/.test(tmdb.value.trim())) ids.tmdb = Number(tmdb.value);
-    if (/^tt\d+$/.test(imdb.value.trim())) ids.imdb = imdb.value.trim(); else if (imdb.value.trim()) bad.push("IMDb ids look like tt1234567.");
-    if (/^\d+$/.test(tvdb.value.trim())) ids.tvdb = Number(tvdb.value);
-    if (Object.keys(ids).length) o.ids = ids;
-    if (poster.value.trim()) { if (/^https:\/\//.test(poster.value.trim())) o.images = { poster: poster.value.trim() }; else bad.push("The poster link must start with https://"); }
-    if (trailer.value.trim()) { if (yid(trailer.value)) o.trailer = yid(trailer.value); else bad.push("That trailer doesn't look like a YouTube link."); }
+    if (g.length) o.genres = g; else delete o.genres;
+    const ids = { ...(o.ids || {}) };
+    for (const [k, el, re] of [["tmdb", tmdb, /^\d+$/], ["tvdb", tvdb, /^\d+$/], ["imdb", imdb, /^tt\d+$/]]) {
+      const v = el.value.trim();
+      if (!v) delete ids[k]; else if (re.test(v)) ids[k] = k === "imdb" ? v : Number(v);
+      else bad.push(k === "imdb" ? "IMDb ids look like tt1234567." : `The ${k.toUpperCase()} id should be a number.`);
+    }
+    if (Object.keys(ids).length) o.ids = ids; else delete o.ids;
+    const pv = poster.value.trim(), images = { ...(o.images || {}) };
+    if (pv && !/^https:\/\//.test(pv)) bad.push("The poster link must start with https://");
+    if (/^https:\/\//.test(pv)) images.poster = pv; else delete images.poster;
+    if (Object.keys(images).length) o.images = images; else delete o.images;
+    if (trailer.value.trim() && !yid(trailer.value)) bad.push("That trailer doesn't look like a YouTube link.");
+    put("trailer", yid(trailer.value));
     seasonsWrap.hidden = !isShow;
     if (isShow) {
-      o.seasons = [...seasons.children].map((b) => ({ name: b.nm.value.trim() || "Season", episodes: b.eps.value.split("\n").map((l) => l.trim()).filter(Boolean).map((l) => {
-        const [et, date, sum, yt] = l.split("|").map((x) => x.trim());
-        const e = { title: et };
-        if (date) { if (/^\d{4}-\d{2}-\d{2}$/.test(date)) e.date = date; else bad.push(`"${et}": dates look like 2024-05-31.`); }
-        if (sum) e.overview = sum;
-        if (yt) { if (yid(yt)) e.youtube = yid(yt); else bad.push(`"${et}": that YouTube link isn't valid.`); }
-        return e;
-      }) }));
-    }
-    if (who.value.trim()) o.contributors = [who.value.trim()];
+      o.seasons = [...seasons.children].map((box) => ({ ...box.src, name: box.nm.value.trim() || "Season",
+        episodes: [...box.list.children].map((row) => {
+          const e = { ...row.src, title: row.t.value.trim() };
+          if (row.d.value) e.date = row.d.value; else delete e.date;
+          const sv = row.s.value.trim().replace(/\s+/g, " ");
+          if (sv) e.overview = sv; else delete e.overview;
+          const yv = row.y.value.trim();
+          if (yv && yid(yv)) e.youtube = yid(yv); else delete e.youtube;
+          if (yv && !yid(yv)) bad.push(`"${e.title}": that YouTube link isn't valid.`);
+          return e;
+        }).filter((e) => e.title) }));
+    } else delete o.seasons;
+    const people = new Set(o.contributors || []);
+    if (who.value.trim()) people.add(who.value.trim());
+    if (people.size) o.contributors = [...people]; else delete o.contributors;
     json = JSON.stringify(o, null, 2) + "\n";
-    if (/[<>]/.test(json.replace(/\\n/g, ""))) bad.push("Please leave out < and > characters.");
+    if (/[<>]/.test(JSON.stringify(o))) bad.push("Please leave out < and > characters.");
     out.textContent = json;
     problems.replaceChildren(...bad.map((b) => $("li", {}, b)));
-    open.href = ghLink(`new/main/community/${isShow ? "shows" : "movies"}`, `?filename=${id || "my-title"}.json&value=${encodeURIComponent(json)}`) || "#";
+    const dir = isShow ? "shows" : "movies";
+    open.href = (editing ? ghLink(`edit/main/community/${dir}/${o.id}.json`) : ghLink(`new/main/community/${dir}`, `?filename=${o.id || "my-title"}.json&value=${encodeURIComponent(json)}`)) || "#";
     open.hidden = !repoInfo();
   }
   copy.onclick = async () => {
@@ -505,10 +589,10 @@ function dbAdd() {
     setTimeout(() => (copy.textContent = "Copy file contents"), 2200);
   };
   [kind, title, year, genres, desc, tmdb, imdb, tvdb, poster, trailer, who].forEach((el) => el.addEventListener("input", update));
-  addSeason("Season 1");
+  if (base?.seasons?.length) base.seasons.forEach((s) => addSeason(s)); else if ((base?.type || "show") === "show") addSeason({}, "Season 1");
   update();
-  return page("Add a title",
-    $("p", { class: "lead" }, "Fill this in and the file is built for you. Write the description in your own words (not copied from another site)."),
+  return page(editing ? `Edit ${base.title}` : "Add a title",
+    $("p", { class: "lead" }, editing ? "Change anything below. Your changes are checked as you type, then you send them to the owner for review." : "Fill this in and the file is built for you. Write the description in your own words (not copied from another site)."),
     $("div", { class: "addform" },
       field("Type", kind), field("Title", title), $("div", { class: "row2" }, field("Year", year), field("Genres", genres, "Separate with commas")),
       field("Description", desc), $("div", { class: "row2" }, field("TMDB id", tmdb), field("IMDb id", imdb)),
@@ -516,7 +600,9 @@ function dbAdd() {
       field("Trailer", trailer, "A YouTube link or the 11-character id"), field("Your GitHub name", who, "So you get the credit"),
       seasonsWrap, $("h2", {}, "The file"), problems, out,
       $("div", { class: "actions" }, copy, open),
-      $("p", { class: "credit" }, "On GitHub, paste (Ctrl+V) over the contents if the editor looks wrong, then choose Commit changes, then Propose changes. The owner reviews it before it goes live.")));
+      $("p", { class: "credit" }, editing
+        ? "Tap Copy, then Open the file on GitHub, tap the pencil, select everything and paste, then choose Commit changes and Propose changes. The owner reviews it before it goes live."
+        : "On GitHub, paste over the contents if the editor looks wrong, then choose Commit changes and Propose changes. The owner reviews it before it goes live.")));
 }
 
 // ---------------- Community database (files in community/, index in data/community-index.json) ----------------
@@ -607,7 +693,7 @@ function dbView(d, dir) {
         d.description && expandable(d.description, "sdesc", 5),
         d.directors?.length && $("p", { class: "credit" }, `Created by ${d.directors.join(", ")}`),
         d.cast?.length && $("p", { class: "credit" }, `Starring ${d.cast.join(", ")}`),
-        extLink(ghLink(`edit/main/community/${dir}/${d.id}.json`), "Suggest an edit", "btn"),
+        $("a", { class: "btn", href: `#/edit/${d.id}` }, "Suggest an edit"),
         d.contributors?.length && $("p", { class: "credit" }, `Added by ${d.contributors.join(", ")}`)),
       $("div", {}, seasons.length ? seasons : $("p", { class: "empty" }, "No episodes listed yet."))));
 }
@@ -738,7 +824,8 @@ function render() {
   const [pg, arg] = location.hash.replace(/^#\/?/, "").split("/");
   let node, active = "", label = "";
   if (!pg) { node = P.home(); active = "home"; }
-  else if (pg === "add") { node = dbAdd(); active = "database"; label = "Add a title"; }
+  else if (pg === "add") { node = dbEditor(); active = "database"; label = "Add a title"; }
+  else if (pg === "edit") { node = dbEditor(arg); active = "database"; label = "Edit a title"; }
   else if (pg === "db") { node = dbDetail(arg); active = "database"; label = "Database"; }
   else if (pg === "check") { node = checkPage(arg); label = "Data check"; }
   else if (pg === "show" || pg === "movie") {

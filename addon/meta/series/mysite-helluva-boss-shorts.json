@@ -3,7 +3,6 @@
   "id": "mysite-helluva-boss-shorts",
   "type": "series",
   "name": "Helluva Boss: Shorts",
-  "poster": "https://image.tmdb.org/t/p/w500/zfZG7izmTqwAuViqrclYJfbRoGc.jpg",
   "posterShape": "poster",
   "description": "Shorts from Helluva Boss.",
   "releaseInfo": "2020-",
@@ -12,7 +11,6 @@
    "Comedy",
    "Fantasy"
   ],
-  "background": "https://image.tmdb.org/t/p/w780/20OP4f0xDbPttORm9OyIbNu3cNN.jpg",
   "director": [
    "Vivienne Medrano"
   ],
@@ -139,7 +137,7 @@
     "season": 1,
     "episode": 14,
     "released": "2026-10-03T00:00:00.000Z",
-    "overview": "Loona helps Octavia sneak back home after Octavia slips out to see her favourite band. (Official warning: for daddy issues.)",
+    "overview": "WARNING: For daddy issues",
     "thumbnail": "https://i.ytimg.com/vi/qJuPDHE5jug/mqdefault.jpg"
    }
   ],

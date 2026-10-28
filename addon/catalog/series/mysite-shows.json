@@ -4,9 +4,8 @@
    "id": "mysite-helluva-boss",
    "type": "series",
    "name": "Helluva Boss",
-   "poster": "https://image.tmdb.org/t/p/w500/bcrp2ovxirKH81XSMYQZ7eEunzX.jpg",
    "posterShape": "poster",
-   "description": "An adult animated comedy series created by Vivienne Medrano. It follows the Immediate Murder Professionals (I.M.P.), a small crew of imps who run an assassination business in Hell.",
+   "description": "Blitzo and his crew run a startup in Hell that takes contracts to kill people on Earth.",
    "releaseInfo": "2020-",
    "genres": [
     "Animation",
@@ -18,7 +17,6 @@
    "id": "mysite-helluva-boss-shorts",
    "type": "series",
    "name": "Helluva Boss: Shorts",
-   "poster": "https://image.tmdb.org/t/p/w500/zfZG7izmTqwAuViqrclYJfbRoGc.jpg",
    "posterShape": "poster",
    "description": "Shorts from Helluva Boss.",
    "releaseInfo": "2020-",
