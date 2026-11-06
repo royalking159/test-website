@@ -28,7 +28,11 @@ const cfg = (() => { try { const c = vm.createContext({}); vm.runInContext(readF
 const tmdbText = cfg.descriptionSource !== "database";        // TMDB's description first (default), or the database's
 const site = existsSync("data/metadata.json") ? JSON.parse(readFileSync("data/metadata.json", "utf8")) : {};
 const mine = (d, kind) => site[kind]?.[d.id] || {};              // the website's own TMDB/TVDB/YouTube data for the same title
-const ytStream = (id) => ({ streams: id ? [{ ytId: id, name: "YouTube", title: "Official upload" }] : [] });
+// YouTube first (plays inside Stremio), then any other official links from the database (for example Prime Video), which open in the browser or app.
+const ytStream = (id, watch = []) => ({ streams: [
+  ...(id ? [{ ytId: id, name: "YouTube", title: "Official upload" }] : []),
+  ...(watch || []).filter((w) => /^https:\/\//.test(w?.url || "")).map((w) => ({ externalUrl: w.url, name: w.name || "Watch", title: `Watch on ${w.name || "the official site"}` })),
+] });
 const ytThumb = (id) => `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
 const generic = (t) => { const n = normBase(t); return n.length < 4 || /^episode\d+$/.test(n); };   // TBA / "Episode 4" placeholders
 
@@ -92,7 +96,7 @@ for (const it of items) {
       const yt = ytFor(it.d, e, i, num);
       const thumbnail = web(e.image) || web(hit?.image) || (yt ? ytThumb(yt) : undefined);
       videos.push({ id: vid, title: e.title, season: n, episode: i + 1, released, overview: (tmdbText ? hit?.overview || e.overview : e.overview || hit?.overview) || undefined, thumbnail });
-      write(`addon/stream/series/${vid}.json`, ytStream(yt));
+      write(`addon/stream/series/${vid}.json`, ytStream(yt, e.watch?.length ? e.watch : it.d.watch));
       episodes++;
       if (yt) withVideo++;
       if (thumbnail) withThumb++;
@@ -107,7 +111,7 @@ const movieMeta = (d) => ({ id: d.stremioImdb && d.ids?.imdb ? d.ids.imdb : PREF
 for (const d of movies) {
   const m = movieMeta(d);
   write(`addon/meta/movie/${m.id}.json`, { meta: { ...m, background: web(d.images?.backdrop) || web(mine(d, "movies").backdrop) } });
-  write(`addon/stream/movie/${m.id}.json`, ytStream(d.youtube));
+  write(`addon/stream/movie/${m.id}.json`, ytStream(d.youtube, d.watch));
 }
 
 const catalogs = [];

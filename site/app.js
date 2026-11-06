@@ -26,13 +26,13 @@ const fromCommunity = (d) => {                               // a community file
   const episodes = [], extra = {}, seasonPosters = {}, seasonCovers = {}, seasonTrailers = {};
   for (const s of d.seasons || []) {
     const n = /^Season (\d+)$/i.exec(s.name)?.[1];
-    const list = (s.episodes || []).map((e, i) => ({ title: e.title, number: i + 1, date: e.date, overview: e.overview, image: e.image, youtube: e.youtube }));
+    const list = (s.episodes || []).map((e, i) => ({ title: e.title, number: i + 1, date: e.date, overview: e.overview, image: e.image, youtube: e.youtube, watch: e.watch }));
     if (n) { list.forEach((e) => episodes.push({ ...e, season: Number(n) })); if (s.poster) seasonPosters[n] = s.poster; if (s.trailer) seasonTrailers[n] = s.trailer; }
     else if (/^specials$/i.test(s.name)) { list.forEach((e) => episodes.push({ ...e, season: 0 })); if (s.poster) seasonPosters[0] = s.poster; }
     else { extra[s.name] = list; if (s.poster) seasonCovers[s.name] = s.poster; }   // named seasons like Shorts
   }
   return { type: d.type === "movie" ? "movie" : "show", title: d.title, year: d.year, overview: d.description, genres: d.genres,
-    poster: d.images?.poster, backdrop: d.images?.backdrop, cast: d.cast, directors: d.directors, trailer: d.trailer, episodes, extra, seasonPosters, seasonCovers, seasonTrailers };
+    poster: d.images?.poster, backdrop: d.images?.backdrop, cast: d.cast, directors: d.directors, trailer: d.trailer, watch: d.watch, watchLink: d.watch?.[0]?.url, episodes, extra, seasonPosters, seasonCovers, seasonTrailers };
 };
 // An episode with no picture of its own gets the TMDB still the site already fetched (same name, else same season and number).
 const fillStills = (eps, md) => {
@@ -83,7 +83,7 @@ const watchUrl = (m, e, key, i) => {
   // Order: the episode's own url, a YouTube video the Action found, episodeLinks, the show's watchUrl, then config.js.
   const found = m.ytLinks || {};
   const yt = found[normBase(e.orig || e.title)] || (e.season > 0 && e.number ? found[`s${e.season}e${e.number}`] : "");
-  const tpl = e.url || e.youtube || (yt && `https://www.youtube.com/watch?v=${yt}`) || (m.episodeLinks?.[key] || [])[i - 1] || m.watchUrl || SITE.watchUrl;
+  const tpl = e.url || e.youtube || (yt && `https://www.youtube.com/watch?v=${yt}`) || e.watch?.[0]?.url || (m.episodeLinks?.[key] || [])[i - 1] || m.watchUrl || m.watchLink || SITE.watchUrl;
   if (!tpl) return "";
   const season = key === "Specials" ? 0 : /^Season \d+$/.test(key) ? Number(key.slice(7)) : key;
   const vals = { show: m.id, title: m.title, season, episode: i, name: e.title || "", date: e.date || "" };
@@ -108,9 +108,9 @@ const ensurePlayer = () => {
   if (player) return player;
   const title = $("strong"), sub = $("small"), frame = $("div", { class: "pl-frame" });
   const loading = $("div", { class: "pl-loading" }, $("span", { class: "spin" }));
-  const btn = (act, label) => $("button", { type: "button", class: "pl-btn", "data-act": act, "aria-label": label, title: label });
-  const prevBtn = btn("prev", "Previous episode"), nextBtn = btn("next", "Next episode"), closeBtn = btn("close", "Close player");
-  const ext = $("a", { class: "pl-btn", "data-act": "ext", target: "_blank", rel: "noopener noreferrer", "aria-label": "Open in a new tab", title: "Open in a new tab" });
+  const btn = (act, label) => $("button", { type: "button", class: "btn small", "data-act": act }, label);
+  const prevBtn = btn("prev", "Previous"), nextBtn = btn("next", "Next"), closeBtn = btn("close", "Close");
+  const ext = $("a", { class: "btn small", "data-act": "ext", target: "_blank", rel: "noopener noreferrer" }, "Open");
   const foot = $("a", { target: "_blank", rel: "noopener noreferrer" }, "open it in a new tab");
   const dlg = $("dialog", { class: "player", "aria-label": "Video player" },
     $("div", { class: "pl-head" }, $("div", { class: "pl-titles" }, title, sub), $("div", { class: "pl-actions" }, prevBtn, nextBtn, ext, closeBtn)),
@@ -155,6 +155,58 @@ const wire = (a, info) => {
 };
 const playLink = (info, label) => wire($("a", { class: "play", href: info.url, target: isWeb(info.url) ? "_blank" : "", rel: "noopener noreferrer", "aria-label": label }), info);
 
+// A flat page colour taken from a poster (title pages only). Each image is read once.
+const tintCache = new Map();
+const posterColour = (url) => {
+  if (!tintCache.has(url)) tintCache.set(url, new Promise((resolve) => {
+    const im = new Image();
+    im.crossOrigin = "anonymous";
+    im.onload = () => {
+      try {
+        const c = document.createElement("canvas");
+        c.width = c.height = 32;
+        const g = c.getContext("2d", { willReadFrequently: true });
+        g.drawImage(im, 0, 0, 32, 32);
+        const px = g.getImageData(0, 0, 32, 32).data;
+        let r = 0, gr = 0, b = 0, w = 0;
+        for (let i = 0; i < px.length; i += 4) {
+          const hi = Math.max(px[i], px[i + 1], px[i + 2]), lo = Math.min(px[i], px[i + 1], px[i + 2]);
+          const sat = hi ? (hi - lo) / hi : 0, k = 0.05 + sat * sat;            // colourful pixels count for more
+          r += px[i] * k; gr += px[i + 1] * k; b += px[i + 2] * k; w += k;
+        }
+        r /= w; gr /= w; b /= w;
+        const hi = Math.max(r, gr, b), lo = Math.min(r, gr, b), d = hi - lo;
+        let h = 0;
+        if (d) { h = hi === r ? ((gr - b) / d) % 6 : hi === gr ? (b - r) / d + 2 : (r - gr) / d + 4; h = (h * 60 + 360) % 360; }
+        const l = (hi + lo) / 510, sat = d ? d / (255 * (1 - Math.abs(2 * l - 1))) : 0;
+        resolve({ h: Math.round(h), s: Math.round(Math.min(1, sat) * 100) });
+      } catch { resolve(null); }                                                  // the image server did not allow reading it
+    };
+    im.onerror = () => resolve(null);
+    im.src = asset(url);
+  }));
+  return tintCache.get(url);
+};
+let tintToken = 0;
+const setTint = async (url) => {
+  const mine = ++tintToken;
+  const t = url ? await posterColour(url) : null;
+  if (mine !== tintToken) return;                                                // another page or season was chosen meanwhile
+  const v = document.getElementById("view");
+  if (!t) { v.removeAttribute("data-tint"); return; }
+  v.style.setProperty("--tint-h", t.h);
+  v.style.setProperty("--tint-s", Math.max(22, Math.min(t.s, 58)) + "%");
+  v.setAttribute("data-tint", "");
+};
+
+// The facts shown beside a poster, as a list of label and value.
+const facts = (m) => {
+  const stars5 = m.rating ? (n => "★".repeat(n) + "☆".repeat(5 - n))(Math.max(0, Math.min(5, Math.round(m.rating)))) : "";
+  const rows = [["Year", m.year], ["Genre", (m.genres || []).join(", ")], ["Created by", (m.directors || []).join(", ")], ["Starring", (m.cast || []).join(", ")],
+    ["Runtime", m.runtime ? `${m.runtime} minutes` : ""], ["My rating", stars5], ["TMDB", m.score ? `${m.score} out of 10` : ""]].filter(([, v]) => v);
+  return rows.length ? $("dl", { class: "facts" }, rows.flatMap(([k, v]) => [$("dt", {}, k), $("dd", {}, String(v))])) : null;
+};
+
 // A "Play trailer" button. set(id, sub) shows it for a YouTube id and hides it when there is none.
 const trailerBtn = (title) => {
   const el = $("button", { type: "button", class: "btn trailer" }, "Play trailer");
@@ -180,23 +232,18 @@ const fit = () => document.querySelectorAll(".clampbox").forEach((b) => {
   const [p, btn] = b.children;
   if (!p.classList.contains("open")) btn.hidden = !(p.scrollHeight > p.clientHeight + 6);   // a little slack so text that fits never gets a button
 });
-const metaLine = (m) => [m.year, m.runtime && `${m.runtime} min`, m.genres?.length && m.genres.join(", ")].filter(Boolean).join(" · ");
-const ratingLine = (m) => [m.rating && stars(m.rating),
-  m.score && $("small", {}, `TMDB ${m.score} / 10`)];
 
 const page = (title, ...kids) => $("section", { class: "page" }, $("h1", { class: "title" }, title), ...kids);
 const stars = (n) => $("span", { class: "stars", "aria-label": `${n} out of 5` }, "★".repeat(n) + "☆".repeat(5 - n));
 
-const tile = (m, i = 0) => {
-  const href = `#/${m.type === "show" ? "show" : "movie"}/${m.id}`;
+const tile = (m) => {
   const blank = () => $("div", { class: "noposter" }, m.title);
-  const pic = $("div", { class: "pic" }, m.poster ? img(m.poster, m.title, blank) : blank(), m.score && $("span", { class: "chip" }, `★ ${m.score}`));
-  return $("figure", { class: "poster", style: `--i:${Math.min(i, 12)}` },
-    href ? $("a", { href, target: isWeb(href) ? "_blank" : "", rel: "noopener noreferrer", "aria-label": m.title }, pic) : pic,
-    $("figcaption", {}, $("strong", {}, m.title), ` ${m.year || ""}`,
-      m.rating && stars(m.rating),
-      m.genres?.length && $("small", {}, m.genres.slice(0, 2).join(", ")),
-      m.note && $("small", {}, m.note)));
+  const eps = m.type === "show" ? (m.episodes?.length || 0) + Object.values(m.extra || {}).reduce((n, l) => n + l.length, 0) : 0;
+  return $("figure", { class: "poster" },
+    $("a", { href: `#/${m.type === "show" ? "show" : "movie"}/${m.id}`, "aria-label": m.title }, $("div", { class: "pic" }, m.poster ? img(m.poster, m.title, blank) : blank())),
+    $("figcaption", {}, $("strong", {}, m.title),
+      $("small", {}, [m.year, m.type === "show" ? (eps ? `${eps} episodes` : "Series") : "Film"].filter(Boolean).join(", ")),
+      m.rating && stars(m.rating), m.note && $("small", {}, m.note)));
 };
 
 // Group a show's episodes into seasons: fetched episodes, then your moves / edits / images / extra seasons and season settings.
@@ -291,16 +338,17 @@ function showPage(id) {
     const e = S.eps[j];
     if (!e) return null;
     const url = watchUrl(m, e, S.key, j + 1);
-    return url && { url, title: e.title || `Episode ${j + 1}`, sub: `${m.title} · ${name} · Episode ${j + 1}`, next: () => infoFor(S, j + 1, name), prev: () => infoFor(S, j - 1, name) };
+    return url && { url, title: e.title || `Episode ${j + 1}`, sub: `${m.title}, ${name}, episode ${j + 1}`, next: () => infoFor(S, j + 1, name), prev: () => infoFor(S, j - 1, name) };
   };
   const row = (e, i, key, n) => {
-    const thumb = () => $("div", { class: "thumb" }, String(i));
+    const thumb = () => $("div", { class: "thumb" });
     const info = infoFor(seasons[n], i - 1, n);
-    return $("li", { style: `--i:${Math.min(i, 12)}` }, $("div", { class: "ep" },
-      $("div", { class: "tw" }, e.image ? img(e.image, "", thumb) : thumb(), e.image && $("span", { class: "num" }, String(i))),
-      $("div", { class: "grow" }, $("strong", {}, e.title || "TBA"), e.date && $("small", {}, fmt(e.date)),
-        e.overview && expandable(e.overview, "ov", 2)),
-      info && playLink(info, `Play ${e.title || "episode " + i}`)));
+    return $("li", { class: "ep" },
+      $("span", { class: "epnum" }, String(i).padStart(2, "0")),
+      $("div", { class: "tw" }, e.image ? img(e.image, "", thumb) : thumb()),
+      $("div", { class: "grow" }, $("strong", {}, e.title || "TBA"), e.overview && expandable(e.overview, "ov", 2)),
+      $("span", { class: "epdate" }, e.date ? fmt(e.date) : ""),
+      info ? playLink(info, `Play ${e.title || "episode " + i}`) : $("span", { class: "play-gap" }));
   };
   const draw = (n) => {
     at = names.indexOf(n);
@@ -331,40 +379,23 @@ function showPage(id) {
   const outside = (e) => { if (!dd.isConnected) removeEventListener("click", outside); else if (!dd.contains(e.target)) toggle(false); };
   addEventListener("click", outside);
   const blank = () => $("div", { class: "noposter" }, m.title);
-  // Big blurred background that follows the season poster. It sits on <body> (fixed) so it fills the whole window.
-  const bd = $("img", {});
-  bd.alt = "";
-  const bdwrap = $("div", { class: "bdwrap", "aria-hidden": "true" }, bd);
-  document.body.append(bdwrap);
-  bd.onerror = () => { bdwrap.hidden = true; };
-  const setBackdrop = (u) => {
-    const s = asset(u || m.poster || m.backdrop);
-    bdwrap.hidden = !s;
-    if (!s) return;
-    bd.style.opacity = "0";
-    bd.onload = () => { bd.style.opacity = ""; };
-    bd.src = s;
-  };
   const tr = trailerBtn(m.title);                             // plays the season's trailer, else the show's
   const figure = $("figure", { class: "poster" });             // the big picture on the left; changes with the season
   const paintCover = (u) => figure.replaceChildren(u
     ? img(u, m.title, () => (m.poster && u !== m.poster ? img(m.poster, m.title, blank, { loading: "eager" }) : blank()), { loading: "eager" })
     : blank());
-  const setCover = (u) => { setBackdrop(u); paintCover(u); };
+  const setCover = (u) => { paintCover(u); setTint(u || m.poster || m.backdrop); };
   setCover(m.poster);
   tr.set(m.trailer);
-  const el = $("div", { class: "show" },
-    $("aside", {}, figure, $("h1", {}, m.title),
-      metaLine(m) && $("p", { class: "meta" }, metaLine(m)), ratingLine(m), tr.el,
-      m.overview && expandable(m.overview, "sdesc", 5),
-      m.directors?.length && $("p", { class: "credit" }, `Created by ${m.directors.join(", ")}`),
-      m.cast?.length && $("p", { class: "credit" }, `Starring ${m.cast.join(", ")}`)),
-    $("div", {}, names.length
-      ? [bar, list]
-      : $("p", { class: "empty" }, "No episodes yet. They appear after the metadata update runs.")));
+  const head = $("header", { class: "show-head" }, figure,
+    $("div", { class: "show-info" }, $("h1", { class: "title" }, m.title), facts(m),
+      m.overview && expandable(m.overview, "sdesc", 6),
+      $("div", { class: "actions" }, tr.el, (m.watch || []).slice(0, 3).map((w) => $("a", { class: "btn", href: w.url, target: "_blank", rel: "noopener noreferrer" }, `Watch on ${w.name}`)))));
+  const body = $("div", { class: "show-body" }, names.length
+    ? [bar, list]
+    : $("p", { class: "empty" }, "No episodes yet. They appear after the metadata update runs."));
   if (names.length) draw(names[0]);
-  return $("div", { class: "show-page" },
-    $("a", { class: "btn back", href: "#/movies" }, `← Back to ${labelOf("movies")}`), el);
+  return $("div", { class: "show-page" }, $("a", { class: "back", href: "#/movies" }, `Back to ${labelOf("movies")}`), head, body);
 }
 
 function moviePage(id) {
@@ -374,13 +405,12 @@ function moviePage(id) {
   const url = watchUrl(m, m, "", 1);
   const tr = trailerBtn(m.title);
   tr.set(m.trailer);
-  const meta = [m.year, m.runtime && `${m.runtime} min`, m.genres?.length && m.genres.join(", ")].filter(Boolean).join(" · ");
-  return $("div", {}, $("a", { class: "btn back", href: "#/movies" }, `← Back to ${labelOf("movies")}`),
-    $("div", { class: "show" },
-      $("aside", {}, $("figure", { class: "poster" }, m.poster ? img(m.poster, m.title, blank, { loading: "eager" }) : blank())),
-      $("div", {}, $("h1", { class: "title mtitle" }, m.title), meta && $("p", { class: "meta" }, meta), ratingLine(m),
-        m.overview && $("p", { class: "lead" }, m.overview), m.note && $("p", {}, m.note),
-        tr.el, url && wire($("a", { class: "btn", href: url, target: isWeb(url) ? "_blank" : "", rel: "noopener noreferrer" }, "Play"), { url, title: m.title, sub: String(m.year || "") }))));
+  setTint(m.poster || m.backdrop);
+  return $("div", { class: "show-page" }, $("a", { class: "back", href: "#/movies" }, `Back to ${labelOf("movies")}`),
+    $("header", { class: "show-head" }, $("figure", { class: "poster" }, m.poster ? img(m.poster, m.title, blank, { loading: "eager" }) : blank()),
+      $("div", { class: "show-info" }, $("h1", { class: "title" }, m.title), facts(m),
+        m.overview && $("p", { class: "sdesc" }, m.overview), m.note && $("p", { class: "credit" }, m.note),
+        $("div", { class: "actions" }, tr.el, url && wire($("a", { class: "btn primary", href: url, target: isWeb(url) ? "_blank" : "", rel: "noopener noreferrer" }, "Play"), { url, title: m.title, sub: String(m.year || "") })))));
 }
 
 // site/#/check/<show>: every episode name exactly as stored, and what the site shows after your library.js changes.
@@ -413,7 +443,7 @@ const multiSelect = (label, options, picked, onChange) => {
       const x = $("button", { type: "button", class: "tagx", "aria-label": `Remove tag ${t}` }, t, $("span", { "aria-hidden": "true" }, "✕"));
       x.onclick = () => { picked.delete(t); paint(); onChange(); };
       return x;
-    }), picked.size > 1 ? clear : null);
+    }), ...(picked.size > 1 ? [clear] : []));
   };
   const toggle = (open) => {
     menu.hidden = !open;
@@ -626,13 +656,13 @@ const extLink = (href, text, cls) => href && $("a", { class: cls, href, target: 
 const DB_TEMPLATE = JSON.stringify({ id: "my-show", type: "show", title: "My Show", year: 2020, description: "Write a short summary in your own words.",
   genres: ["Genre"], ids: {}, seasons: [{ name: "Season 1", episodes: [{ title: "Episode title", date: "2020-01-31" }] }], contributors: ["your-github-name"] }, null, 2);
 
-const dbTile = (t, i = 0) => {
+const dbTile = (t) => {
   const blank = () => $("div", { class: "noposter" }, t.title);
-  const pic = $("div", { class: "pic" }, t.poster ? img(t.poster, t.title, blank) : blank());
-  return $("figure", { class: "poster", style: `--i:${Math.min(i, 12)}` },
-    $("a", { href: `#/db/${t.id}`, "aria-label": t.title }, pic),
-    $("figcaption", {}, $("strong", {}, t.title), ` ${t.year || ""}`,
-      $("small", {}, t.type === "show" ? `${t.episodes} episodes` : "Movie"), t.genres?.length && $("small", {}, t.genres.slice(0, 2).join(", "))));
+  return $("figure", { class: "poster" },
+    $("a", { href: `#/db/${t.id}`, "aria-label": t.title }, $("div", { class: "pic" }, t.poster ? img(t.poster, t.title, blank) : blank())),
+    $("figcaption", {}, $("strong", {}, t.title),
+      $("small", {}, [t.year, t.type === "show" ? `${t.episodes} episodes` : "Film"].filter(Boolean).join(", ")),
+      t.genres?.length && $("small", {}, t.genres.slice(0, 2).join(", "))));
 };
 
 function dbList() {
@@ -663,39 +693,39 @@ function dbView(d, dir) {
   const poster = d.images?.poster || (META.shows?.[d.id] || {}).poster;               // the site's own data fills gaps
   const tr = trailerBtn(d.title);
   tr.set(d.trailer || (META.shows?.[d.id] || {}).trailer);
+  setTint(poster);
   const yl = (META.shows?.[d.id] || {}).ytLinks || {};
   const ytOf = (e, s, j) => e.youtube || yl[normBase(e.title)] || (/^Season (\d+)$/i.test(s.name) ? yl[`s${/^Season (\d+)$/i.exec(s.name)[1]}e${j + 1}`] : "");
+  const linkOf = (e, s, j) => (ytOf(e, s, j) ? `https://www.youtube.com/watch?v=${ytOf(e, s, j)}` : (e.watch?.[0]?.url || d.watch?.[0]?.url || ""));
   const ids = d.ids || {}, tv = d.type === "movie" ? "movie" : "tv", tvdb = d.type === "movie" ? "movie" : "series";
   const chips = [
     ids.tmdb && extLink(`https://www.themoviedb.org/${tv}/${ids.tmdb}`, "TMDB"),
     ids.imdb && extLink(`https://www.imdb.com/title/${ids.imdb}/`, "IMDb"),
     ids.tvdb && extLink(`https://thetvdb.com/dereferrer/${tvdb}/${ids.tvdb}`, "TVDB"),
     ...(d.links || []).map((l) => extLink(l.url, l.name)),
-  ];
-  const meta = [d.year, (d.genres || []).join(", ")].filter(Boolean).join(" · ");
+  ].filter(Boolean);
   const seasons = (d.seasons || []).map((s, si) => {
     const eps = s.episodes || [];
-    const infos = eps.map((e, j) => ytOf(e, s, j) && { url: `https://www.youtube.com/watch?v=${ytOf(e, s, j)}`, title: e.title, sub: `${d.title} · ${s.name} · Episode ${j + 1}` });
+    const infos = eps.map((e, j) => { const url = linkOf(e, s, j); return url && { url, title: e.title, sub: `${d.title}, ${s.name}, episode ${j + 1}` }; });
     infos.forEach((inf, j) => { if (inf) { inf.next = () => infos[j + 1] || null; inf.prev = () => infos[j - 1] || null; } });
     const det = $("details", { class: "dbseason" }, $("summary", {}, `${s.name} (${eps.length})`),
-      $("ol", { class: "dbeps" }, eps.map((e, j) => $("li", {},
-        $("span", { class: "dbn" }, String(j + 1)),
-        $("div", { class: "grow" }, $("strong", {}, e.title), e.date && $("small", {}, fmt(e.date)), e.overview && expandable(e.overview, "ov", 2)),
-        infos[j] && playLink(infos[j], `Play ${e.title}`)))));
+      $("ol", { class: "dbeps" }, eps.map((e, j) => $("li", { class: "ep" },
+        $("span", { class: "epnum" }, String(j + 1).padStart(2, "0")),
+        $("div", { class: "tw" }, e.image ? img(e.image, "", () => $("div", { class: "thumb" })) : $("div", { class: "thumb" })),
+        $("div", { class: "grow" }, $("strong", {}, e.title), e.overview && expandable(e.overview, "ov", 2)),
+        $("span", { class: "epdate" }, e.date ? fmt(e.date) : ""),
+        infos[j] ? playLink(infos[j], `Play ${e.title}`) : $("span", { class: "play-gap" })))));
     det.open = si === 0;
     return det;
   });
-  return $("div", { class: "show-page" },
-    $("a", { class: "btn back", href: "#/database" }, `← Back to ${labelOf("database")}`),
-    $("div", { class: "show" },
-      $("aside", {}, $("figure", { class: "poster" }, poster ? img(poster, d.title, blank, { loading: "eager" }) : blank()),
-        $("h1", {}, d.title), meta && $("p", { class: "meta" }, meta), $("div", { class: "idlinks" }, chips), tr.el,
-        d.description && expandable(d.description, "sdesc", 5),
-        d.directors?.length && $("p", { class: "credit" }, `Created by ${d.directors.join(", ")}`),
-        d.cast?.length && $("p", { class: "credit" }, `Starring ${d.cast.join(", ")}`),
-        $("a", { class: "btn", href: `#/edit/${d.id}` }, "Suggest an edit"),
-        d.contributors?.length && $("p", { class: "credit" }, `Added by ${d.contributors.join(", ")}`)),
-      $("div", {}, seasons.length ? seasons : $("p", { class: "empty" }, "No episodes listed yet."))));
+  return $("div", { class: "show-page" }, $("a", { class: "back", href: "#/database" }, `Back to ${labelOf("database")}`),
+    $("header", { class: "show-head" }, $("figure", { class: "poster" }, poster ? img(poster, d.title, blank, { loading: "eager" }) : blank()),
+      $("div", { class: "show-info" }, $("h1", { class: "title" }, d.title), facts({ year: d.year, genres: d.genres, directors: d.directors, cast: d.cast }),
+        d.description && expandable(d.description, "sdesc", 6),
+        chips.length ? $("p", { class: "idlinks" }, chips) : null,
+        $("div", { class: "actions" }, tr.el, $("a", { class: "btn", href: `#/edit/${d.id}` }, "Suggest an edit")),
+        d.contributors?.length && $("p", { class: "credit" }, `Added by ${d.contributors.join(", ")}`))),
+    $("div", { class: "show-body" }, seasons.length ? seasons : $("p", { class: "empty" }, "No episodes listed yet.")));
 }
 
 function dbDetail(id) {
@@ -718,16 +748,16 @@ const featured = () => {
   const items = library().slice(0, 8);
   if (!items.length) return null;
   return $("section", { class: "featured" },
-    $("div", { class: "rowhead" }, $("h2", {}, "From the library"), $("a", { href: "#/movies" }, "See all")),
+    $("div", { class: "rowhead" }, $("h2", {}, "Library"), $("a", { href: "#/movies" }, "See all")),
     $("div", { class: "posters strip" }, items.map(tile)));
 };
 
 const P = {
   home: () => $("div", {}, $("section", { class: "hero" },
     $("h1", {}, SITE.tagline),
-    SITE.intro && $("p", { class: "lead" }, SITE.intro),
-    $("div", { class: "actions" }, (SITE.links || []).map((l) =>
-      $("a", { class: "btn", href: l.url, target: isWeb(l.url) ? "_blank" : "", rel: "noopener noreferrer" }, l.label)))),
+    $("div", { class: "hero-side" }, SITE.intro && $("p", { class: "lead" }, SITE.intro),
+      (SITE.links || []).length > 0 && $("ul", { class: "hlinks" }, SITE.links.map((l) =>
+        $("li", {}, $("a", { href: l.url, target: isWeb(l.url) ? "_blank" : "", rel: "noopener noreferrer" }, l.label)))))),
     featured()),
 
   projects: () => {
@@ -766,7 +796,7 @@ const P = {
     };
     ["All", ...new Set(all.map(kind))].forEach((f) => bar.append($("button", { type: "button", "data-f": f }, f)));
     bar.onclick = (e) => e.target.dataset.f && draw(e.target.dataset.f);
-    const el = page(labelOf("movies"), $("div", { class: "filmstrip" }), bar, grid);
+    const el = page(labelOf("movies"), bar, grid);
     draw("All");
     return el;
   },
@@ -800,7 +830,7 @@ let open = false;
 const setMenu = (v) => {
   open = v;
   document.body.classList.toggle("menu-open", open);
-  menuBtn.textContent = open ? "✕" : "☰";
+  menuBtn.textContent = open ? "Close" : "Menu";
   menuBtn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
   menuBtn.setAttribute("aria-expanded", String(open));
   side.inert = (small.matches || document.documentElement.dataset.sidehide === "on") && !open;
@@ -820,7 +850,7 @@ const links = [...side.querySelectorAll("a[data-s]")];
 const mark = (k) => links.forEach((a) => (a.dataset.s === k ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
 
 function render() {
-  document.querySelectorAll(".bdwrap").forEach((n) => n.remove());   // the show page adds its own background layer
+  setTint(null);                                                     // title pages set their own colour
   const [pg, arg] = location.hash.replace(/^#\/?/, "").split("/");
   let node, active = "", label = "";
   if (!pg) { node = P.home(); active = "home"; }

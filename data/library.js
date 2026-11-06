@@ -94,7 +94,7 @@ const LIBRARY = [
     // (community/shows/helluva-boss.json): edit them there. This entry only holds tweaks for this website.
     // YOUTUBE: the metadata Action finds each episode's official YouTube video by name and saves the id.
     // Sources: a playlist id (works without a key) and/or a channel handle (needs the YOUTUBE_API_KEY secret).
-    youtube: ["@SpindleHorse", "PL-uopgYBi65HwiiDR9Y23lomAkGr9mm-S"],
+    youtube: ["@SpindleHorse", "@vivziepop", "PL-uopgYBi65HwiiDR9Y23lomAkGr9mm-S"],
     // Specials: Pilot and Mission: Zero first, then everything else in its normal order.
     episodeOrder: { Specials: ["Pilot", "Mission: Zero"] },
     // The Shorts section shows the Specials poster (instead of the main show poster).

@@ -11,18 +11,17 @@ const $ = (tag, attrs = {}, ...kids) => {                    // tiny element bui
 
 // The choices offered in Settings. Edit these lists to change what people can pick.
 const CHOICES = {
-  accents: ["#ffc247", "#ff6b6b", "#4cc9f0", "#7bd88f", "#c77dff", "#f78fb3"],
-  headingFonts: ["Bricolage Grotesque", "Space Grotesk", "Outfit", "Sora", "Playfair Display", "Fraunces"],
-  bodyFonts: ["Instrument Sans", "Inter", "DM Sans", "Work Sans", "IBM Plex Sans", "Lora"],
+  accents: ["#eeebe5", "#ff9d8a", "#9fc0ff", "#c2dca6", "#f1c46b", "#d8a8ff"],
+  headingFonts: ["Barlow Condensed", "Archivo Narrow", "Schibsted Grotesk", "Newsreader", "Red Hat Display", "Rubik"],
+  bodyFonts: ["Karla", "Hanken Grotesk", "Work Sans", "Source Serif 4", "IBM Plex Sans", "Public Sans"],
   // Ready-made looks: one tap sets the background and accent together. "Default" uses config.js.
   presets: [
     { name: "Default" },
-    { name: "Ember", bg: "#1b0f12", accent: "#ff6b4a" },
-    { name: "Forest", bg: "#0e1a14", accent: "#7bd88f" },
-    { name: "Ocean", bg: "#07161f", accent: "#4cc9f0" },
-    { name: "Plum", bg: "#16101f", accent: "#c77dff" },
-    { name: "Mono", bg: "#141414", accent: "#ffffff" },
-    { name: "Snow", bg: "#f4f6fb", accent: "#2563eb" },
+    { name: "Graphite", bg: "#2e2d2b", accent: "#f0ede6" },
+    { name: "Paper", bg: "#e8e7e3", accent: "#1d1c1a" },
+    { name: "Blueprint", bg: "#17202e", accent: "#9fc0ff" },
+    { name: "Oxblood", bg: "#2a1517", accent: "#ff9d8a" },
+    { name: "Moss", bg: "#1a211b", accent: "#c2dca6" },
   ],
 };
 const T = SITE.theme;
@@ -62,30 +61,24 @@ const apply = () => {
   for (const k of ["bg", "text", "accent"]) r.style.setProperty("--" + k, p[k]);
   r.style.setProperty("--on-accent", lum(p.accent) > 0.45 ? "#101010" : "#ffffff");
   r.style.colorScheme = lum(p.bg) > 0.4 ? "light" : "dark";
-  r.style.setProperty("--head", `"${S.headingFont}", system-ui, sans-serif`);
+  r.style.setProperty("--head", `"${S.headingFont}", ${/Condensed|Narrow/.test(S.headingFont) ? '"Arial Narrow", "Roboto Condensed", sans-serif' : "system-ui, sans-serif"}`);
   r.style.setProperty("--body", `"${S.bodyFont}", system-ui, sans-serif`);
   fontLink.href = "https://fonts.googleapis.com/css2?" +
     [...new Set([S.headingFont, S.bodyFont])].map((f) => "family=" + f.replace(/ /g, "+") + ":wght@400;700").join("&") + "&display=swap";
   r.style.fontSize = { s: "90%", m: "100%", l: "115%" }[S.size];
-  Object.assign(r.dataset, { cards: S.cards, motion: S.motion, glow: S.glow, sidehide: S.sidehide });
+  Object.assign(r.dataset, { cards: S.cards, motion: S.motion, glow: S.glow, sidehide: S.sidehide, theme: lum(p.bg) > 0.4 ? "light" : "dark" });
   document.dispatchEvent(new Event("settingschange"));
   document.body.classList.toggle("side-right", S.side === "right");
 };
 prefersDark.addEventListener("change", () => S.mode === "auto" && apply());
 
 // ---------------- Settings dialog ----------------
-const ico = (inner) => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>${inner}</svg>`)}")`;
-const ICONS = {
-  dark: ico("<path d='M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z'/>"),
-  light: ico("<circle cx='12' cy='12' r='4'/><path d='M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'/>"),
-  auto: ico("<circle cx='12' cy='12' r='9'/><path d='M12 3v18'/>"),
-};
 const dlg = $("dialog", { class: "settings", "aria-labelledby": "settings-title" });
 const card = (title, ...kids) => $("section", { class: "s-card" }, $("h3", {}, title), ...kids);
 const row = (label, hint, ctl, inline) => $("div", { class: inline ? "s-row inline" : "s-row" },
   $("div", { class: "s-label" }, $("strong", {}, label), hint && $("small", {}, hint)), ctl);
 const seg = (k, opts) => $("div", { class: "sseg", role: "group" }, opts.map(([v, t]) =>
-  $("button", { type: "button", "data-k": k, "data-v": v }, ICONS[v] && k === "mode" ? $("span", { class: "ico", style: `--icon:${ICONS[v]}` }) : null, t)));
+  $("button", { type: "button", "data-k": k, "data-v": v }, t)));
 const select = (k, list, label) => {
   const s = $("select", { "data-select": k, "aria-label": label }, list.map((f) => $("option", { value: f }, f)));
   s.onchange = () => set(k, s.value);
@@ -150,7 +143,7 @@ dlg.append($("div", { class: "panel" },
       row("Sidebar position", "On desktop", seg("side", [["left", "Left"], ["right", "Right"]])),
       row("Hide the sidebar", "Desktop only: a small button in the top-left corner opens it", sw("sidehide", "on", "off", "Hide the sidebar"), true)),
     card("Effects",
-      row("Background glow", "Soft colour behind the pages and show posters", sw("glow", "on", "off", "Background glow"), true),
+      row("Poster colour", "Title pages take their colour from the poster", sw("glow", "on", "off", "Poster colour"), true),
       row("Reduce motion", "Turn off animations", sw("motion", "reduced", "full", "Reduce motion"), true))),
   $("footer", { class: "s-foot" }, reset, done)));
 document.body.append(dlg);

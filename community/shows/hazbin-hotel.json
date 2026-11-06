@@ -1,0 +1,233 @@
+{
+  "id": "hazbin-hotel",
+  "type": "show",
+  "title": "Hazbin Hotel",
+  "year": 2024,
+  "description": "An adult animated musical comedy created by Vivienne Medrano. Charlie, the princess of Hell, opens a hotel to rehabilitate sinners in the hope of sending them to Heaven.",
+  "genres": [
+    "Animation",
+    "Comedy",
+    "Fantasy",
+    "Musical"
+  ],
+  "links": [
+    {
+      "name": "Prime Video",
+      "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+    }
+  ],
+  "watch": [
+    {
+      "name": "Prime Video",
+      "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+    }
+  ],
+  "directors": [
+    "Vivienne Medrano"
+  ],
+  "cast": [
+    "Erika Henningsen",
+    "Stephanie Beatriz",
+    "Blake Roman",
+    "Amir Talai",
+    "Keith David",
+    "Alex Brightman",
+    "Jeremy Jordan"
+  ],
+  "seasons": [
+    {
+      "name": "Season 1",
+      "episodes": [
+        {
+          "title": "Overture",
+          "date": "2024-01-19",
+          "overview": "Charlie introduces the Happy Hotel and her plan to rehabilitate sinners, while the first guests test everyone's patience.",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://primevideo.com/dp/detail/amzn1.dv.gti.3000073f-30ce-4db5-bfa6-6bc788a92ada"
+            }
+          ]
+        },
+        {
+          "title": "Radio Killed the Video Star",
+          "date": "2024-01-19",
+          "overview": "Alastor goes back on the air, and the hotel feels the consequences.",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+            }
+          ]
+        },
+        {
+          "title": "Scrambled Eggs",
+          "date": "2024-01-19",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+            }
+          ]
+        },
+        {
+          "title": "Masquerade",
+          "date": "2024-01-19",
+          "overview": "Angel Dust tries to balance his work and the hotel until an unexpected arrival shakes things up.",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+            }
+          ]
+        },
+        {
+          "title": "Dad Beat Dad",
+          "date": "2024-01-26",
+          "overview": "Charlie invites her father, Lucifer, to the hotel to ask a favour, with Alastor stirring up trouble.",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+            }
+          ]
+        },
+        {
+          "title": "Welcome to Heaven",
+          "date": "2024-01-26",
+          "overview": "Charlie and Vaggie travel to Heaven to speak with Adam's manager.",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+            }
+          ]
+        },
+        {
+          "title": "Hello Rosie!",
+          "date": "2024-02-02",
+          "overview": "Charlie and Vaggie work to protect their home from destruction.",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+            }
+          ]
+        },
+        {
+          "title": "The Show Must Go On",
+          "date": "2024-02-02",
+          "overview": "The season finale brings the conflict between Heaven and Hell to a head.",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Season 2",
+      "episodes": [
+        {
+          "title": "New Pentious",
+          "date": "2025-10-29",
+          "overview": "A month after the Extermination, the hotel fills with new residents.",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+            }
+          ]
+        },
+        {
+          "title": "Storyteller",
+          "date": "2025-10-29",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+            }
+          ]
+        },
+        {
+          "title": "Behind Closed Doors",
+          "date": "2025-11-05",
+          "overview": "Charlie sets up an interview with the Vees, with disastrous results.",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+            }
+          ]
+        },
+        {
+          "title": "It's A Deal",
+          "date": "2025-11-05",
+          "overview": "Alastor leaves the hotel and makes a move to get out of his deal.",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+            }
+          ]
+        },
+        {
+          "title": "Silenced",
+          "date": "2025-11-12",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+            }
+          ]
+        },
+        {
+          "title": "Scream Rain",
+          "date": "2025-11-12",
+          "overview": "Vox prepares for war against Heaven while tensions grow among the hotel's residents.",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+            }
+          ]
+        },
+        {
+          "title": "Weapon of Mass Distraction",
+          "date": "2025-11-19",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+            }
+          ]
+        },
+        {
+          "title": "Curtain Call",
+          "date": "2025-11-19",
+          "watch": [
+            {
+              "name": "Prime Video",
+              "url": "https://www.primevideo.com/detail/0TMHG38E77TYL5WFHEN48G7UL5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Specials",
+      "episodes": [
+        {
+          "title": "That's Entertainment (Pilot)",
+          "date": "2019-10-28",
+          "overview": "The original 2019 pilot, which introduced Charlie, Vaggie and Angel Dust."
+        }
+      ]
+    }
+  ],
+  "contributors": [
+    "royalking159"
+  ]
+}

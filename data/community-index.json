@@ -1,7 +1,24 @@
 {
- "built": "2026-11-05T10:26:50.233Z",
- "count": 1,
+ "built": "2026-11-06T07:18:06.034Z",
+ "count": 2,
  "titles": [
+  {
+   "id": "hazbin-hotel",
+   "type": "show",
+   "title": "Hazbin Hotel",
+   "year": 2024,
+   "description": "An adult animated musical comedy created by Vivienne Medrano. Charlie, the princess of Hell, opens a hotel to rehabilitate sinners in the hope of sending them to Heaven.",
+   "genres": [
+    "Animation",
+    "Comedy",
+    "Fantasy",
+    "Musical"
+   ],
+   "poster": "",
+   "ids": {},
+   "seasons": 3,
+   "episodes": 17
+  },
   {
    "id": "helluva-boss",
    "type": "show",
@@ -19,7 +36,7 @@
     "imdb": "tt10691770"
    },
    "seasons": 5,
-   "episodes": 39
+   "episodes": 43
   }
  ]
 }

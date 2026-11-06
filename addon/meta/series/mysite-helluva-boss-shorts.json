@@ -3,7 +3,7 @@
   "id": "mysite-helluva-boss-shorts",
   "type": "series",
   "name": "Helluva Boss: Shorts",
-  "poster": "https://image.tmdb.org/t/p/w500/zfZG7izmTqwAuViqrclYJfbRoGc.jpg",
+  "poster": "https://image.tmdb.org/t/p/w500/bcrp2ovxirKH81XSMYQZ7eEunzX.jpg",
   "posterShape": "poster",
   "description": "Shorts from Helluva Boss.",
   "releaseInfo": "2020-",
@@ -12,14 +12,16 @@
    "Comedy",
    "Fantasy"
   ],
-  "background": "https://image.tmdb.org/t/p/w780/20OP4f0xDbPttORm9OyIbNu3cNN.jpg",
+  "background": "https://image.tmdb.org/t/p/w780/vzL52Oa06RgZ6GEVR20TTlsGfdz.jpg",
   "director": [
    "Vivienne Medrano"
   ],
   "cast": [
    "Brandon Rogers",
-   "Erica Lindbeck",
    "Richard Steven Horvitz",
+   "Vivian Nixon",
+   "Erica Lindbeck",
+   "Bryce Pinkham",
    "Brock Baker"
   ],
   "videos": [

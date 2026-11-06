@@ -29,6 +29,11 @@ Shows also have `seasons`, each with a `name` and `episodes` (`title`, and optio
 A season can also have a `poster` (an https link). Episode thumbnails: give an episode an `image`, or leave it out and the site and the Stremio addon
 use the TMDB still the website already fetched, then the YouTube thumbnail if the episode has a `youtube` id.
 The metadata Action fills in missing `youtube` ids for you (`node scripts/community.mjs fill`).
+Episodes and titles can also have `watch`, a list of official links that are not YouTube, for example
+`"watch": [{ "name": "Prime Video", "url": "https://www.primevideo.com/detail/..." }]`. The website uses it for the play button when there is no YouTube video,
+and Stremio lists it as a stream that opens in the browser or app. A title-level `watch` is used for every episode that has no link of its own.
+A title can have `images.poster` and `images.backdrop`, a season can have `poster`, and an episode can have `image` (all https links).
+Anything you leave out is filled from TMDB when the metadata Action has run, so you only need to add what you want to override.
 
 ## Where the data is used
 - **Website:** the Movies/Shows page and each title's page read these files (library.js tweaks win over the database, the database wins over TMDB/TVDB data). Titles that only exist in `data/library.js` still show.

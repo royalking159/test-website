@@ -1,0 +1,171 @@
+{
+ "meta": {
+  "id": "mysite-hazbin-hotel",
+  "type": "series",
+  "name": "Hazbin Hotel",
+  "posterShape": "poster",
+  "description": "Charlie, the Princess of Hell, opens a hotel to rehabilitate demons and send them to Heaven.",
+  "releaseInfo": "2024-",
+  "genres": [
+   "Animation",
+   "Comedy",
+   "Fantasy",
+   "Musical"
+  ],
+  "director": [
+   "Vivienne Medrano"
+  ],
+  "cast": [
+   "Erika Henningsen",
+   "Stephanie Beatriz",
+   "Blake Roman",
+   "Amir Talai",
+   "Keith David",
+   "Alex Brightman",
+   "Jeremy Jordan"
+  ],
+  "videos": [
+   {
+    "id": "mysite-hazbin-hotel-specials-that-s-entertainment-pilot",
+    "title": "That's Entertainment (Pilot)",
+    "season": 0,
+    "episode": 1,
+    "released": "2019-10-28T00:00:00.000Z",
+    "overview": "The original 2019 pilot, which introduced Charlie, Vaggie and Angel Dust."
+   },
+   {
+    "id": "mysite-hazbin-hotel-specials-hazbin-hotel-live-on-broadway",
+    "title": "Hazbin Hotel: Live on Broadway",
+    "season": 0,
+    "episode": 2,
+    "released": "2025-11-17T00:00:00.000Z"
+   },
+   {
+    "id": "mysite-hazbin-hotel-s1e1",
+    "title": "Overture",
+    "season": 1,
+    "episode": 1,
+    "released": "2024-01-19T00:00:00.000Z",
+    "overview": "Charlie introduces the Happy Hotel and her plan to rehabilitate sinners, while the first guests test everyone's patience."
+   },
+   {
+    "id": "mysite-hazbin-hotel-s1e2",
+    "title": "Radio Killed the Video Star",
+    "season": 1,
+    "episode": 2,
+    "released": "2024-01-19T00:00:00.000Z",
+    "overview": "Alastor goes back on the air, and the hotel feels the consequences."
+   },
+   {
+    "id": "mysite-hazbin-hotel-s1e3",
+    "title": "Scrambled Eggs",
+    "season": 1,
+    "episode": 3,
+    "released": "2024-01-19T00:00:00.000Z"
+   },
+   {
+    "id": "mysite-hazbin-hotel-s1e4",
+    "title": "Masquerade",
+    "season": 1,
+    "episode": 4,
+    "released": "2024-01-19T00:00:00.000Z",
+    "overview": "Angel Dust tries to balance his work and the hotel until an unexpected arrival shakes things up."
+   },
+   {
+    "id": "mysite-hazbin-hotel-s1e5",
+    "title": "Dad Beat Dad",
+    "season": 1,
+    "episode": 5,
+    "released": "2024-01-26T00:00:00.000Z",
+    "overview": "Charlie invites her father, Lucifer, to the hotel to ask a favour, with Alastor stirring up trouble."
+   },
+   {
+    "id": "mysite-hazbin-hotel-s1e6",
+    "title": "Welcome to Heaven",
+    "season": 1,
+    "episode": 6,
+    "released": "2024-01-26T00:00:00.000Z",
+    "overview": "Charlie and Vaggie travel to Heaven to speak with Adam's manager."
+   },
+   {
+    "id": "mysite-hazbin-hotel-s1e7",
+    "title": "Hello Rosie!",
+    "season": 1,
+    "episode": 7,
+    "released": "2024-02-02T00:00:00.000Z",
+    "overview": "Charlie and Vaggie work to protect their home from destruction."
+   },
+   {
+    "id": "mysite-hazbin-hotel-s1e8",
+    "title": "The Show Must Go On",
+    "season": 1,
+    "episode": 8,
+    "released": "2024-02-02T00:00:00.000Z",
+    "overview": "The season finale brings the conflict between Heaven and Hell to a head."
+   },
+   {
+    "id": "mysite-hazbin-hotel-s2e1",
+    "title": "New Pentious",
+    "season": 2,
+    "episode": 1,
+    "released": "2025-10-29T00:00:00.000Z",
+    "overview": "A month after the Extermination, the hotel fills with new residents."
+   },
+   {
+    "id": "mysite-hazbin-hotel-s2e2",
+    "title": "Storyteller",
+    "season": 2,
+    "episode": 2,
+    "released": "2025-10-29T00:00:00.000Z"
+   },
+   {
+    "id": "mysite-hazbin-hotel-s2e3",
+    "title": "Behind Closed Doors",
+    "season": 2,
+    "episode": 3,
+    "released": "2025-11-05T00:00:00.000Z",
+    "overview": "Charlie sets up an interview with the Vees, with disastrous results."
+   },
+   {
+    "id": "mysite-hazbin-hotel-s2e4",
+    "title": "It's A Deal",
+    "season": 2,
+    "episode": 4,
+    "released": "2025-11-05T00:00:00.000Z",
+    "overview": "Alastor leaves the hotel and makes a move to get out of his deal."
+   },
+   {
+    "id": "mysite-hazbin-hotel-s2e5",
+    "title": "Silenced",
+    "season": 2,
+    "episode": 5,
+    "released": "2025-11-12T00:00:00.000Z"
+   },
+   {
+    "id": "mysite-hazbin-hotel-s2e6",
+    "title": "Scream Rain",
+    "season": 2,
+    "episode": 6,
+    "released": "2025-11-12T00:00:00.000Z",
+    "overview": "Vox prepares for war against Heaven while tensions grow among the hotel's residents."
+   },
+   {
+    "id": "mysite-hazbin-hotel-s2e7",
+    "title": "Weapon of Mass Distraction",
+    "season": 2,
+    "episode": 7,
+    "released": "2025-11-19T00:00:00.000Z"
+   },
+   {
+    "id": "mysite-hazbin-hotel-s2e8",
+    "title": "Curtain Call",
+    "season": 2,
+    "episode": 8,
+    "released": "2025-11-19T00:00:00.000Z"
+   }
+  ],
+  "behaviorHints": {
+   "hasScheduledVideos": true
+  }
+ }
+}

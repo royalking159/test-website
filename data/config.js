@@ -12,10 +12,10 @@ const SITE = {
   // Visitors can change all of this themselves in Settings (bottom of the sidebar).
   theme: {
     defaultMode: "dark",                                            // "dark", "light" or "auto" (follow the device)
-    dark:  { bg: "#101a33", text: "#eaf0ff", accent: "#ffc247" },
-    light: { bg: "#f4f6fb", text: "#141b2d", accent: "#b45309" },
-    headingFont: "Bricolage Grotesque",                             // any Google Font that has weights 400 and 700
-    bodyFont: "Instrument Sans",
+    dark:  { bg: "#232220", text: "#eeebe5", accent: "#eeebe5" },
+    light: { bg: "#e8e7e3", text: "#1d1c1a", accent: "#1d1c1a" },
+    headingFont: "Barlow Condensed",                             // any Google Font that has weights 400 and 700
+    bodyFont: "Karla",
   },
 
   // The pages in the sidebar, in order. Choose from "projects", "movies", "database", "about". Home is always first.

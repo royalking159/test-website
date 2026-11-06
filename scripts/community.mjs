@@ -33,6 +33,8 @@ function check(file, d, type) {
   for (const k of ["poster", "backdrop"]) if (d.images?.[k] && !isUrl(d.images[k])) err(file, `images.${k} must be a link starting with https://`);
   (d.links || []).forEach((l, i) => { if (!isStr(l?.name, 80) || !isUrl(l?.url)) err(file, `links[${i}] needs a name and an https:// url`); });
   for (const k of ["cast", "directors"]) if (d[k] != null && !(Array.isArray(d[k]) && d[k].length <= 40 && d[k].every((c) => isStr(c, 80)))) err(file, `${k} must be a list of names`);
+  const watchOk = (w) => w == null || (Array.isArray(w) && w.length <= 6 && w.every((x) => isStr(x?.name, 40) && isUrl(x?.url)));
+  if (!watchOk(d.watch)) err(file, "watch must be a list of { name, url } with https:// links");
   if (d.trailer && !/^[\w-]{11}$/.test(d.trailer)) err(file, "trailer must be an 11-character YouTube video id");
   if (d.contributors != null && !(Array.isArray(d.contributors) && d.contributors.every((c) => isStr(c, 60)))) err(file, "contributors must be a list of names");
   if (d.youtube && !/^[\w-]{11}$/.test(d.youtube)) err(file, "youtube must be an 11-character YouTube video id");
@@ -49,6 +51,7 @@ function check(file, d, type) {
       if (!isStr(e?.title, 160)) err(file, `${ep}.title is required`);
       if (e?.date && !isDate(e.date)) err(file, `${ep}.date must look like 2024-05-31`);
       if (!optStr(e?.overview, 800)) err(file, `${ep}.overview must be text, max 800 characters`);
+      if (!watchOk(e?.watch)) err(file, `${ep}.watch must be a list of { name, url } with https:// links`);
       if (e?.image && !isUrl(e.image)) err(file, `${ep}.image must start with https://`);
       if (e?.youtube && !/^[\w-]{11}$/.test(e.youtube)) err(file, `${ep}.youtube must be an 11-character YouTube video id`);
     });
