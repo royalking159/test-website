@@ -117,7 +117,7 @@ for (const [type, dir] of Object.entries(DIRS)) {
     check(file, d, type);
     if (seen.has(d?.id)) err(file, `id "${d.id}" is already used by ${seen.get(d.id)}`); else seen.set(d?.id, file);
     const eps = (d.seasons || []).reduce((n, s) => n + (s.episodes?.length || 0), 0);
-    titles.push({ id: d.id, type, title: d.title, year: d.year, description: (d.description || "").slice(0, 240), genres: d.genres || [],
+    titles.push({ id: d.id, type, title: d.title, year: d.year, description: (d.description || "").slice(0, 240), genres: d.genres || [], cast: d.cast || [], directors: d.directors || [],
       poster: d.images?.poster || siteData[type === "show" ? "shows" : "movies"]?.[d.id]?.poster || "", ids: d.ids || {}, seasons: (d.seasons || []).length, episodes: eps });
   }
 }

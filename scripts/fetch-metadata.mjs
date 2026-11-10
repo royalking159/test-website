@@ -167,6 +167,11 @@ for (const e of LIBRARY) {
         if (info.vote_average) md.score = Math.round(info.vote_average * 10) / 10;   // TMDB rating out of 10
         const tr = await pickTrailer(`/tv/${tid}/videos`);
         if (tr) md.trailer = tr;
+        try {                                                    // the title's logo (shown instead of plain text on the title page)
+          const im = await tmdb(`/tv/${tid}/images`, "include_image_language=en,null");
+          const logo = (im.logos || []).filter((l) => l.iso_639_1 === "en").sort((a, b) => b.vote_average - a.vote_average)[0] || (im.logos || [])[0];
+          if (logo) md.logo = tImg(logo.file_path, "w500");
+        } catch { /* no logo */ }
         for (const s of info.seasons || []) {
           const r = await tmdb(`/tv/${tid}/season/${s.season_number}`);
           if (r.poster_path) (md.seasonPosters ??= {})[s.season_number] = tImg(r.poster_path, "w500");

@@ -11,17 +11,17 @@ const $ = (tag, attrs = {}, ...kids) => {                    // tiny element bui
 
 // The choices offered in Settings. Edit these lists to change what people can pick.
 const CHOICES = {
-  accents: ["#eeebe5", "#ff9d8a", "#9fc0ff", "#c2dca6", "#f1c46b", "#d8a8ff"],
-  headingFonts: ["Barlow Condensed", "Archivo Narrow", "Schibsted Grotesk", "Newsreader", "Red Hat Display", "Rubik"],
-  bodyFonts: ["Karla", "Hanken Grotesk", "Work Sans", "Source Serif 4", "IBM Plex Sans", "Public Sans"],
+  accents: ["#7b5bf5", "#ff6b6b", "#4cc9f0", "#7bd88f", "#ffc247", "#f78fb3"],
+  headingFonts: ["Plus Jakarta Sans", "Poppins", "Outfit", "DM Sans", "Nunito", "Lexend"],
+  bodyFonts: ["Plus Jakarta Sans", "Poppins", "Outfit", "DM Sans", "Nunito", "Inter"],
   // Ready-made looks: one tap sets the background and accent together. "Default" uses config.js.
   presets: [
     { name: "Default" },
-    { name: "Graphite", bg: "#2e2d2b", accent: "#f0ede6" },
-    { name: "Paper", bg: "#e8e7e3", accent: "#1d1c1a" },
-    { name: "Blueprint", bg: "#17202e", accent: "#9fc0ff" },
-    { name: "Oxblood", bg: "#2a1517", accent: "#ff9d8a" },
-    { name: "Moss", bg: "#1a211b", accent: "#c2dca6" },
+    { name: "Midnight", bg: "#0b1020", accent: "#4da3ff" },
+    { name: "Ember", bg: "#140b0b", accent: "#ff6b4a" },
+    { name: "Forest", bg: "#0a140e", accent: "#5ad68a" },
+    { name: "Plum", bg: "#140b1c", accent: "#c77dff" },
+    { name: "Snow", bg: "#f3f1f8", accent: "#6a4ce0" },
   ],
 };
 const T = SITE.theme;
@@ -143,7 +143,7 @@ dlg.append($("div", { class: "panel" },
       row("Sidebar position", "On desktop", seg("side", [["left", "Left"], ["right", "Right"]])),
       row("Hide the sidebar", "Desktop only: a small button in the top-left corner opens it", sw("sidehide", "on", "off", "Hide the sidebar"), true)),
     card("Effects",
-      row("Poster colour", "Title pages take their colour from the poster", sw("glow", "on", "off", "Poster colour"), true),
+      row("Backdrop artwork", "Large artwork behind title pages", sw("glow", "on", "off", "Backdrop artwork"), true),
       row("Reduce motion", "Turn off animations", sw("motion", "reduced", "full", "Reduce motion"), true))),
   $("footer", { class: "s-foot" }, reset, done)));
 document.body.append(dlg);

@@ -32,7 +32,7 @@ The metadata Action fills in missing `youtube` ids for you (`node scripts/commun
 Episodes and titles can also have `watch`, a list of official links that are not YouTube, for example
 `"watch": [{ "name": "Prime Video", "url": "https://www.primevideo.com/detail/..." }]`. The website uses it for the play button when there is no YouTube video,
 and Stremio lists it as a stream that opens in the browser or app. A title-level `watch` is used for every episode that has no link of its own.
-A title can have `images.poster` and `images.backdrop`, a season can have `poster`, and an episode can have `image` (all https links).
+A title can have `images.poster`, `images.backdrop` and `images.logo`, a season can have `poster`, and an episode can have `image` (all https links).
 Anything you leave out is filled from TMDB when the metadata Action has run, so you only need to add what you want to override.
 
 ## Where the data is used

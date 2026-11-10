@@ -1,5 +1,5 @@
 {
- "built": "2026-11-10T10:50:25.152Z",
+ "built": "2026-11-10T11:34:20.649Z",
  "count": 2,
  "titles": [
   {
@@ -14,7 +14,19 @@
     "Fantasy",
     "Musical"
    ],
-   "poster": "https://image.tmdb.org/t/p/w500/aVYHMW8pdzJ9qG1OGRMKyGy9xor.jpg",
+   "cast": [
+    "Erika Henningsen",
+    "Stephanie Beatriz",
+    "Blake Roman",
+    "Amir Talai",
+    "Keith David",
+    "Alex Brightman",
+    "Jeremy Jordan"
+   ],
+   "directors": [
+    "Vivienne Medrano"
+   ],
+   "poster": "",
    "ids": {},
    "seasons": 3,
    "episodes": 17
@@ -29,6 +41,17 @@
     "Animation",
     "Comedy",
     "Fantasy"
+   ],
+   "cast": [
+    "Brandon Rogers",
+    "Richard Steven Horvitz",
+    "Vivian Nixon",
+    "Erica Lindbeck",
+    "Bryce Pinkham",
+    "Brock Baker"
+   ],
+   "directors": [
+    "Vivienne Medrano"
    ],
    "poster": "https://image.tmdb.org/t/p/w500/bcrp2ovxirKH81XSMYQZ7eEunzX.jpg",
    "ids": {

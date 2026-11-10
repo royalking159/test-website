@@ -32,7 +32,7 @@ const fromCommunity = (d) => {                               // a community file
     else { extra[s.name] = list; if (s.poster) seasonCovers[s.name] = s.poster; }   // named seasons like Shorts
   }
   return { type: d.type === "movie" ? "movie" : "show", title: d.title, year: d.year, overview: d.description, genres: d.genres,
-    poster: d.images?.poster, backdrop: d.images?.backdrop, cast: d.cast, directors: d.directors, trailer: d.trailer, watch: d.watch, watchLink: d.watch?.[0]?.url, episodes, extra, seasonPosters, seasonCovers, seasonTrailers };
+    poster: d.images?.poster, backdrop: d.images?.backdrop, cast: d.cast, directors: d.directors, logo: d.images?.logo, trailer: d.trailer, watch: d.watch, watchLink: d.watch?.[0]?.url, episodes, extra, seasonPosters, seasonCovers, seasonTrailers };
 };
 // An episode with no picture of its own gets the TMDB still the site already fetched (same name, else same season and number).
 const fillStills = (eps, md) => {
@@ -155,61 +155,93 @@ const wire = (a, info) => {
 };
 const playLink = (info, label) => wire($("a", { class: "play", href: info.url, target: isWeb(info.url) ? "_blank" : "", rel: "noopener noreferrer", "aria-label": label }), info);
 
-// A flat page colour taken from a poster (title pages only). Each image is read once.
-const tintCache = new Map();
-const posterColour = (url) => {
-  if (!tintCache.has(url)) tintCache.set(url, new Promise((resolve) => {
-    const im = new Image();
-    im.crossOrigin = "anonymous";
-    im.onload = () => {
-      try {
-        const c = document.createElement("canvas");
-        c.width = c.height = 32;
-        const g = c.getContext("2d", { willReadFrequently: true });
-        g.drawImage(im, 0, 0, 32, 32);
-        const px = g.getImageData(0, 0, 32, 32).data;
-        let r = 0, gr = 0, b = 0, w = 0;
-        for (let i = 0; i < px.length; i += 4) {
-          const hi = Math.max(px[i], px[i + 1], px[i + 2]), lo = Math.min(px[i], px[i + 1], px[i + 2]);
-          const sat = hi ? (hi - lo) / hi : 0, k = 0.05 + sat * sat;            // colourful pixels count for more
-          r += px[i] * k; gr += px[i + 1] * k; b += px[i + 2] * k; w += k;
-        }
-        r /= w; gr /= w; b /= w;
-        const hi = Math.max(r, gr, b), lo = Math.min(r, gr, b), d = hi - lo;
-        let h = 0;
-        if (d) { h = hi === r ? ((gr - b) / d) % 6 : hi === gr ? (b - r) / d + 2 : (r - gr) / d + 4; h = (h * 60 + 360) % 360; }
-        const l = (hi + lo) / 510, sat = d ? d / (255 * (1 - Math.abs(2 * l - 1))) : 0;
-        resolve({ h: Math.round(h), s: Math.round(Math.min(1, sat) * 100) });
-      } catch { resolve(null); }                                                  // the image server did not allow reading it
-    };
-    im.onerror = () => resolve(null);
-    im.src = asset(url);
-  }));
-  return tintCache.get(url);
+// ---------------- Icons, your own likes and watched marks, backdrop art ----------------
+const ICON = {
+  left: '<polyline points="15 18 9 12 15 6"/>', right: '<polyline points="9 18 15 12 9 6"/>',
+  film: '<rect x="2" y="2" width="20" height="20" rx="2.2"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/>',
+  bookmark: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+  eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+  up: '<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.3a2 2 0 0 0 2-1.7l1.4-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>',
+  down: '<path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.7a2 2 0 0 0-2 1.7l-1.4 9a2 2 0 0 0 2 2.3zm7-13h2.7A2.3 2.3 0 0 1 22 4v7a2.3 2.3 0 0 1-2.3 2H17"/>',
+  heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.2l7.8-7.8 1.1-1.1a5.5 5.5 0 0 0 0-7.7z"/>',
+  share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>',
+  search: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  external: '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>',
+  x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  home: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+  folder: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
+  database: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.7-4 3-9 3s-9-1.3-9-3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/>',
+  info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+  sliders: '<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
 };
-let tintToken = 0;
-const setTint = async (url) => {
-  const mine = ++tintToken;
-  const t = url ? await posterColour(url) : null;
-  if (mine !== tintToken) return;                                                // another page or season was chosen meanwhile
-  const v = document.getElementById("view");
-  if (!t) { v.removeAttribute("data-tint"); return; }
-  v.style.setProperty("--tint-h", t.h);
-  v.style.setProperty("--tint-s", Math.max(22, Math.min(t.s, 58)) + "%");
-  v.setAttribute("data-tint", "");
+const icon = (name) => {
+  const el = document.createElement("span");
+  el.className = "ic";
+  el.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[name] || ""}</svg>`;
+  return el;
 };
+const toast = (text) => {
+  const t = $("div", { class: "toast", role: "status" }, text);
+  document.body.append(t);
+  setTimeout(() => t.remove(), 1800);
+};
+// Likes, favourites, "my list" and watched marks live only in this browser.
+const USER = (() => {
+  let d = {};
+  try { d = JSON.parse(localStorage.getItem("site-user") || "{}"); } catch { d = {}; }
+  const list = (k) => (d[k] ||= {});
+  const save = () => { try { localStorage.setItem("site-user", JSON.stringify(d)); } catch { /* storage unavailable */ } };
+  return {
+    has: (k, id) => !!list(k)[id],
+    set(k, id, on) { if (on) list(k)[id] = 1; else delete list(k)[id]; save(); },
+    toggle(k, id, opposite) { const on = !this.has(k, id); if (on && opposite) delete list(opposite)[id]; this.set(k, id, on); return on; },
+  };
+})();
+// Big art behind a title page: wide artwork as it is, a poster blurred.
+const backdropLayer = () => {
+  const el = $("div", { class: "bd", "aria-hidden": "true" });
+  return { el, set(url) {
+    el.replaceChildren();
+    if (!url) return;
+    const im = $("img", { src: asset(url), alt: "", decoding: "async" });
+    im.onload = () => el.classList.toggle("soft", im.naturalHeight > im.naturalWidth * 1.1);
+    im.onerror = () => el.replaceChildren();
+    el.append(im);
+  } };
+};
+const byTitle = (a, b) => (a.title || "").localeCompare(b.title || "", undefined, { sensitivity: "base", numeric: true });
 
-// The facts shown beside a poster, as a list of label and value.
-const facts = (m) => {
-  const stars5 = m.rating ? (n => "★".repeat(n) + "☆".repeat(5 - n))(Math.max(0, Math.min(5, Math.round(m.rating)))) : "";
-  const rows = [["Year", m.year], ["Genre", (m.genres || []).join(", ")], ["Created by", (m.directors || []).join(", ")], ["Starring", (m.cast || []).join(", ")],
-    ["Runtime", m.runtime ? `${m.runtime} minutes` : ""], ["My rating", stars5], ["TMDB", m.score ? `${m.score} out of 10` : ""]].filter(([, v]) => v);
-  return rows.length ? $("dl", { class: "facts" }, rows.flatMap(([k, v]) => [$("dt", {}, k), $("dd", {}, String(v))])) : null;
+// Every place an episode (or film) can be watched: a YouTube video, official links from the database, then your own links.
+const streamName = (url) => {
+  try {
+    const h = new URL(url).hostname.replace(/^www\./, "");
+    if (/youtube\.com|youtu\.be|youtube-nocookie/.test(h)) return ["YouTube", "yt"];
+    if (/primevideo|amazon\./.test(h)) return ["Prime Video", "prime"];
+    if (/drive\.google/.test(h)) return ["Google Drive", "drive"];
+    return [h, "other"];
+  } catch { return ["Link", "other"]; }
 };
+function streamsFor(m, e, key, i) {
+  const out = [], seen = new Set();
+  const add = (url, name, desc) => {
+    if (!url || seen.has(url)) return;
+    seen.add(url);
+    const [auto, kind] = streamName(url);
+    out.push({ url, kind, name: name || auto, desc });
+  };
+  const found = m.ytLinks || {};
+  const yt = e.youtube || found[normBase(e.orig || e.title)] || (e.season > 0 && e.number ? found[`s${e.season}e${e.number}`] : "");
+  if (/^[\w-]{11}$/.test(yt || "")) add(`https://www.youtube.com/watch?v=${yt}`, "YouTube", "Official upload");
+  (e.watch || []).forEach((w) => add(w.url, w.name, `Watch on ${w.name || "the official site"}`));
+  const any = watchUrl(m, e, key, i);
+  if (any) add(any, "", out.length ? "Show page" : "Link");
+  return out;
+}
 
 // A "Play trailer" button. set(id, sub) shows it for a YouTube id and hides it when there is none.
 const trailerBtn = (title) => {
-  const el = $("button", { type: "button", class: "btn trailer" }, "Play trailer");
+  const el = $("button", { type: "button", class: "ab trailer" }, icon("film"), $("span", {}, "Trailer"));
   el.hidden = true;
   let url = "", sub = "";
   el.onclick = () => (embedOf(url) ? showInPlayer({ url, title: `${title} (trailer)`, sub }) : window.open(url, "_blank", "noopener"));
@@ -311,106 +343,164 @@ function seasonsOf(m) {
   return Object.fromEntries(keys.map((k) => [(m.seasonNames || {})[k] || k, { key: k, eps: by[k], cover: coverOf(k), trailer: (m.seasonTrailers || {})[sNum(k)] }]));
 }
 
+// ---------------- Title page, laid out like Stremio: info on the left, episodes or streams on the right ----------------
+function detailView(m, S, ctx) {
+  const names = S ? Object.keys(S) : [];
+  const uid = (ctx.base === "database" ? "db:" : "") + m.id;
+  const wid = (key, i) => `${uid}|${key}|${i}`;
+  const bd = backdropLayer();
+  const panel = $("aside", { class: "panel", "aria-label": S ? "Episodes" : "Streams" });
+  let at = 0, paintList = () => {}, listView = null;
+
+  // ---- left: title, facts, chips, summary, action bar ----
+  const heading = $("h1", { class: "title" }, m.logo ? img(m.logo, m.title, () => document.createTextNode(m.title), { class: "logo", loading: "eager" }) : m.title);
+  const meta = $("div", { class: "metarow" }, m.runtime ? $("span", {}, `${m.runtime}min`) : null,
+    m.year ? $("span", {}, m.type === "show" ? `${m.year}–` : String(m.year)) : null,
+    m.score ? $("span", { class: "score" }, String(m.score), $("b", { class: "badge" }, "TMDB")) : null);
+  const link = (k, v) => `#/${ctx.base}?${k}=${encodeURIComponent(v)}`;
+  const chips = (label, list, key) => (list?.length
+    ? $("section", { class: "chipsec" }, $("h2", {}, label), $("div", { class: "chiprow" }, list.map((v) => $("a", { class: "chip", href: link(key, v) }, v)))) : null);
+  const tr = trailerBtn(m.title);
+  tr.set(m.trailer);
+  const ab = (name, label, on) => { const b = $("button", { type: "button", class: "ab", "aria-label": label, title: label }, icon(name)); b.onclick = on; return b; };
+  const likeB = ab("up", "Like", () => { USER.toggle("liked", uid, "disliked"); syncAll(); });
+  const dislikeB = ab("down", "Dislike", () => { USER.toggle("disliked", uid, "liked"); syncAll(); });
+  const loveB = ab("heart", "Add to favourites", () => { USER.toggle("loved", uid); syncAll(); });
+  const libB = ab("bookmark", "Add to my list", () => { USER.toggle("library", uid); syncAll(); });
+  const watchB = ab("eye", S ? "Mark this season as watched" : "Mark as watched", () => {
+    if (!S) USER.toggle("watched", wid("film", 0));
+    else {
+      const sx = S[names[at]], all = sx.eps.every((_, i) => USER.has("watched", wid(sx.key, i)));
+      sx.eps.forEach((_, i) => USER.set("watched", wid(sx.key, i), !all));
+      paintList();
+    }
+    syncAll();
+  });
+  const shareB = ab("share", "Share", async () => {
+    try { if (navigator.share) await navigator.share({ title: m.title, url: location.href }); else { await navigator.clipboard.writeText(location.href); toast("Link copied"); } } catch { /* cancelled */ }
+  });
+  const syncAll = () => {
+    [[likeB, "liked"], [dislikeB, "disliked"], [loveB, "loved"], [libB, "library"]].forEach(([b, k]) => b.setAttribute("aria-pressed", String(USER.has(k, uid))));
+    const sx = S && S[names[at]];
+    watchB.setAttribute("aria-pressed", String(S ? !!sx && sx.eps.length > 0 && sx.eps.every((_, i) => USER.has("watched", wid(sx.key, i))) : USER.has("watched", wid("film", 0))));
+  };
+  const bar = $("div", { class: "actionbar" }, tr.el, $("div", { class: "abgroup" }, libB, watchB), $("div", { class: "abgroup" }, likeB, dislikeB, loveB), $("div", { class: "abgroup" }, shareB));
+  const info = $("div", { class: "info" },
+    $("a", { class: "roundbtn", href: ctx.back[0], "aria-label": `Back to ${ctx.back[1]}`, title: `Back to ${ctx.back[1]}` }, icon("left")),
+    heading, meta, chips("Genres", m.genres, "genre"), chips("Cast", m.cast, "cast"), chips("Directed by", m.directors, "q"),
+    m.overview ? $("section", { class: "chipsec" }, $("h2", {}, "Summary"), expandable(m.overview, "sdesc", 5)) : null, bar);
+
+  // ---- right: the streams for one episode (or the film) ----
+  const streamPane = ({ e, title, kicker, key, i, id, back, image }) => {
+    const sub = [m.title, kicker].filter(Boolean).join(", ");
+    const mark = $("button", { type: "button", class: "btn small" });
+    const syncMark = () => { mark.textContent = USER.has("watched", id) ? "Watched (tap to undo)" : "Mark as watched"; };
+    mark.onclick = () => { USER.toggle("watched", id); syncMark(); syncAll(); };
+    syncMark();
+    const rows = ctx.streams(e, key, i).map((st) => {
+      const inSite = !!embedOf(st.url);
+      const a = $("a", { class: "stream", href: st.url, target: inSite ? "" : "_blank", rel: "noopener noreferrer" },
+        $("span", { class: `sbadge ${st.kind}` }, st.name[0].toUpperCase()),
+        $("span", { class: "sgrow" }, $("strong", {}, st.name), $("small", {}, st.desc)), icon(inSite ? "play" : "external"));
+      a.onclick = (ev) => { USER.set("watched", id, true); syncMark(); syncAll(); if (inSite) { ev.preventDefault(); showInPlayer({ url: st.url, title, sub }); } };
+      return a;
+    });
+    const top = $("div", { class: "top" });
+    if (back) { const bb = $("button", { type: "button", class: "roundbtn", "aria-label": "Back to episodes" }, icon("left")); bb.onclick = back; top.append(bb); }
+    top.append($("strong", {}, "Streams"));
+    return $("div", { class: "sp" }, top,
+      $("div", { class: "epcard" }, image ? $("div", { class: "tw" }, img(image, "", () => $("div", { class: "thumb" }))) : null,
+        $("h3", {}, title), kicker || e.date ? $("small", {}, [kicker, e.date ? fmt(e.date) : ""].filter(Boolean).join(", ")) : null, e.overview ? $("p", {}, e.overview) : null),
+      $("h4", {}, "Available streams"), ...(rows.length ? rows : [$("p", { class: "empty" }, "No streams yet. Add a YouTube id or a watch link to this title in the database.")]), mark);
+  };
+
+  // ---- right: seasons and episodes ----
+  if (S && names.length) {
+    const cur = $("span", { class: "dd-label" });
+    const ddBtn = $("button", { type: "button", class: "dd-btn", "aria-haspopup": "listbox", "aria-expanded": "false" }, cur, $("span", { class: "chev" }));
+    const opts = names.map((n) => $("li", { role: "option", tabindex: "-1", "data-n": n }, $("span", {}, n), $("small", {}, `${S[n].eps.length} ${S[n].eps.length === 1 ? "episode" : "episodes"}`)));
+    const menu = $("ul", { class: "dd-menu", role: "listbox", "aria-label": "Seasons" }, opts);
+    menu.hidden = true;
+    const prev = $("button", { type: "button", class: "arrow", "aria-label": "Previous season" }, icon("left"), $("span", {}, "Prev"));
+    const next = $("button", { type: "button", class: "arrow", "aria-label": "Next season" }, $("span", {}, "Next"), icon("right"));
+    const dd = $("div", { class: "dd" }, ddBtn, menu), art = $("div", { class: "seasonart" });
+    const search = $("input", { type: "search", class: "search", placeholder: "search videos", "aria-label": "Search episodes" });
+    const list = $("ol", { class: "eplist" }), none = $("p", { class: "empty" }, "No episodes match.");
+    none.hidden = true;
+    const toggle = (open) => { menu.hidden = !open; ddBtn.setAttribute("aria-expanded", String(open)); if (open) opts[at].focus(); };
+    const open = (n, i) => {
+      const sx = S[n], e = sx.eps[i];
+      panel.replaceChildren(streamPane({ e, title: `${i + 1}. ${e.title || "TBA"}`, kicker: n, key: sx.key, i, id: wid(sx.key, i), image: e.image,
+        back: () => { panel.replaceChildren(listView); paintList(); } }));
+    };
+    paintList = () => {
+      const n = names[at], sx = S[n], ql = search.value.trim().toLowerCase();
+      const rows = sx.eps.map((e, i) => [e, i]).filter(([e]) => !ql || `${e.title} ${e.overview || ""}`.toLowerCase().includes(ql));
+      list.replaceChildren(...rows.map(([e, i]) => {
+        const thumb = () => $("div", { class: "thumb" });
+        const b = $("button", { type: "button", class: "ep" },
+          $("div", { class: "tw" }, e.image ? img(e.image, "", thumb) : thumb()),
+          $("div", { class: "grow" }, $("strong", {}, `${i + 1}. ${e.title || "TBA"}`), $("small", {}, e.date ? fmt(e.date) : "")),
+          USER.has("watched", wid(sx.key, i)) ? $("span", { class: "watched" }, icon("eye"), "Watched") : null);
+        b.onclick = () => open(n, i);
+        return $("li", {}, b);
+      }));
+      none.hidden = rows.length > 0;
+    };
+    const draw = (n) => {
+      at = names.indexOf(n);
+      cur.textContent = n;
+      opts.forEach((o, i) => o.setAttribute("aria-selected", String(i === at)));
+      prev.disabled = at === 0;
+      next.disabled = at === names.length - 1;
+      art.replaceChildren(...(S[n].cover ? [img(S[n].cover, n, () => document.createTextNode(""))] : []));
+      bd.set(m.backdrop || S[n].cover || m.poster);
+      tr.set(S[n].trailer || m.trailer);
+      paintList();
+      syncAll();
+    };
+    ddBtn.onclick = () => toggle(menu.hidden);
+    prev.onclick = () => draw(names[at - 1]);
+    next.onclick = () => draw(names[at + 1]);
+    search.oninput = paintList;
+    menu.onclick = (e) => { const li = e.target.closest("li"); if (li) { draw(li.dataset.n); toggle(false); ddBtn.focus(); } };
+    menu.onkeydown = (e) => {
+      const i = opts.indexOf(document.activeElement);
+      const go = (j) => { e.preventDefault(); opts[Math.max(0, Math.min(opts.length - 1, j))].focus(); };
+      if (e.key === "ArrowDown") go(i + 1);
+      else if (e.key === "ArrowUp") go(i - 1);
+      else if (e.key === "Home") go(0);
+      else if (e.key === "End") go(opts.length - 1);
+      else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); document.activeElement.click(); }
+      else if (e.key === "Escape" || e.key === "Tab") { toggle(false); ddBtn.focus(); }
+    };
+    const outside = (e) => { if (!dd.isConnected) removeEventListener("click", outside); else if (!dd.contains(e.target)) toggle(false); };
+    addEventListener("click", outside);
+    listView = $("div", { class: "pv" }, $("div", { class: "seasonpick" }, art, prev, dd, next), $("div", { class: "psearch" }, search, icon("search")), list, none);
+    panel.replaceChildren(listView);
+    draw(names[0]);
+  } else if (S) {
+    panel.replaceChildren($("p", { class: "empty" }, "No episodes yet. They appear after the metadata update runs."));
+    bd.set(m.backdrop || m.poster);
+    syncAll();
+  } else {
+    bd.set(m.backdrop || m.poster);
+    panel.replaceChildren(streamPane({ e: m, title: m.title, kicker: m.year ? String(m.year) : "", key: "", i: 1, id: wid("film", 0), back: null, image: m.backdrop || m.poster }));
+    syncAll();
+  }
+  return $("div", { class: "detail" }, bd.el, $("div", { class: "detail-main" }, info, panel));
+}
+
 function showPage(id) {
   const m = library().find((x) => x.type === "show" && x.id === id);
   if (!m) return page("Not found", $("p", {}, "That show isn't in your library."), $("a", { href: "#/movies" }, `Back to ${labelOf("movies")}`));
-  const seasons = seasonsOf(m), names = Object.keys(seasons);
-  // Season picker: previous button, dropdown, next button
-  const cur = $("span", { class: "dd-label" });
-  const ddBtn = $("button", { type: "button", class: "dd-btn", "aria-haspopup": "listbox", "aria-expanded": "false" }, cur, $("span", { class: "chev" }));
-  const opts = names.map((n) => $("li", { role: "option", tabindex: "-1", "data-n": n }, $("span", {}, n),
-    $("small", {}, `${seasons[n].eps.length} ${seasons[n].eps.length === 1 ? "episode" : "episodes"}`)));
-  const menu = $("ul", { class: "dd-menu", role: "listbox", "aria-label": "Seasons" }, opts);
-  menu.hidden = true;
-  const prev = $("button", { type: "button", class: "arrow", "aria-label": "Previous season" }, "‹");
-  const next = $("button", { type: "button", class: "arrow", "aria-label": "Next season" }, "›");
-  const dd = $("div", { class: "dd" }, ddBtn, menu);
-  const bar = $("div", { class: "seasonpick" }, prev, dd, next);
-  let at = 0;
-  const toggle = (open) => {
-    menu.hidden = !open;
-    ddBtn.setAttribute("aria-expanded", String(open));
-    if (open) opts[at].focus();
-  };
-  const list = $("ol", { class: "episodes" });
-  // What the player needs to know about one episode (nothing when it has no play link)
-  const infoFor = (S, j, name) => {
-    const e = S.eps[j];
-    if (!e) return null;
-    const url = watchUrl(m, e, S.key, j + 1);
-    return url && { url, title: e.title || `Episode ${j + 1}`, sub: `${m.title}, ${name}, episode ${j + 1}`, next: () => infoFor(S, j + 1, name), prev: () => infoFor(S, j - 1, name) };
-  };
-  const row = (e, i, key, n) => {
-    const thumb = () => $("div", { class: "thumb" });
-    const info = infoFor(seasons[n], i - 1, n);
-    return $("li", { class: "ep" },
-      $("span", { class: "epnum" }, String(i).padStart(2, "0")),
-      $("div", { class: "tw" }, e.image ? img(e.image, "", thumb) : thumb()),
-      $("div", { class: "grow" }, $("strong", {}, e.title || "TBA"), e.overview && expandable(e.overview, "ov", 2)),
-      $("span", { class: "epdate" }, e.date ? fmt(e.date) : ""),
-      info ? playLink(info, `Play ${e.title || "episode " + i}`) : $("span", { class: "play-gap" }));
-  };
-  const draw = (n) => {
-    at = names.indexOf(n);
-    cur.textContent = n;
-    opts.forEach((o, i) => o.setAttribute("aria-selected", String(i === at)));
-    prev.disabled = at === 0;
-    next.disabled = at === names.length - 1;
-    list.replaceChildren(...seasons[n].eps.map((e, i) => row(e, i + 1, seasons[n].key, n)));
-    setCover(seasons[n].cover);
-    tr.set(seasons[n].trailer || m.trailer, n);
-    fit();
-    requestAnimationFrame(fit);
-  };
-  ddBtn.onclick = () => toggle(menu.hidden);
-  prev.onclick = () => draw(names[at - 1]);
-  next.onclick = () => draw(names[at + 1]);
-  menu.onclick = (e) => { const li = e.target.closest("li"); if (li) { draw(li.dataset.n); toggle(false); ddBtn.focus(); } };
-  menu.onkeydown = (e) => {
-    const i = opts.indexOf(document.activeElement);
-    const go = (j) => { e.preventDefault(); opts[Math.max(0, Math.min(opts.length - 1, j))].focus(); };
-    if (e.key === "ArrowDown") go(i + 1);
-    else if (e.key === "ArrowUp") go(i - 1);
-    else if (e.key === "Home") go(0);
-    else if (e.key === "End") go(opts.length - 1);
-    else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); document.activeElement.click(); }
-    else if (e.key === "Escape" || e.key === "Tab") { toggle(false); ddBtn.focus(); }
-  };
-  const outside = (e) => { if (!dd.isConnected) removeEventListener("click", outside); else if (!dd.contains(e.target)) toggle(false); };
-  addEventListener("click", outside);
-  const blank = () => $("div", { class: "noposter" }, m.title);
-  const tr = trailerBtn(m.title);                             // plays the season's trailer, else the show's
-  const figure = $("figure", { class: "poster" });             // the big picture on the left; changes with the season
-  const paintCover = (u) => figure.replaceChildren(u
-    ? img(u, m.title, () => (m.poster && u !== m.poster ? img(m.poster, m.title, blank, { loading: "eager" }) : blank()), { loading: "eager" })
-    : blank());
-  const setCover = (u) => { paintCover(u); setTint(u || m.poster || m.backdrop); };
-  setCover(m.poster);
-  tr.set(m.trailer);
-  const head = $("header", { class: "show-head" }, figure,
-    $("div", { class: "show-info" }, $("h1", { class: "title" }, m.title), facts(m),
-      m.overview && expandable(m.overview, "sdesc", 6),
-      $("div", { class: "actions" }, tr.el, (m.watch || []).slice(0, 3).map((w) => $("a", { class: "btn", href: w.url, target: "_blank", rel: "noopener noreferrer" }, `Watch on ${w.name}`)))));
-  const body = $("div", { class: "show-body" }, names.length
-    ? [bar, list]
-    : $("p", { class: "empty" }, "No episodes yet. They appear after the metadata update runs."));
-  if (names.length) draw(names[0]);
-  return $("div", { class: "show-page" }, $("a", { class: "back", href: "#/movies" }, `Back to ${labelOf("movies")}`), head, body);
+  return detailView(m, seasonsOf(m), { back: ["#/movies", labelOf("movies")], base: "movies", streams: (e, key, i) => streamsFor(m, e, key, i + 1) });
 }
 
 function moviePage(id) {
   const m = library().find((x) => x.type !== "show" && x.id === id);
   if (!m) return page("Not found", $("a", { href: "#/movies" }, `Back to ${labelOf("movies")}`));
-  const blank = () => $("div", { class: "noposter" }, m.title);
-  const url = watchUrl(m, m, "", 1);
-  const tr = trailerBtn(m.title);
-  tr.set(m.trailer);
-  setTint(m.poster || m.backdrop);
-  return $("div", { class: "show-page" }, $("a", { class: "back", href: "#/movies" }, `Back to ${labelOf("movies")}`),
-    $("header", { class: "show-head" }, $("figure", { class: "poster" }, m.poster ? img(m.poster, m.title, blank, { loading: "eager" }) : blank()),
-      $("div", { class: "show-info" }, $("h1", { class: "title" }, m.title), facts(m),
-        m.overview && $("p", { class: "sdesc" }, m.overview), m.note && $("p", { class: "credit" }, m.note),
-        $("div", { class: "actions" }, tr.el, url && wire($("a", { class: "btn primary", href: url, target: isWeb(url) ? "_blank" : "", rel: "noopener noreferrer" }, "Play"), { url, title: m.title, sub: String(m.year || "") })))));
+  return detailView(m, null, { back: ["#/movies", labelOf("movies")], base: "movies", streams: () => streamsFor(m, m, "", 1) });
 }
 
 // site/#/check/<show>: every episode name exactly as stored, and what the site shows after your library.js changes.
@@ -665,67 +755,53 @@ const dbTile = (t) => {
       t.genres?.length && $("small", {}, t.genres.slice(0, 2).join(", "))));
 };
 
-function dbList() {
-  const search = $("input", { type: "search", class: "search", placeholder: "Search titles and genres...", "aria-label": "Search the database" });
-  const bar = $("div", { class: "seg" });
+function dbList(qs) {
+  const state = { kind: "All", q: qs?.get("q") || "", genre: qs?.get("genre") || "", cast: qs?.get("cast") || "" };
+  const search = $("input", { type: "search", class: "search", placeholder: "Search titles, genres and cast", "aria-label": "Search the database", value: state.q });
+  const bar = $("div", { class: "seg" }), chips = $("div", { class: "tagchips" });
   const grid = $("div", { class: "posters" }), note = $("p", { class: "empty" }, "Loading...");
-  let titles = [], kind = "All";
+  let titles = [];
+  const has = (list, v) => (list || []).some((x) => String(x).toLowerCase() === v.toLowerCase());
   const draw = () => {
-    const q = search.value.trim().toLowerCase();
-    const list = titles.filter((t) => (kind === "All" || t.type === kind) && (!q || `${t.title} ${(t.genres || []).join(" ")} ${t.description || ""}`.toLowerCase().includes(q)));
+    const ql = state.q.trim().toLowerCase();
+    const list = titles.filter((t) => (state.kind === "All" || (state.kind === "Movies") === (t.type !== "show"))
+      && (!state.genre || has(t.genres, state.genre)) && (!state.cast || has(t.cast, state.cast))
+      && (!ql || `${t.title} ${(t.genres || []).join(" ")} ${(t.cast || []).join(" ")} ${(t.directors || []).join(" ")} ${t.description || ""}`.toLowerCase().includes(ql)));
     grid.replaceChildren(...list.map(dbTile));
     note.textContent = titles.length ? "No titles match." : "Nothing here yet.";
     note.hidden = list.length > 0;
-    bar.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === kind)));
+    bar.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === state.kind)));
+    chips.replaceChildren(...[["genre", "Genre", state.genre], ["cast", "Cast", state.cast]].filter(([, , v]) => v)
+      .map(([k, l, v]) => { const c = $("button", { type: "button", class: "chip" }, `${l}: ${v}`, icon("x")); c.onclick = () => { state[k] = ""; draw(); }; return c; }));
   };
-  [["All", "All"], ["show", "Shows"], ["movie", "Movies"]].forEach(([k, t]) => bar.append($("button", { type: "button", "data-k": k }, t)));
-  bar.onclick = (e) => { if (e.target.dataset.k) { kind = e.target.dataset.k; draw(); } };
-  search.oninput = draw;
-  loadCommunity().then((d) => { titles = d.titles || []; draw(); });
+  [["All", "All"], ["Movies", "Movies"], ["Shows", "Shows"]].forEach(([k, t]) => bar.append($("button", { type: "button", "data-k": k }, t)));
+  bar.onclick = (e) => { const b = e.target.closest("button"); if (b) { state.kind = b.dataset.k; draw(); } };
+  search.oninput = () => { state.q = search.value; draw(); };
+  loadCommunity().then((d) => { titles = (d.titles || []).slice().sort(byTitle); draw(); });
   return page(labelOf("database"),
     $("p", { class: "lead" }, "Community-written details for shows and movies. Anyone can add or fix a title on GitHub."),
-    $("div", { class: "dbtools" }, search, bar, $("a", { class: "btn", href: "#/add" }, "Add a title")),
-    grid, note);
+    $("div", { class: "dbtools" }, search, bar, $("a", { class: "btn", href: "#/add" }, "Add a title")), chips, grid, note);
 }
 
-function dbView(d, dir) {
-  const blank = () => $("div", { class: "noposter" }, d.title);
-  const poster = d.images?.poster || (META.shows?.[d.id] || {}).poster;               // the site's own data fills gaps
-  const tr = trailerBtn(d.title);
-  tr.set(d.trailer || (META.shows?.[d.id] || {}).trailer);
-  setTint(poster);
-  const yl = (META.shows?.[d.id] || {}).ytLinks || {};
-  const ytOf = (e, s, j) => e.youtube || yl[normBase(e.title)] || (/^Season (\d+)$/i.test(s.name) ? yl[`s${/^Season (\d+)$/i.exec(s.name)[1]}e${j + 1}`] : "");
-  const linkOf = (e, s, j) => (ytOf(e, s, j) ? `https://www.youtube.com/watch?v=${ytOf(e, s, j)}` : (e.watch?.[0]?.url || d.watch?.[0]?.url || ""));
-  const ids = d.ids || {}, tv = d.type === "movie" ? "movie" : "tv", tvdb = d.type === "movie" ? "movie" : "series";
-  const chips = [
-    ids.tmdb && extLink(`https://www.themoviedb.org/${tv}/${ids.tmdb}`, "TMDB"),
-    ids.imdb && extLink(`https://www.imdb.com/title/${ids.imdb}/`, "IMDb"),
-    ids.tvdb && extLink(`https://thetvdb.com/dereferrer/${tvdb}/${ids.tvdb}`, "TVDB"),
-    ...(d.links || []).map((l) => extLink(l.url, l.name)),
-  ].filter(Boolean);
-  const seasons = (d.seasons || []).map((s, si) => {
-    const eps = s.episodes || [];
-    const infos = eps.map((e, j) => { const url = linkOf(e, s, j); return url && { url, title: e.title, sub: `${d.title}, ${s.name}, episode ${j + 1}` }; });
-    infos.forEach((inf, j) => { if (inf) { inf.next = () => infos[j + 1] || null; inf.prev = () => infos[j - 1] || null; } });
-    const det = $("details", { class: "dbseason" }, $("summary", {}, `${s.name} (${eps.length})`),
-      $("ol", { class: "dbeps" }, eps.map((e, j) => $("li", { class: "ep" },
-        $("span", { class: "epnum" }, String(j + 1).padStart(2, "0")),
-        $("div", { class: "tw" }, e.image ? img(e.image, "", () => $("div", { class: "thumb" })) : $("div", { class: "thumb" })),
-        $("div", { class: "grow" }, $("strong", {}, e.title), e.overview && expandable(e.overview, "ov", 2)),
-        $("span", { class: "epdate" }, e.date ? fmt(e.date) : ""),
-        infos[j] ? playLink(infos[j], `Play ${e.title}`) : $("span", { class: "play-gap" })))));
-    det.open = si === 0;
-    return det;
-  });
-  return $("div", { class: "show-page" }, $("a", { class: "back", href: "#/database" }, `Back to ${labelOf("database")}`),
-    $("header", { class: "show-head" }, $("figure", { class: "poster" }, poster ? img(poster, d.title, blank, { loading: "eager" }) : blank()),
-      $("div", { class: "show-info" }, $("h1", { class: "title" }, d.title), facts({ year: d.year, genres: d.genres, directors: d.directors, cast: d.cast }),
-        d.description && expandable(d.description, "sdesc", 6),
-        chips.length ? $("p", { class: "idlinks" }, chips) : null,
-        $("div", { class: "actions" }, tr.el, $("a", { class: "btn", href: `#/edit/${d.id}` }, "Suggest an edit")),
-        d.contributors?.length && $("p", { class: "credit" }, `Added by ${d.contributors.join(", ")}`))),
-    $("div", { class: "show-body" }, seasons.length ? seasons : $("p", { class: "empty" }, "No episodes listed yet.")));
+function dbView(d) {
+  const meta = META.shows?.[d.id] || {};                                                   // the site's own data fills gaps
+  const yl = meta.ytLinks || {};
+  const m2 = { id: d.id, title: d.title, type: d.type === "movie" ? "movie" : "show", year: d.year, overview: d.description, genres: d.genres, cast: d.cast, directors: d.directors,
+    poster: d.images?.poster || meta.poster, backdrop: d.images?.backdrop || meta.backdrop, logo: d.images?.logo || meta.logo, trailer: d.trailer || meta.trailer,
+    runtime: meta.runtime, score: meta.score, ytLinks: yl, watchLink: d.watch?.[0]?.url };
+  let S = null;
+  if (m2.type === "show") {
+    S = {};
+    for (const s of d.seasons || []) {
+      const n = /^Season (\d+)$/i.exec(s.name)?.[1];
+      S[s.name] = { key: s.name, cover: s.poster || m2.poster, eps: (s.episodes || []).map((e, j) => {
+        const id = e.youtube || yl[normBase(e.title)] || (n ? yl[`s${n}e${j + 1}`] : "");
+        return { ...e, orig: e.title, season: n ? Number(n) : 0, number: j + 1, image: e.image || (id ? `https://i.ytimg.com/vi/${id}/mqdefault.jpg` : "") || m2.backdrop || m2.poster };
+      }) };
+    }
+  }
+  return detailView(m2, S, { back: ["#/database", labelOf("database")], base: "database",
+    streams: (e, key, i) => streamsFor(m2, m2.type === "movie" ? { youtube: d.youtube, watch: d.watch, url: d.url, title: d.title } : e, key, i + 1) });
 }
 
 function dbDetail(id) {
@@ -786,22 +862,33 @@ const P = {
       SITE.studyTools?.length && $("hr", { class: "divider" }), group("Study tools", SITE.studyTools));
   },
 
-  movies: () => {
-    const all = library();
-    const kind = (m) => (m.type === "show" ? "Shows" : "Movies");
-    const bar = $("div", { class: "seg" }), grid = $("div", { class: "posters" });
-    const draw = (f) => {
-      grid.replaceChildren(...all.filter((m) => f === "All" || kind(m) === f).map(tile));
-      bar.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.f === f)));
+  movies: (qs) => {
+    const all = library().slice().sort(byTitle);
+    const state = { kind: "All", q: qs?.get("q") || "", genre: qs?.get("genre") || "", cast: qs?.get("cast") || "" };
+    const search = $("input", { type: "search", class: "search", placeholder: "Search titles, genres and cast", "aria-label": "Search", value: state.q });
+    const bar = $("div", { class: "seg" }), chips = $("div", { class: "tagchips" });
+    const grid = $("div", { class: "posters" }), none = $("p", { class: "empty" }, "Nothing matches that.");
+    const has = (list, v) => (list || []).some((x) => String(x).toLowerCase() === v.toLowerCase());
+    const draw = () => {
+      const ql = state.q.trim().toLowerCase();
+      const list = all.filter((m) => (state.kind === "All" || (state.kind === "Movies") === (m.type !== "show"))
+        && (!state.genre || has(m.genres, state.genre)) && (!state.cast || has(m.cast, state.cast))
+        && (!ql || `${m.title} ${(m.genres || []).join(" ")} ${(m.cast || []).join(" ")} ${(m.directors || []).join(" ")}`.toLowerCase().includes(ql)));
+      grid.replaceChildren(...list.map(tile));
+      none.hidden = list.length > 0;
+      bar.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === state.kind)));
+      chips.replaceChildren(...[["genre", "Genre", state.genre], ["cast", "Cast", state.cast]].filter(([, , v]) => v)
+        .map(([k, l, v]) => { const c = $("button", { type: "button", class: "chip" }, `${l}: ${v}`, icon("x")); c.onclick = () => { state[k] = ""; draw(); }; return c; }));
     };
-    ["All", ...new Set(all.map(kind))].forEach((f) => bar.append($("button", { type: "button", "data-f": f }, f)));
-    bar.onclick = (e) => e.target.dataset.f && draw(e.target.dataset.f);
-    const el = page(labelOf("movies"), bar, grid);
-    draw("All");
+    [["All", "All"], ["Movies", "Movies"], ["Shows", "Shows"]].forEach(([k, t]) => bar.append($("button", { type: "button", "data-k": k }, t)));
+    bar.onclick = (e) => { const b = e.target.closest("button"); if (b) { state.kind = b.dataset.k; draw(); } };
+    search.oninput = () => { state.q = search.value; draw(); };
+    const el = page(labelOf("movies"), $("div", { class: "dbtools" }, search, bar), chips, grid, none);
+    draw();
     return el;
   },
 
-  database: () => dbList(),
+  database: (qs) => dbList(qs),
 
   about: () => page(labelOf("about"), $("p", { class: "lead" }, SITE.about),
     $("section", { class: "credits" }, $("h2", {}, "Credits"),
@@ -812,12 +899,13 @@ const P = {
 };
 
 // ---- Sidebar ----
+const NAVICON = { home: "home", projects: "folder", movies: "film", database: "database", about: "info" };
 const side = $("aside", { class: "sidebar", id: "sidebar" },
-  $("a", { class: "brand", href: "#/" }, SITE.name),
+  $("a", { class: "brand", href: "#/", title: SITE.name, "aria-label": SITE.name }, ((SITE.name || "?").trim()[0] || "?").toUpperCase()),
   $("nav", { "aria-label": "Main" },
     [["home", "Home", "#/"], ...SITE.sections.map((s) => [s, labelOf(s), `#/${s}`])]
-      .map(([k, t, h]) => $("a", { href: h, "data-s": k }, t))),
-  $("button", { type: "button", class: "settings-btn" }, "Settings"));
+      .map(([k, t, h]) => $("a", { href: h, "data-s": k }, icon(NAVICON[k] || "folder"), $("span", {}, t)))),
+  $("button", { type: "button", class: "settings-btn" }, icon("sliders"), $("span", {}, "Settings")));
 side.querySelector(".settings-btn").onclick = openSettings;
 
 const menuBtn = $("button", { class: "menu-btn", type: "button", "aria-controls": "sidebar" });
@@ -850,8 +938,9 @@ const links = [...side.querySelectorAll("a[data-s]")];
 const mark = (k) => links.forEach((a) => (a.dataset.s === k ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
 
 function render() {
-  setTint(null);                                                     // title pages set their own colour
-  const [pg, arg] = location.hash.replace(/^#\/?/, "").split("/");
+  const [path, qstr = ""] = location.hash.replace(/^#\/?/, "").split("?");
+  const [pg, arg] = path.split("/");
+  const query = new URLSearchParams(qstr);
   let node, active = "", label = "";
   if (!pg) { node = P.home(); active = "home"; }
   else if (pg === "add") { node = dbEditor(); active = "database"; label = "Add a title"; }
@@ -862,7 +951,7 @@ function render() {
     node = pg === "show" ? showPage(arg) : moviePage(arg); active = "movies";
     label = (library().find((m) => m.id === arg) || {}).title || "Show";
   } else if (SITE.sections.includes(pg) && P[pg]) {
-    node = P[pg](); active = pg; label = labelOf(pg);
+    node = P[pg](query); active = pg; label = labelOf(pg);
   } else { node = page("Not found", $("a", { href: "#/" }, "Back home")); label = "Not found"; }
   view.replaceChildren(node);
   fit();
