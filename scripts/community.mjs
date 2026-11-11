@@ -7,6 +7,11 @@ const siteData = existsSync("data/metadata.json") ? JSON.parse(readFileSync("dat
 const DIRS = { show: "community/shows", movie: "community/movies" };
 const normBase = (t) => String(t || "").replace(/\(.*?\)/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "");
 const isGeneric = (t) => { const n = normBase(t); return n.length < 4 || n === "mission" || /^episode\d+$/.test(n); };
+const coverage = (d) => {                                     // how many episodes have a description, artwork and a stream
+  const eps = (d.seasons || []).flatMap((s) => s.episodes || []);
+  if (!eps.length) return { eps: 0, desc: d.description ? 1 : 0, art: d.images?.poster ? 1 : 0, streams: d.youtube || d.watch?.length ? 1 : 0 };
+  return { eps: eps.length, desc: eps.filter((e) => e.overview).length, art: eps.filter((e) => e.image).length, streams: eps.filter((e) => e.youtube || e.watch?.length).length };
+};
 const errors = [];
 const titles = [];
 const seen = new Map();
@@ -117,7 +122,7 @@ for (const [type, dir] of Object.entries(DIRS)) {
     check(file, d, type);
     if (seen.has(d?.id)) err(file, `id "${d.id}" is already used by ${seen.get(d.id)}`); else seen.set(d?.id, file);
     const eps = (d.seasons || []).reduce((n, s) => n + (s.episodes?.length || 0), 0);
-    titles.push({ id: d.id, type, title: d.title, year: d.year, description: (d.description || "").slice(0, 240), genres: d.genres || [], cast: d.cast || [], directors: d.directors || [],
+    titles.push({ id: d.id, type, title: d.title, year: d.year, description: (d.description || "").slice(0, 240), genres: d.genres || [], cast: d.cast || [], directors: d.directors || [], contributors: d.contributors || [], coverage: coverage(d),
       poster: d.images?.poster || siteData[type === "show" ? "shows" : "movies"]?.[d.id]?.poster || "", ids: d.ids || {}, seasons: (d.seasons || []).length, episodes: eps });
   }
 }

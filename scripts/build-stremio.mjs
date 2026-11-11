@@ -119,7 +119,7 @@ if (items.length) { catalogs.push({ type: "series", id: PREFIX + "shows", name: 
 if (movies.length) { catalogs.push({ type: "movie", id: PREFIX + "movies", name: "Community movies" }); write(`addon/catalog/movie/${PREFIX}movies.json`, { metas: movies.map(movieMeta) }); }
 
 const imdbIds = [...items.filter((it) => it.imdbMode).map((it) => it.id), ...movies.filter((d) => d.stremioImdb && d.ids?.imdb).map((d) => d.ids.imdb)];
-const name = process.env.ADDON_NAME || "Community Metadata";
+const name = process.env.ADDON_NAME || cfg.name || "Community Metadata";
 write("addon/manifest.json", {
   id: `community.${slug(owner || "site")}.database`, version: "1.0.0", name,
   description: "Show and movie details from a community-written database, with official YouTube links where known.",
@@ -130,8 +130,8 @@ write("addon/manifest.json", {
 const manifestUrl = root ? `${root}/addon/manifest.json` : "";
 write("addon/index.html", `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(name)} for Stremio</title>
-<style>body{margin:0;display:grid;place-items:center;min-height:100vh;background:#101a33;color:#eaf0ff;font:1.05rem/1.6 system-ui,sans-serif}main{max-width:34rem;padding:2rem}
-a.b{display:inline-block;margin:.5rem 0;padding:.6rem 1.4rem;color:#101010;font-weight:700;text-decoration:none;background:#ffc247;border-radius:99px}code{display:block;padding:.6rem .8rem;overflow:auto;background:#182446;border-radius:8px}</style></head>
+<style>body{margin:0;display:grid;place-items:center;min-height:100vh;background:#0c0b11;color:#ffffff;font:1.05rem/1.6 system-ui,sans-serif}main{max-width:34rem;padding:2rem}
+a.b{display:inline-block;margin:.5rem 0;padding:.6rem 1.4rem;color:#ffffff;font-weight:700;text-decoration:none;background:#7b5bf5;border-radius:99px}code{display:block;padding:.6rem .8rem;overflow:auto;background:#1b1926;border-radius:8px}</style></head>
 <body><main><h1>${esc(name)}</h1><p>${items.length} series and ${movies.length} movie(s) with their episodes, dates and official YouTube links.</p>
 ${manifestUrl ? `<p><a class="b" href="stremio://${esc(manifestUrl.replace(/^https?:\/\//, ""))}">Install in Stremio</a></p><p>Or add this address in Stremio under Addons:</p><code>${esc(manifestUrl)}</code>` : "<p>Install link unavailable (the site address is unknown).</p>"}
 <p><small>Built ${new Date().toISOString().slice(0, 10)}</small></p></main></body></html>

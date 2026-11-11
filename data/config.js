@@ -3,9 +3,9 @@
 // (Your movies and shows live in library.js, not here.)
 // ============================================================================
 const SITE = {
-  name: "Your Name",
-  tagline: "I build small things and watch too many films.",
-  intro: "A few words for the front page.",
+  name: "The Community Archives",                      // the sidebar badge shows its initials (TCA); set short: "ABC" to choose your own
+  tagline: "A community-built archive of shows, films and projects.",
+  intro: "Browse the library, dig through the TCDB, or add what is missing.",
   about: "Write a few lines about yourself here.",
 
   // Defaults for the look. Colours must be 6-digit hex like "#ffc247".
@@ -19,10 +19,10 @@ const SITE = {
   },
 
   // The pages in the sidebar, in order. Choose from "projects", "movies", "database", "about". Home is always first.
-  sections: ["projects", "movies", "database", "about"],
+  sections: ["movies", "projects", "database", "about"],
 
   // Optional: rename a page. This changes both its sidebar label and its page title.
-  sectionNames: { projects: "Projects/Study tools", movies: "Movies/Shows" },
+  sectionNames: { movies: "Movies/Shows", projects: "Projects/Study tools", database: "TCDB" },
 
   // Where episode descriptions come from. "tmdb" (default) shows TMDB's description whenever it has one (it holds the official
   // blurbs, like the WARNING lines on the shorts) and uses the database's text where TMDB has none. "database" does the opposite.
@@ -41,7 +41,7 @@ const SITE = {
   // "Credits" on the About page. The credit text itself is always shown.
   tmdbLogo: "",
 
-  // Buttons on the home page. The first one is highlighted.
+  // Links shown on the About page (under "Find me").
   links: [
     { label: "GitHub", url: "https://github.com/yourname" },
     { label: "Email", url: "mailto:you@example.com" },
