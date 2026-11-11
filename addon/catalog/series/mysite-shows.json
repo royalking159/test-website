@@ -4,8 +4,9 @@
    "id": "mysite-hazbin-hotel",
    "type": "series",
    "name": "Hazbin Hotel",
+   "poster": "https://image.tmdb.org/t/p/w500/aVYHMW8pdzJ9qG1OGRMKyGy9xor.jpg",
    "posterShape": "poster",
-   "description": "Charlie, the Princess of Hell, opens a hotel to rehabilitate demons and send them to Heaven.",
+   "description": "In attempt to find a non-violent alternative for reducing Hell's overpopulation, the daughter of Lucifer opens a rehabilitation hotel that offers a group of misfit demons a chance at redemption.",
    "releaseInfo": "2024-",
    "genres": [
     "Animation",
@@ -20,7 +21,7 @@
    "name": "Helluva Boss",
    "poster": "https://image.tmdb.org/t/p/w500/bcrp2ovxirKH81XSMYQZ7eEunzX.jpg",
    "posterShape": "poster",
-   "description": "Blitzo and his crew run a startup in Hell that takes contracts to kill people on Earth.",
+   "description": "In Hell, imp Blitzø (the 'o' is silent) runs an assassin business targeting the world of the living, using a spell book borrowed from a prince of the underworld. With employees Moxxie, Millie, and Loona, they attempt to survive each other while keeping business afloat.",
    "releaseInfo": "2020-",
    "genres": [
     "Animation",
@@ -32,7 +33,7 @@
    "id": "mysite-helluva-boss-shorts",
    "type": "series",
    "name": "Helluva Boss: Shorts",
-   "poster": "https://image.tmdb.org/t/p/w500/bcrp2ovxirKH81XSMYQZ7eEunzX.jpg",
+   "poster": "https://image.tmdb.org/t/p/w500/zfZG7izmTqwAuViqrclYJfbRoGc.jpg",
    "posterShape": "poster",
    "description": "Shorts from Helluva Boss.",
    "releaseInfo": "2020-",
