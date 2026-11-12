@@ -356,23 +356,27 @@ function seasonsOf(m) {
   return Object.fromEntries(keys.map((k) => [(m.seasonNames || {})[k] || k, { key: k, eps: by[k], cover: coverOf(k), trailer: (m.seasonTrailers || {})[sNum(k)] }]));
 }
 
-// ---------------- Title page, laid out like Stremio: info on the left, episodes or streams on the right ----------------
+// ---------------- Title page: a billboard on top, then Episodes / About / Cast tabs ----------------
+const hueOf = (t) => [...String(t)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
+const initialsOf = (name) => { const w = String(name).trim().split(/\s+/); return ((w[0]?.[0] || "?") + (w.length > 1 ? w[w.length - 1][0] : "")).toUpperCase(); };
+
 function detailView(m, S, ctx) {
   const names = S ? Object.keys(S) : [];
   const uid = (ctx.base === "database" ? "db:" : "") + m.id;
   const wid = (key, i) => `${uid}|${key}|${i}`;
   const bd = backdropLayer();
-  const panel = $("aside", { class: "panel", "aria-label": S ? "Episodes" : "Streams" });
-  let at = 0, paintList = () => {}, listView = null;
-
-  // ---- left: title, facts, chips, summary, action bar ----
-  const heading = $("h1", { class: "title" }, m.logo ? img(m.logo, m.title, () => document.createTextNode(m.title), { class: "logo", loading: "eager" }) : m.title);
-  const meta = $("div", { class: "metarow" }, m.runtime ? $("span", {}, `${m.runtime}min`) : null,
-    m.year ? $("span", {}, m.type === "show" ? `${m.year}–` : String(m.year)) : null,
-    m.score ? $("span", { class: "score" }, String(m.score), $("b", { class: "badge" }, "TMDB")) : null);
   const link = (k, v) => `#/${ctx.base}?${k}=${encodeURIComponent(v)}`;
-  const chips = (label, list, key) => (list?.length
-    ? $("section", { class: "chipsec" }, $("h2", {}, label), $("div", { class: "chiprow" }, list.map((v) => $("a", { class: "chip", href: link(key, v) }, v)))) : null);
+  let at = 0, paintGrid = () => {};
+  const seasonsCount = S ? names.filter((n) => /^Season \d+$/i.test(n)).length : 0;
+
+  // ---- billboard: artwork, title, facts, genres, summary and the buttons ----
+  const posterBox = $("figure", { class: "bb-poster" });
+  const paintPoster = (u) => posterBox.replaceChildren(...(u ? [img(hi(u, posterSize()), m.title, () => document.createTextNode(""), { loading: "eager" })] : []));
+  const heading = $("h1", { class: "title" }, m.logo ? img(m.logo, m.title, () => document.createTextNode(m.title), { class: "logo", loading: "eager" }) : m.title);
+  const meta = $("div", { class: "metarow" }, m.year ? $("span", {}, m.type === "show" ? `${m.year}–` : String(m.year)) : null, m.runtime ? $("span", {}, `${m.runtime}min`) : null,
+    seasonsCount ? $("span", {}, `${seasonsCount} season${seasonsCount === 1 ? "" : "s"}`) : null,
+    m.score ? $("span", { class: "score" }, String(m.score), $("b", { class: "badge" }, "TMDB")) : null);
+  const genreChips = m.genres?.length ? $("div", { class: "chiprow" }, m.genres.map((g) => $("a", { class: "chip", href: link("genre", g) }, g))) : null;
   const tr = trailerBtn(m.title);
   tr.set(m.trailer);
   const ab = (name, label, on) => { const b = $("button", { type: "button", class: "ab", "aria-label": label, title: label }, icon(name)); b.onclick = on; return b; };
@@ -385,7 +389,7 @@ function detailView(m, S, ctx) {
     else {
       const sx = S[names[at]], all = sx.eps.every((_, i) => USER.has("watched", wid(sx.key, i)));
       sx.eps.forEach((_, i) => USER.set("watched", wid(sx.key, i), !all));
-      paintList();
+      paintGrid();
     }
     syncAll();
   });
@@ -397,14 +401,17 @@ function detailView(m, S, ctx) {
     const sx = S && S[names[at]];
     watchB.setAttribute("aria-pressed", String(S ? !!sx && sx.eps.length > 0 && sx.eps.every((_, i) => USER.has("watched", wid(sx.key, i))) : USER.has("watched", wid("film", 0))));
   };
-  const bar = $("div", { class: "actionbar" }, tr.el, $("div", { class: "abgroup" }, libB, watchB), $("div", { class: "abgroup" }, likeB, dislikeB, loveB), $("div", { class: "abgroup" }, shareB));
-  const info = $("div", { class: "info" },
-    $("a", { class: "roundbtn", href: ctx.back[0], "aria-label": `Back to ${ctx.back[1]}`, title: `Back to ${ctx.back[1]}` }, icon("left")),
-    heading, meta, chips("Genres", m.genres, "genre"), chips("Cast", m.cast, "cast"), chips("Directed by", m.directors, "q"),
-    m.overview ? $("section", { class: "chipsec" }, $("h2", {}, "Summary"), expandable(m.overview, "sdesc", 5)) : null, ctx.record || null, bar);
+  const playB = $("button", { type: "button", class: "btn primary play" }, icon("play"), $("span", {}, "Play"));
+  const actions = $("div", { class: "bb-actions" }, playB, tr.el, $("div", { class: "abgroup" }, libB, watchB, likeB, dislikeB, loveB), $("div", { class: "abgroup" }, shareB));
+  const back = $("a", { class: "roundbtn bb-back", href: ctx.back[0], "aria-label": `Back to ${ctx.back[1]}`, title: `Back to ${ctx.back[1]}` }, icon("left"));
+  const billboard = $("header", { class: "billboard" }, bd.el, back,
+    $("div", { class: "bb-text" }, heading, meta, genreChips, m.overview ? expandable(m.overview, "bb-syn", 3) : null, actions), posterBox);
 
-  // ---- right: the streams for one episode (or the film) ----
-  const streamPane = ({ e, title, kicker, key, i, id, back, image }) => {
+  // ---- the streams for one episode (or film), shown in a sheet ----
+  const sheet = $("dialog", { class: "sheet", "aria-label": "Streams" });
+  sheet.addEventListener("click", (e) => { if (e.target === sheet) sheet.close(); });
+  sheet.addEventListener("close", () => { paintGrid(); syncAll(); });
+  const streamBlock = ({ e, title, kicker, key, i, id, image }) => {
     const sub = [m.title, kicker].filter(Boolean).join(", ");
     const mark = $("button", { type: "button", class: "btn small" });
     const syncMark = () => { mark.textContent = USER.has("watched", id) ? "Watched (tap to undo)" : "Mark as watched"; };
@@ -415,47 +422,61 @@ function detailView(m, S, ctx) {
       const a = $("a", { class: "stream", href: st.url, target: inSite ? "" : "_blank", rel: "noopener noreferrer" },
         $("span", { class: `sbadge ${st.kind}` }, st.name[0].toUpperCase()),
         $("span", { class: "sgrow" }, $("strong", {}, st.name), $("small", {}, st.desc)), icon(inSite ? "play" : "external"));
-      a.onclick = (ev) => { USER.set("watched", id, true); syncMark(); syncAll(); if (inSite) { ev.preventDefault(); showInPlayer({ url: st.url, title, sub }); } };
+      a.onclick = (ev) => {
+        USER.set("watched", id, true); syncMark(); syncAll();
+        if (inSite) { ev.preventDefault(); if (sheet.open) sheet.close(); showInPlayer({ url: st.url, title, sub }); }
+      };
       return a;
     });
-    const top = $("div", { class: "top" });
-    if (back) { const bb = $("button", { type: "button", class: "roundbtn", "aria-label": "Back to episodes" }, icon("left")); bb.onclick = back; top.append(bb); }
-    top.append($("strong", {}, "Streams"));
-    return $("div", { class: "sp" }, top,
+    return $("div", { class: "sp" },
       $("div", { class: "epcard" }, image ? $("div", { class: "tw" }, img(hi(image, "original"), "", () => $("div", { class: "thumb" }))) : null,
         $("h3", {}, title), kicker || e.date ? $("small", {}, [kicker, e.date ? fmt(e.date) : ""].filter(Boolean).join(", ")) : null, e.overview ? $("p", {}, e.overview) : null),
-      $("h4", {}, "Available streams"), ...(rows.length ? rows : [$("p", { class: "empty" }, "No streams yet. Add a YouTube id or a watch link to this title in the database.")]), mark);
+      $("h4", {}, "Available streams"), ...(rows.length ? rows : [$("p", { class: "empty" }, "No streams yet. Add a YouTube id or a watch link to this title in the TCDB.")]), mark);
+  };
+  const openSheet = (opts) => {
+    const close = $("button", { type: "button", class: "roundbtn", "aria-label": "Close" }, icon("x"));
+    close.onclick = () => sheet.close();
+    sheet.replaceChildren($("div", { class: "sheet-head" }, $("strong", {}, "Streams"), close), $("div", { class: "sheet-body" }, streamBlock(opts)));
+    if (!sheet.open) sheet.showModal();
+  };
+  const openEp = (n, i) => {
+    const sx = S[n], e = sx.eps[i];
+    openSheet({ e, title: `${i + 1}. ${e.title || "TBA"}`, kicker: n, key: sx.key, i, id: wid(sx.key, i), image: e.image });
+  };
+  playB.onclick = () => {
+    if (!S) return openSheet({ e: m, title: m.title, kicker: m.year ? String(m.year) : "", key: "", i: 1, id: wid("film", 0), image: m.backdrop || m.poster });
+    for (const n of [...names.slice(at), ...names.slice(0, at)]) {                // the first episode you haven't watched, starting from this season
+      const sx = S[n], i = sx.eps.findIndex((_, j) => !USER.has("watched", wid(sx.key, j)));
+      if (i >= 0) return openEp(n, i);
+    }
+    if (names.length) openEp(names[at], 0);
   };
 
-  // ---- right: seasons and episodes ----
+  // ---- panels ----
+  const panels = {};
   if (S && names.length) {
     const cur = $("span", { class: "dd-label" });
     const ddBtn = $("button", { type: "button", class: "dd-btn", "aria-haspopup": "listbox", "aria-expanded": "false" }, cur, $("span", { class: "chev" }));
     const opts = names.map((n) => $("li", { role: "option", tabindex: "-1", "data-n": n }, $("span", {}, n), $("small", {}, `${S[n].eps.length} ${S[n].eps.length === 1 ? "episode" : "episodes"}`)));
     const menu = $("ul", { class: "dd-menu", role: "listbox", "aria-label": "Seasons" }, opts);
     menu.hidden = true;
-    const prev = $("button", { type: "button", class: "arrow", "aria-label": "Previous season" }, icon("left"), $("span", {}, "Prev"));
-    const next = $("button", { type: "button", class: "arrow", "aria-label": "Next season" }, $("span", {}, "Next"), icon("right"));
-    const dd = $("div", { class: "dd" }, ddBtn, menu), art = $("div", { class: "seasonart" });
-    const search = $("input", { type: "search", class: "search", placeholder: "search videos", "aria-label": "Search episodes" });
-    const list = $("ol", { class: "eplist" }), none = $("p", { class: "empty" }, "No episodes match.");
+    const prev = $("button", { type: "button", class: "arrow", "aria-label": "Previous season" }, icon("left"));
+    const next = $("button", { type: "button", class: "arrow", "aria-label": "Next season" }, icon("right"));
+    const dd = $("div", { class: "dd" }, ddBtn, menu);
+    const search = $("input", { type: "search", class: "search", placeholder: "Search episodes", "aria-label": "Search episodes" });
+    const grid = $("ol", { class: "epgrid" }), none = $("p", { class: "empty" }, "No episodes match.");
     none.hidden = true;
     const toggle = (open) => { menu.hidden = !open; ddBtn.setAttribute("aria-expanded", String(open)); if (open) opts[at].focus(); };
-    const open = (n, i) => {
-      const sx = S[n], e = sx.eps[i];
-      panel.replaceChildren(streamPane({ e, title: `${i + 1}. ${e.title || "TBA"}`, kicker: n, key: sx.key, i, id: wid(sx.key, i), image: e.image,
-        back: () => { panel.replaceChildren(listView); paintList(); } }));
-    };
-    paintList = () => {
+    paintGrid = () => {
       const n = names[at], sx = S[n], ql = search.value.trim().toLowerCase();
       const rows = sx.eps.map((e, i) => [e, i]).filter(([e]) => !ql || `${e.title} ${e.overview || ""}`.toLowerCase().includes(ql));
-      list.replaceChildren(...rows.map(([e, i]) => {
+      grid.replaceChildren(...rows.map(([e, i]) => {
         const thumb = () => $("div", { class: "thumb" });
-        const b = $("button", { type: "button", class: "ep" },
-          $("div", { class: "tw" }, e.image ? img(e.image, "", thumb) : thumb()),
-          $("div", { class: "grow" }, $("strong", {}, `${i + 1}. ${e.title || "TBA"}`), $("small", {}, e.date ? fmt(e.date) : "")),
-          USER.has("watched", wid(sx.key, i)) ? $("span", { class: "watched" }, icon("eye"), "Watched") : null);
-        b.onclick = () => open(n, i);
+        const b = $("button", { type: "button", class: "epc" },
+          $("div", { class: "tw" }, e.image ? img(e.image, "", thumb) : thumb(), $("span", { class: "epbadge" }, String(i + 1)),
+            USER.has("watched", wid(sx.key, i)) ? $("span", { class: "watched" }, icon("eye"), "Watched") : null, $("span", { class: "epplay" }, icon("play"))),
+          $("strong", {}, e.title || "TBA"), $("small", {}, e.date ? fmt(e.date) : ""), e.overview ? $("p", {}, e.overview) : null);
+        b.onclick = () => openEp(n, i);
         return $("li", {}, b);
       }));
       none.hidden = rows.length > 0;
@@ -466,16 +487,16 @@ function detailView(m, S, ctx) {
       opts.forEach((o, i) => o.setAttribute("aria-selected", String(i === at)));
       prev.disabled = at === 0;
       next.disabled = at === names.length - 1;
-      art.replaceChildren(...(S[n].cover ? [img(S[n].cover, n, () => document.createTextNode(""))] : []));
       bd.set(m.backdrop || S[n].cover || m.poster, !!m.backdrop);
+      paintPoster(S[n].cover || m.poster);
       tr.set(S[n].trailer || m.trailer);
-      paintList();
+      paintGrid();
       syncAll();
     };
     ddBtn.onclick = () => toggle(menu.hidden);
     prev.onclick = () => draw(names[at - 1]);
     next.onclick = () => draw(names[at + 1]);
-    search.oninput = paintList;
+    search.oninput = paintGrid;
     menu.onclick = (e) => { const li = e.target.closest("li"); if (li) { draw(li.dataset.n); toggle(false); ddBtn.focus(); } };
     menu.onkeydown = (e) => {
       const i = opts.indexOf(document.activeElement);
@@ -489,19 +510,41 @@ function detailView(m, S, ctx) {
     };
     const outside = (e) => { if (!dd.isConnected) removeEventListener("click", outside); else if (!dd.contains(e.target)) toggle(false); };
     addEventListener("click", outside);
-    listView = $("div", { class: "pv" }, $("div", { class: "seasonpick" }, art, prev, dd, next), $("div", { class: "psearch" }, search, icon("search")), list, none);
-    panel.replaceChildren(listView);
+    panels.eps = $("section", { class: "tabpanel", role: "tabpanel" },
+      $("div", { class: "eptools" }, $("div", { class: "seasonpick" }, prev, dd, next), $("div", { class: "psearch" }, search, icon("search"))), grid, none);
     draw(names[0]);
   } else if (S) {
-    panel.replaceChildren($("p", { class: "empty" }, "No episodes yet. They appear after the metadata update runs."));
+    panels.eps = $("section", { class: "tabpanel", role: "tabpanel" }, $("p", { class: "empty" }, "No episodes yet. They appear after the metadata update runs."));
     bd.set(m.backdrop || m.poster, !!m.backdrop);
+    paintPoster(m.poster);
     syncAll();
   } else {
+    panels.eps = $("section", { class: "tabpanel", role: "tabpanel" }, streamBlock({ e: m, title: m.title, kicker: m.year ? String(m.year) : "", key: "", i: 1, id: wid("film", 0), image: m.backdrop || m.poster }));
     bd.set(m.backdrop || m.poster, !!m.backdrop);
-    panel.replaceChildren(streamPane({ e: m, title: m.title, kicker: m.year ? String(m.year) : "", key: "", i: 1, id: wid("film", 0), back: null, image: m.backdrop || m.poster }));
+    paintPoster(m.poster);
     syncAll();
   }
-  return $("div", { class: "detail" }, bd.el, $("div", { class: "detail-main" }, info, panel));
+  const epTotal = S ? names.reduce((n, k) => n + S[k].eps.length, 0) : 0;
+  const rows = [["Year", m.year], ["Type", m.type === "show" ? "Series" : "Film"], ["Seasons", seasonsCount || ""], ["Episodes", epTotal || ""],
+    ["Runtime", m.runtime ? `${m.runtime} minutes` : ""], ["TMDB score", m.score ? `${m.score} out of 10` : ""], ["Genres", (m.genres || []).join(", ")]].filter(([, v]) => v);
+  panels.about = $("section", { class: "tabpanel", role: "tabpanel" }, $("div", { class: "aboutgrid" },
+    $("div", {}, $("h2", {}, "Summary"), m.overview ? $("p", { class: "sdesc" }, m.overview) : $("p", { class: "empty" }, "No summary yet.")),
+    $("dl", { class: "factcard" }, rows.flatMap(([k, v]) => [$("dt", {}, k), $("dd", {}, String(v))]))));
+  const person = (name, role, href) => $("a", { class: "person", href }, $("span", { class: "avatar", style: `--h:${hueOf(name)}` }, initialsOf(name)), $("strong", {}, name), $("small", {}, role));
+  const people = [...(m.directors || []).map((d) => person(d, "Director", link("q", d))), ...(m.cast || []).map((c) => person(c, "Cast", link("cast", c)))];
+  panels.cast = $("section", { class: "tabpanel", role: "tabpanel" }, people.length ? $("div", { class: "people" }, people) : $("p", { class: "empty" }, "No cast listed yet."));
+  if (ctx.record) panels.record = $("section", { class: "tabpanel", role: "tabpanel" }, $("div", { class: "recordwrap" }, ctx.record));
+
+  // ---- tabs ----
+  const labels = { eps: S ? "Episodes" : "Streams", about: "About", cast: "Cast & crew", record: "TCDB record" };
+  const tabs = $("div", { class: "tabs", role: "tablist" }, Object.keys(panels).map((k) => $("button", { type: "button", role: "tab", "data-k": k }, labels[k])));
+  const show = (k) => {
+    Object.entries(panels).forEach(([id, el]) => { el.hidden = id !== k; });
+    tabs.querySelectorAll("button").forEach((b) => { const on = b.dataset.k === k; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
+  };
+  tabs.onclick = (e) => { const b = e.target.closest("button"); if (b) show(b.dataset.k); };
+  show("eps");
+  return $("div", { class: "detail" }, billboard, tabs, ...Object.values(panels), sheet);
 }
 
 function showPage(id) {
@@ -564,7 +607,7 @@ function editorView(base) {
   const renumber = (box) => {
     [...box.list.children].forEach((r, i) => { r.num.textContent = i + 1; });
     const n = box.list.children.length;
-    box.sum.textContent = `${box.nm.value.trim() || "Season"} (${n} episode${n === 1 ? "" : "s"})`;
+    box.sum.textContent = `${box.nm.value.trim() || "Custom"} (${n} episode${n === 1 ? "" : "s"})`;
   };
   const mini = (label, text) => $("button", { type: "button", class: "mini", "aria-label": label, title: label }, text);
   const addEp = (box, src = {}) => {
@@ -613,9 +656,9 @@ function editorView(base) {
     const nums = [...seasons.children].map((b) => /^Season (\d+)$/i.exec(b.nm.value.trim())?.[1]).filter(Boolean).map(Number);
     return `Season ${(nums.length ? Math.max(...nums) : 0) + 1}`;
   };
-  const quick = (label, name) => { const b = $("button", { type: "button", class: "btn" }, label); b.onclick = () => { addSeason({}, typeof name === "function" ? name() : name); update(); }; return b; };
+  const quick = (label, name) => { const b = $("button", { type: "button", class: "btn" }, label); b.onclick = () => { const box = addSeason({}, typeof name === "function" ? name() : name); if (!name) { box.nm.placeholder = "Name this section, for example Specials"; box.nm.focus(); } update(); }; return b; };
   const seasonsWrap = $("div", {}, $("h2", {}, "Seasons and episodes"), seasons,
-    $("div", { class: "actions" }, quick("+ Season", nextSeason), quick("+ Specials", "Specials"), quick("+ Shorts", "Shorts")));
+    $("div", { class: "actions" }, quick("+ Season", nextSeason), quick("+ Custom", "")));
 
   const out = $("pre", { class: "jsonout" }), problems = $("ul", { class: "problems" });
   const copy = $("button", { type: "button", class: "btn primary" }, "Copy file contents");
@@ -650,7 +693,7 @@ function editorView(base) {
     put("trailer", yid(trailer.value));
     seasonsWrap.hidden = !isShow;
     if (isShow) {
-      o.seasons = [...seasons.children].map((box) => ({ ...box.src, name: box.nm.value.trim() || "Season",
+      o.seasons = [...seasons.children].map((box) => ({ ...box.src, name: box.nm.value.trim() || "Custom",
         episodes: [...box.list.children].map((row) => {
           const e = { ...row.src, title: row.t.value.trim() };
           if (row.d.value) e.date = row.d.value; else delete e.date;
@@ -782,7 +825,8 @@ function dbList(qs) {
   return page(labelOf("database"),
     $("div", { class: "tcdbhead" }, $("p", { class: "lead" }, "The community-written record behind this site. Every title is a small file on GitHub that anyone can add to or correct."),
       $("a", { class: "btn primary", href: "#/add" }, "Add a title")),
-    stats, $("div", { class: "dbtools" }, search, bar), chips, table, note);
+    stats, $("div", { class: "dbtools" }, search, bar), chips, table, note,
+    $("p", { class: "legend" }, "Coverage shows how complete a title's record is. The three bars are descriptions (episodes with a summary), artwork (episodes with a picture) and streams (episodes with a YouTube or other watch link). The percentage is the average of the three."));
 }
 
 // The card at the top of a database title: its ids, how complete it is, who added it, and the edit button.
@@ -839,17 +883,121 @@ function dbDetail(id) {
 }
 
 
+// ---------------- Search across every section ----------------
+const norm = (t) => String(t || "").toLowerCase();
+async function searchAll(q) {
+  const whole = norm(q).trim(), tokens = whole.split(/\s+/).filter(Boolean);
+  if (!tokens.length) return [];
+  const rate = (fields, title) => {                                         // 0 when a word matches nothing, higher is more probable
+    let total = 0;
+    for (const t of tokens) {
+      let best = 0;
+      for (const { text, w } of fields) {
+        const x = norm(text);
+        if (!x) continue;
+        const s = x === t ? w : x.startsWith(t) ? w * 0.8 : x.split(/[^a-z0-9]+/).some((p) => p.startsWith(t)) ? w * 0.65 : x.includes(t) ? w * 0.45 : 0;
+        if (s > best) best = s;
+      }
+      if (!best) return 0;
+      total += best;
+    }
+    const nt = norm(title);
+    return total + (nt === whole ? 80 : nt.startsWith(whole) ? 40 : 0);       // the title itself matching is the most probable result
+  };
+  const out = { movies: [], projects: [], database: [], about: [] };
+  for (const m of library()) {
+    const hit = rate([{ text: m.title, w: 100 }, { text: (m.genres || []).join(" "), w: 40 }, { text: [...(m.cast || []), ...(m.directors || [])].join(" "), w: 35 }, { text: m.overview, w: 15 }], m.title);
+    if (hit) out.movies.push({ score: hit, title: m.title, sub: [m.type === "show" ? "Series" : "Film", m.year].filter(Boolean).join(", "), href: `#/${m.type === "show" ? "show" : "movie"}/${m.id}`, poster: m.poster, kind: m.type === "show" ? "Show" : "Film" });
+    for (const e of [...(m.episodes || []), ...Object.values(m.extra || {}).flat()]) {
+      const s = rate([{ text: e.title, w: 60 }], e.title);
+      if (s) out.movies.push({ score: s * 0.6, title: e.title, sub: `Episode of ${m.title}`, href: `#/show/${m.id}`, poster: m.poster, kind: "Episode" });
+    }
+  }
+  [["Project", SITE.projects], ["Study tool", SITE.studyTools]].forEach(([kind, list]) => (list || []).forEach((p) => {
+    const s = rate([{ text: p.title, w: 100 }, { text: (p.tags || []).join(" "), w: 40 }, { text: p.description, w: 15 }], p.title);
+    if (s) out.projects.push({ score: s, title: p.title, sub: p.description || kind, href: p.url || `#/projects?q=${encodeURIComponent(p.title)}`, ext: !!p.url && isWeb(p.url), kind, badge: p.title });
+  }));
+  try {
+    const { titles = [] } = await loadCommunity();
+    titles.forEach((t) => {
+      const s = rate([{ text: t.title, w: 100 }, { text: t.id, w: 60 }, { text: (t.genres || []).join(" "), w: 40 }, { text: [...(t.cast || []), ...(t.directors || [])].join(" "), w: 35 }, { text: t.description, w: 15 }], t.title);
+      if (s) out.database.push({ score: s, title: t.title, sub: `TCDB record, ${t.id}`, href: `#/db/${t.id}`, poster: t.poster, kind: "Record" });
+    });
+  } catch { /* the database could not be loaded */ }
+  const about = rate([{ text: "about", w: 70 }, { text: SITE.name, w: 50 }, { text: SITE.about, w: 15 }, { text: (SITE.links || []).map((l) => l.label).join(" "), w: 60 }], "about");
+  if (about) out.about.push({ score: about, title: labelOf("about"), sub: SITE.about || "About this site", href: "#/about", kind: "Page" });
+  return SITE.sections.filter((x) => out[x]?.length).map((x) => ({ section: x, label: labelOf(x), items: out[x].sort((a, b) => b.score - a.score || a.title.localeCompare(b.title)) }));
+}
+const resultRow = (r) => {
+  const blank = () => $("span", { class: "rbadge" }, (r.badge || r.title || "?").trim()[0].toUpperCase());
+  return $("a", { class: "res", href: r.href, target: r.ext ? "_blank" : "", rel: "noopener noreferrer" }, r.poster ? img(hi(r.poster, "w154"), "", blank) : blank(),
+    $("span", { class: "rtext" }, $("strong", {}, r.title), $("small", {}, r.sub)), $("span", { class: "pill" }, r.kind));
+};
+const resultGroups = (groups, limit = 999) => groups.map((g) => $("section", { class: "rgroup" }, $("h3", {}, icon(NAVICON[g.section] || "folder"), g.label), g.items.slice(0, limit).map(resultRow)));
+function searchPage(qs) {
+  const input = $("input", { type: "search", class: "search big", placeholder: "Search the archive", "aria-label": "Search the archive", value: qs.get("q") || "" });
+  const out = $("div", { class: "rgroups" });
+  let token = 0;
+  const run = async () => {
+    const q = input.value.trim(), mine = ++token;
+    if (!q) { out.replaceChildren($("p", { class: "empty" }, "Type to search every page.")); return; }
+    const groups = await searchAll(q);
+    if (mine !== token) return;
+    out.replaceChildren(...(groups.length ? resultGroups(groups) : [$("p", { class: "empty" }, `Nothing found for "${q}".`)]));
+  };
+  input.oninput = () => { history.replaceState(null, "", `#/search?q=${encodeURIComponent(input.value.trim())}`); run(); };
+  run();
+  return page("Search", input, out);
+}
+
+// ---------------- Sign in (the accounts API is not connected yet) ----------------
+function signinPage() {
+  const email = $("input", { type: "email", class: "search", placeholder: "Email", "aria-label": "Email", autocomplete: "username" });
+  const pass = $("input", { type: "password", class: "search", placeholder: "Password", "aria-label": "Password", autocomplete: "current-password" });
+  const note = $("p", { class: "note", role: "status" });
+  note.hidden = true;
+  const create = $("button", { type: "button", class: "btn" }, "Create an account");
+  create.disabled = true;
+  const form = $("form", { class: "signin-card" }, $("span", { class: "brand static" }, initials), $("h1", { class: "title" }, "Sign in"),
+    $("p", { class: "lead" }, "Accounts will let you save titles and keep track of what you have watched on every device."),
+    email, pass, $("button", { type: "submit", class: "btn primary" }, "Sign in"), create, note);
+  form.noValidate = true;
+  form.onsubmit = (e) => { e.preventDefault(); note.textContent = "Sign-in is not available yet. It will switch on once the archive is connected to its API."; note.hidden = false; };
+  return $("div", { class: "signin" }, form);
+}
+
+// ---------------- Home ----------------
 const P = {
   home: () => {
-    const input = $("input", { type: "search", class: "search big", placeholder: "Search the archive", "aria-label": "Search the archive" });
-    input.onkeydown = (e) => { if (e.key === "Enter") location.hash = `#/movies${input.value.trim() ? `?q=${encodeURIComponent(input.value.trim())}` : ""}`; };
+    const input = $("input", { type: "search", class: "search big", placeholder: "Search the archive", "aria-label": "Search the archive", autocomplete: "off" });
+    const panel = $("div", { class: "results" });
+    panel.hidden = true;
+    const box = $("div", { class: "searchbox" }, input, panel);
+    let token = 0;
+    const run = async () => {
+      const q = input.value.trim(), mine = ++token;
+      if (!q) { panel.hidden = true; return; }
+      const groups = await searchAll(q);
+      if (mine !== token) return;
+      const total = groups.reduce((n, g) => n + g.items.length, 0);
+      panel.replaceChildren(...(total ? [...resultGroups(groups, 4), $("a", { class: "res more", href: `#/search?q=${encodeURIComponent(q)}` }, `See all ${total} results`)] : [$("p", { class: "empty" }, "Nothing found.")]));
+      panel.hidden = false;
+    };
+    input.oninput = run;
+    input.onfocus = () => { if (input.value.trim()) run(); };
+    input.onkeydown = (e) => {
+      if (e.key === "Enter" && input.value.trim()) location.hash = `#/search?q=${encodeURIComponent(input.value.trim())}`;
+      if (e.key === "Escape") panel.hidden = true;
+    };
+    const away = (e) => { if (!box.isConnected) removeEventListener("click", away); else if (!box.contains(e.target)) panel.hidden = true; };
+    addEventListener("click", away);
     const shelf = (title, subs) => $("section", { class: "shelfgroup" }, $("h2", {}, title), subs.map((t) => $("div", { class: "shelf" }, $("h3", {}, t))));
-    return $("div", {}, $("section", { class: "hero" }, $("h1", {}, SITE.tagline), SITE.intro && $("p", { class: "lead" }, SITE.intro), input),
+    return $("div", {}, $("section", { class: "hero" }, $("h1", {}, SITE.tagline), SITE.intro && $("p", { class: "lead" }, SITE.intro), box),
       $("div", { class: "shelves" }, shelf("Saved", [labelOf("movies"), "Projects", "Study tools"]), shelf("Watched", [labelOf("movies")])));
   },
 
-  projects: () => {
-    const hue = (t) => [...String(t)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
+  projects: (qs) => {
+    const hue = hueOf;
     const card = (p) => $("article", { class: "project" },
       $("span", { class: "pbadge", style: `--h:${hue(p.title)}`, "aria-hidden": "true" }, (p.title || "?").trim()[0].toUpperCase()),
       $("div", { class: "pbody" },
@@ -857,7 +1005,7 @@ const P = {
         $("p", {}, p.description),
         $("ul", { class: "tags" }, (p.tags || []).map((t) => $("li", {}, t))),
         p.repo && $("a", { class: "src", href: p.repo, target: "_blank", rel: "noopener noreferrer" }, "Source code")));
-    const search = $("input", { type: "search", class: "search", placeholder: "Search projects and study tools", "aria-label": "Search projects and study tools" });
+    const search = $("input", { type: "search", class: "search", placeholder: "Search projects and study tools", "aria-label": "Search projects and study tools", value: qs?.get("q") || "" });
     const groups = [["Projects", SITE.projects], ["Study tools", SITE.studyTools]].filter(([, l]) => l?.length).map(([name, items]) => {
       const picked = new Set(), cards = items.map((p) => ({ p, el: card(p) }));
       const row = $("div", { class: "tagrow" }), none = $("p", { class: "empty" }, "Nothing matches that.");
@@ -940,7 +1088,7 @@ const P = {
 const NAVICON = { home: "home", projects: "folder", movies: "film", database: "database", about: "info" };
 const initials = ((SITE.short || (SITE.name || "?").split(/\s+/).filter(Boolean).map((w) => w[0]).join("")).slice(0, 4) || "?").toUpperCase();
 const side = $("aside", { class: "sidebar", id: "sidebar" },
-  $("a", { class: "brand", href: "#/", title: SITE.name, "aria-label": SITE.name }, initials),
+  $("a", { class: "brand", href: "#/signin", title: "Sign in", "aria-label": `Sign in to ${SITE.name}` }, initials),
   $("nav", { "aria-label": "Main" },
     [["home", "Home", "#/"], ...SITE.sections.map((x) => [x, labelOf(x), `#/${x}`])]
       .map(([k, t, h]) => $("a", { href: h, "data-s": k, draggable: "false" }, icon(NAVICON[k] || "folder"), $("span", {}, t.replace(/\//g, "/\u200b"))))),
@@ -982,6 +1130,8 @@ function render() {
   const query = new URLSearchParams(qstr);
   let node, active = "", label = "";
   if (!pg) { node = P.home(); active = "home"; }
+  else if (pg === "search") { node = searchPage(query); active = ""; label = "Search"; }
+  else if (pg === "signin") { node = signinPage(); active = ""; label = "Sign in"; }
   else if (pg === "add") { node = dbEditor(); active = "database"; label = "Add a title"; }
   else if (pg === "edit") { node = dbEditor(arg); active = "database"; label = "Edit a title"; }
   else if (pg === "db") { node = dbDetail(arg); active = "database"; label = "Database"; }
