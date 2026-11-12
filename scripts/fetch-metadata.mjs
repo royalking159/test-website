@@ -22,6 +22,11 @@ async function get(url, opts) {
   if (!r.ok) throw new Error(`${r.status} from ${url.replace(/([?&](?:api_?key|key))=[^&]+/, "$1=***")}`);
   return r.json();
 }
+// Like put(), and it remembers which source supplied each field (shown on the TCDB record tab).
+const take = (e, o, label, keep) => {
+  for (const [k, v] of Object.entries(o))
+    if (v != null && v !== "" && !(keep && e[k] != null)) { e[k] = v; (e.src ??= {})[k] = label; }
+};
 // Copy non-empty values into e. With keep=true, only fill gaps.
 const put = (e, o, keep) => {
   for (const [k, v] of Object.entries(o))
@@ -160,17 +165,17 @@ for (const e of LIBRARY) {
       try {
         const tid = await tmdbId(e, "tv");
         const info = await tmdb(`/tv/${tid}`);
-        put(md, {
+        take(md, {
           title: info.name, year: (info.first_air_date || "").slice(0, 4), poster: tImg(info.poster_path, "w500"),
-          backdrop: tImg(info.backdrop_path, "w780"), overview: info.overview, genres: (info.genres || []).map((g) => g.name),
-        });
-        if (info.vote_average) md.score = Math.round(info.vote_average * 10) / 10;   // TMDB rating out of 10
+          backdrop: tImg(info.backdrop_path, "w1280"), overview: info.overview, genres: (info.genres || []).map((g) => g.name),
+        }, "TMDB");
+        if (info.vote_average) { md.score = Math.round(info.vote_average * 10) / 10; (md.src ??= {}).score = "TMDB"; }   // TMDB rating out of 10
         const tr = await pickTrailer(`/tv/${tid}/videos`);
-        if (tr) md.trailer = tr;
+        if (tr) { md.trailer = tr; (md.src ??= {}).trailer = "TMDB"; }
         try {                                                    // the title's logo (shown instead of plain text on the title page)
           const im = await tmdb(`/tv/${tid}/images`, "include_image_language=en,null");
           const logo = (im.logos || []).filter((l) => l.iso_639_1 === "en").sort((a, b) => b.vote_average - a.vote_average)[0] || (im.logos || [])[0];
-          if (logo) md.logo = tImg(logo.file_path, "w500");
+          if (logo) { md.logo = tImg(logo.file_path, "w500"); (md.src ??= {}).logo = "TMDB"; }
         } catch { /* no logo */ }
         for (const s of info.seasons || []) {
           const r = await tmdb(`/tv/${tid}/season/${s.season_number}`);
@@ -189,7 +194,7 @@ for (const e of LIBRARY) {
       try {
         const tid = await tvdbId(e, "series");
         const info = (await tvdb(`/series/${tid}/extended?short=true`)).data;
-        put(md, { title: info.name, year: info.year, poster: abs(info.image), overview: info.overview, genres: (info.genres || []).map((g) => g.name) }, true);
+        take(md, { title: info.name, year: info.year, poster: abs(info.image), overview: info.overview, genres: (info.genres || []).map((g) => g.name) }, "TVDB", true);
         const raw = [];
         for (let page = 0; ; page++) {
           const r = await tvdb(`/series/${tid}/episodes/default?page=${page}`);
@@ -200,13 +205,16 @@ for (const e of LIBRARY) {
       } catch (err) { console.warn("TVDB show:", e.title, err.message); }
     }
 
+    const srcOf = (o, label) => Object.fromEntries(["date", "image", "overview"].filter((k) => o[k]).map((k) => [k, label]));
+    for (const x of tmdbEps) x.src = srcOf(x, "TMDB");
+    for (const x of tvdbEps) x.src = srcOf(x, "TVDB");
     const eps = tmdbEps.length ? tmdbEps : tvdbEps;               // TMDB's episode list when it has one
     if (tmdbEps.length && tvdbEps.length) {                       // ...with TVDB filling any gaps
       const byTitle = new Map(tvdbEps.map((x) => [(x.title || "").toLowerCase(), x]));
       const byNum = new Map(tvdbEps.map((x) => [`${x.season}:${x.number}`, x]));
       for (const x of eps) {
         const t = byTitle.get((x.title || "").toLowerCase()) || byNum.get(`${x.season}:${x.number}`);
-        if (t) { x.image ||= t.image; x.overview ||= t.overview; x.date ||= t.date; }
+        if (t) for (const k of ["image", "overview", "date"]) if (!x[k] && t[k]) { x[k] = t[k]; x.src[k] = "TVDB"; }
       }
     }
     if (eps.length) {
@@ -224,11 +232,11 @@ for (const e of LIBRARY) {
   if (MDBLIST_API_KEY && e.imdb) {
     try {
       const d = await get(`https://api.mdblist.com/imdb/movie/${e.imdb}?apikey=${MDBLIST_API_KEY}`);
-      put(md, {
+      take(md, {
         title: d.title, year: d.year, overview: d.description, poster: d.poster, runtime: d.runtime,
         genres: (d.genres || []).map((g) => g.title || g),
         ratings: Object.fromEntries((d.ratings || []).filter((r) => r.value != null).map((r) => [r.source, r.value])),
-      });
+      }, "MDBList");
     } catch (err) { console.warn("MDBList:", e.title, err.message); }
   }
   if (TMDB_API_KEY) {
@@ -236,18 +244,18 @@ for (const e of LIBRARY) {
       const mid = await tmdbId(e, "movie");
       const info = await tmdb(`/movie/${mid}`);
       const mt = await pickTrailer(`/movie/${mid}/videos`);
-      if (mt) md.trailer = mt;
-      put(md, {
+      if (mt) { md.trailer = mt; (md.src ??= {}).trailer = "TMDB"; }
+      take(md, {
         title: info.title, year: (info.release_date || "").slice(0, 4), poster: tImg(info.poster_path, "w500"),
         overview: info.overview, runtime: info.runtime, genres: (info.genres || []).map((g) => g.name),
-      }, true);
-      if (info.vote_average) md.score = Math.round(info.vote_average * 10) / 10;
+      }, "TMDB", true);
+      if (info.vote_average) { md.score = Math.round(info.vote_average * 10) / 10; (md.src ??= {}).score = "TMDB"; }
     } catch (err) { console.warn("TMDB movie:", e.title, err.message); }
   }
   if (headers) {
     try {
       const info = (await tvdb(`/movies/${await tvdbId(e, "movie")}/extended?short=true`)).data;
-      put(md, { title: info.name, year: info.year, poster: abs(info.image), overview: info.overview, runtime: info.runtime }, true);
+      take(md, { title: info.name, year: info.year, poster: abs(info.image), overview: info.overview, runtime: info.runtime }, "TVDB", true);
     } catch (err) { console.warn("TVDB movie:", e.title, err.message); }
   }
   console.log("movie", e.title, "->", md.poster ? "poster OK" : "NO POSTER");

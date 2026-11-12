@@ -157,6 +157,7 @@ const playLink = (info, label) => wire($("a", { class: "play", href: info.url, t
 
 // ---------------- Icons, your own likes and watched marks, backdrop art ----------------
 const ICON = {
+  menu: '<line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>',
   left: '<polyline points="15 18 9 12 15 6"/>', right: '<polyline points="9 18 15 12 9 6"/>',
   film: '<rect x="2" y="2" width="20" height="20" rx="2.2"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/>',
   bookmark: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
@@ -405,7 +406,7 @@ function detailView(m, S, ctx) {
   const actions = $("div", { class: "bb-actions" }, playB, tr.el, $("div", { class: "abgroup" }, libB, watchB, likeB, dislikeB, loveB), $("div", { class: "abgroup" }, shareB));
   const back = $("a", { class: "roundbtn bb-back", href: ctx.back[0], "aria-label": `Back to ${ctx.back[1]}`, title: `Back to ${ctx.back[1]}` }, icon("left"));
   const billboard = $("header", { class: "billboard" }, bd.el, back,
-    $("div", { class: "bb-text" }, heading, meta, genreChips, m.overview ? expandable(m.overview, "bb-syn", 3) : null, actions), posterBox);
+    $("div", { class: "bb-text" }, ctx.badge ? $("span", { class: "tcdb ctxbadge" }, ctx.badge) : null, heading, meta, genreChips, m.overview ? expandable(m.overview, "bb-syn", 3) : null, actions), posterBox);
 
   // ---- the streams for one episode (or film), shown in a sheet ----
   const sheet = $("dialog", { class: "sheet", "aria-label": "Streams" });
@@ -537,7 +538,7 @@ function detailView(m, S, ctx) {
 
   // ---- tabs ----
   const labels = { eps: S ? "Episodes" : "Streams", about: "About", cast: "Cast & crew", record: "TCDB record" };
-  const tabs = $("div", { class: "tabs", role: "tablist" }, Object.keys(panels).map((k) => $("button", { type: "button", role: "tab", "data-k": k }, labels[k])));
+  const tabs = $("div", { class: "tabs", role: "tablist" }, Object.keys(panels).map((k) => $("button", { type: "button", role: "tab", "data-k": k, class: k === "record" ? "rec" : "" }, labels[k])));
   const show = (k) => {
     Object.entries(panels).forEach(([id, el]) => { el.hidden = id !== k; });
     tabs.querySelectorAll("button").forEach((b) => { const on = b.dataset.k === k; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
@@ -607,7 +608,7 @@ function editorView(base) {
   const renumber = (box) => {
     [...box.list.children].forEach((r, i) => { r.num.textContent = i + 1; });
     const n = box.list.children.length;
-    box.sum.textContent = `${box.nm.value.trim() || "Custom"} (${n} episode${n === 1 ? "" : "s"})`;
+    box.sum.textContent = `${box.nm.value.trim() || "Untitled"} (${n} episode${n === 1 ? "" : "s"})`;
   };
   const mini = (label, text) => $("button", { type: "button", class: "mini", "aria-label": label, title: label }, text);
   const addEp = (box, src = {}) => {
@@ -634,7 +635,7 @@ function editorView(base) {
     const bulkBtn = $("button", { type: "button", class: "btn" }, "Add these titles"), addBtn = $("button", { type: "button", class: "btn" }, "Add an episode");
     const upS = mini("Move season up", "↑"), downS = mini("Move season down", "↓"), rmS = mini("Remove season", "✕");
     const box = $("details", { class: "seasonbox" }, sum,
-      $("div", { class: "seasonhead" }, field("Season name", nm, "For example Season 1, Specials or Shorts"), $("div", { class: "epbtns" }, upS, downS, rmS)),
+      $("div", { class: "seasonhead" }, field("Name", nm, "Name it anything, for example Season 1, Specials or Shorts"), $("div", { class: "epbtns" }, upS, downS, rmS)),
       list, $("div", { class: "actions" }, addBtn),
       $("details", { class: "bulk" }, $("summary", {}, "Paste a list of titles"), bulk, bulkBtn));
     box.open = true;
@@ -652,13 +653,10 @@ function editorView(base) {
     renumber(box);
     return box;
   };
-  const nextSeason = () => {
-    const nums = [...seasons.children].map((b) => /^Season (\d+)$/i.exec(b.nm.value.trim())?.[1]).filter(Boolean).map(Number);
-    return `Season ${(nums.length ? Math.max(...nums) : 0) + 1}`;
-  };
-  const quick = (label, name) => { const b = $("button", { type: "button", class: "btn" }, label); b.onclick = () => { const box = addSeason({}, typeof name === "function" ? name() : name); if (!name) { box.nm.placeholder = "Name this section, for example Specials"; box.nm.focus(); } update(); }; return b; };
+  const plusBtn = $("button", { type: "button", class: "btn plus", "aria-label": "Add a section", title: "Add a section" }, "+");
+  plusBtn.onclick = () => { const box = addSeason({}, ""); box.nm.placeholder = "Name it anything, for example Season 2 or Specials"; box.nm.focus(); update(); };
   const seasonsWrap = $("div", {}, $("h2", {}, "Seasons and episodes"), seasons,
-    $("div", { class: "actions" }, quick("+ Season", nextSeason), quick("+ Custom", "")));
+    $("div", { class: "actions" }, plusBtn));
 
   const out = $("pre", { class: "jsonout" }), problems = $("ul", { class: "problems" });
   const copy = $("button", { type: "button", class: "btn primary" }, "Copy file contents");
@@ -692,8 +690,9 @@ function editorView(base) {
     if (trailer.value.trim() && !yid(trailer.value)) bad.push("That trailer doesn't look like a YouTube link.");
     put("trailer", yid(trailer.value));
     seasonsWrap.hidden = !isShow;
+    if (isShow && [...seasons.children].some((b) => !b.nm.value.trim())) bad.push("Give every section a name.");
     if (isShow) {
-      o.seasons = [...seasons.children].map((box) => ({ ...box.src, name: box.nm.value.trim() || "Custom",
+      o.seasons = [...seasons.children].map((box) => ({ ...box.src, name: box.nm.value.trim() || "Untitled",
         episodes: [...box.list.children].map((row) => {
           const e = { ...row.src, title: row.t.value.trim() };
           if (row.d.value) e.date = row.d.value; else delete e.date;
@@ -764,7 +763,7 @@ function dbList(qs) {
   const search = $("input", { type: "search", class: "search", placeholder: "Search the TCDB", "aria-label": "Search the TCDB", value: state.q });
   const bar = $("div", { class: "seg" }), chips = $("div", { class: "tagrow" }), stats = $("ul", { class: "stats" });
   const body = $("tbody"), note = $("p", { class: "empty" }, "Loading...");
-  const cols = [["title", "Title", true], ["type", "Type"], ["year", "Year", true], ["seasons", "Seasons"], ["episodes", "Episodes", true], ["cov", "Coverage", true], ["genres", "Genres"]];
+  const cols = [["title", "Title", true], ["type", "Type"], ["year", "Year", true], ["seasons", "Seasons"], ["episodes", "Episodes", true], ["cov", "Completion", true], ["genres", "Genres"]];
   const head = $("tr", {}, cols.map(([k, t, sortable]) => $("th", { scope: "col", "data-k": k }, sortable ? $("button", { type: "button" }, t) : t)));
   const table = $("table", { class: "ledger" }, $("thead", {}, head), body);
   table.hidden = true;
@@ -775,7 +774,8 @@ function dbList(qs) {
   const meters = (c) => {
     const tot = c.eps || 1;
     return $("div", { class: "meters" }, [["Descriptions", c.desc], ["Artwork", c.art], ["Streams", c.streams]].map(([l, n]) =>
-      $("span", { class: "meter", title: `${l}: ${n} of ${tot}`, role: "img", "aria-label": `${l}: ${n} of ${tot}` }, $("i", { style: `width:${Math.round((100 * Math.min(n, tot)) / tot)}%` }))));
+      $("div", { class: "mrow", title: `${l}: ${n} of ${tot}` }, $("span", { class: "mlabel" }, l),
+        $("span", { class: "meter", role: "img", "aria-label": `${l}: ${n} of ${tot}` }, $("i", { style: `width:${Math.round((100 * Math.min(n, tot)) / tot)}%` })))));
   };
   const rowOf = (t) => {
     const blank = () => $("div", { class: "lt-blank" });
@@ -826,7 +826,63 @@ function dbList(qs) {
     $("div", { class: "tcdbhead" }, $("p", { class: "lead" }, "The community-written record behind this site. Every title is a small file on GitHub that anyone can add to or correct."),
       $("a", { class: "btn primary", href: "#/add" }, "Add a title")),
     stats, $("div", { class: "dbtools" }, search, bar), chips, table, note,
-    $("p", { class: "legend" }, "Coverage shows how complete a title's record is. The three bars are descriptions (episodes with a summary), artwork (episodes with a picture) and streams (episodes with a YouTube or other watch link). The percentage is the average of the three."));
+    $("p", { class: "legend" }, "Completion shows how complete a title's record is. Descriptions counts episodes that have a summary, Artwork counts episodes that have a picture, and Streams counts episodes that have a YouTube or other watch link. The percentage is the average of the three."));
+}
+
+// ---------------- Where a title's information comes from ----------------
+const hostSource = (u) => (/thetvdb\.com/.test(u || "") ? "TVDB" : /tmdb\.org/.test(u || "") ? "TMDB" : "");
+function sourcesOf(d) {
+  const md = (d.type === "movie" ? META.movies : META.shows)?.[d.id] || {};
+  const known = md.episodes || [], yl = md.ytLinks || {};
+  const via = (f, v) => md.src?.[f] || hostSource(v) || "TMDB / TVDB";             // who supplied a fetched field
+  const ep = (hit, f) => hit.src?.[f] || hostSource(hit[f]) || "TMDB / TVDB";
+  const title = [
+    ["Description", tmdbText() && md.overview ? via("overview") : d.description ? "TCDB" : md.overview ? via("overview") : ""],
+    ["Poster", d.images?.poster ? "TCDB" : md.poster ? via("poster", md.poster) : ""],
+    ["Backdrop", d.images?.backdrop ? "TCDB" : md.backdrop ? via("backdrop", md.backdrop) : ""],
+    ["Logo", d.images?.logo ? "TCDB" : md.logo ? via("logo", md.logo) : ""],
+    ["Genres", d.genres?.length ? "TCDB" : md.genres?.length ? via("genres") : ""],
+    ["Year", d.year ? "TCDB" : md.year ? via("year") : ""],
+    ["Cast and crew", d.cast?.length || d.directors?.length ? "TCDB" : ""],
+    ["Runtime", md.runtime ? via("runtime") : ""],
+    ["Rating", md.score ? via("score") : ""],
+    ["Trailer", d.trailer ? "TCDB" : md.trailer ? via("trailer") : ""],
+  ];
+  const eps = [];
+  for (const s of d.seasons || []) {
+    const n = /^Season (\d+)$/i.exec(s.name)?.[1];
+    (s.episodes || []).forEach((e, j) => {
+      const t = normBase(e.title);
+      const hit = known.find((x) => normBase(x.title) === t) || (n ? known.find((x) => x.season === Number(n) && x.number === j + 1) : null);
+      const yt = e.youtube || yl[t] || (n ? yl[`s${n}e${j + 1}`] : "");
+      eps.push({
+        desc: tmdbText() && hit?.overview ? ep(hit, "overview") : e.overview ? "TCDB" : hit?.overview ? ep(hit, "overview") : "",
+        art: e.image ? "TCDB" : hit?.image ? ep(hit, "image") : yt ? "YouTube" : "",
+        date: e.date ? "TCDB" : hit?.date ? ep(hit, "date") : "",
+        stream: e.youtube || e.watch?.length ? "TCDB" : yt ? "YouTube lookup" : d.watch?.length ? "TCDB" : "",
+      });
+    });
+  }
+  const tally = (k) => { const c = {}; eps.forEach((x) => { if (x[k]) c[x[k]] = (c[x[k]] || 0) + 1; }); return c; };
+  const multi = eps.length ? [["Episode descriptions", tally("desc")], ["Episode artwork", tally("art")], ["Episode air dates", tally("date")], ["Streams", tally("stream")]] : [];
+  return { fetched: !!META.updated, total: eps.length, title, multi };
+}
+const srcClass = (l) => ({ TCDB: "tcdb", TMDB: "tmdb", TVDB: "tvdb", YouTube: "yt", "YouTube lookup": "yt" })[l] || "other";
+const srcPill = (l, n) => $("span", { class: `srcpill ${srcClass(l)}` }, n ? `${l} ×${n}` : l);
+function sourcesView(d) {
+  const s = sourcesOf(d), by = {}, order = ["TCDB", "TMDB", "TVDB", "MDBList", "TMDB / TVDB", "YouTube", "YouTube lookup"];
+  s.title.forEach(([f, src]) => { if (src) (by[src] ||= []).push(f); });
+  s.multi.forEach(([f, c]) => Object.entries(c).forEach(([src, n]) => (by[src] ||= []).push(`${n} ${f.toLowerCase()}`)));
+  const keys = Object.keys(by).sort((a, b) => (order.indexOf(a) < 0 ? 99 : order.indexOf(a)) - (order.indexOf(b) < 0 ? 99 : order.indexOf(b)));
+  const none = () => $("span", { class: "muted" }, "Not available yet");
+  const cell = (c) => { const e = Object.entries(c); const miss = s.total - e.reduce((n, [, v]) => n + v, 0); return $("div", { class: "pills" }, e.map(([l, n]) => srcPill(l, n)), miss > 0 ? $("span", { class: "muted" }, `${miss} missing`) : null); };
+  return $("section", { class: "sources" }, $("h2", {}, "Where this record's information comes from"),
+    $("p", { class: "legend" }, "TCDB, the community file, is used first. Anything it leaves out is filled from TMDB, then TVDB. Streams found by the YouTube lookup are marked separately."),
+    s.fetched ? null : $("p", { class: "note" }, "The metadata update has not run yet, so only what TCDB holds is shown here. Anything missing will be filled in from TMDB and TVDB after it runs."),
+    keys.length ? $("ul", { class: "srcsum" }, keys.map((k) => $("li", {}, srcPill(k), $("span", {}, by[k].join(", "))))) : null,
+    $("table", { class: "srctable" }, $("tbody", {},
+      s.title.map(([f, src]) => $("tr", {}, $("th", { scope: "row" }, f), $("td", {}, src ? srcPill(src) : none()))),
+      s.multi.map(([f, c]) => $("tr", {}, $("th", { scope: "row" }, f), $("td", {}, Object.keys(c).length || s.total ? cell(c) : none()))))));
 }
 
 // The card at the top of a database title: its ids, how complete it is, who added it, and the edit button.
@@ -843,6 +899,7 @@ const recordCard = (d, dir) => {
     $("div", { class: "actions" }, $("a", { class: "btn primary", href: `#/edit/${d.id}` }, "Suggest an edit"),
       ghLink(`blob/main/community/${dir}/${d.id}.json`) ? extLink(ghLink(`blob/main/community/${dir}/${d.id}.json`), "View file", "btn") : null));
 };
+const recordStack = (d, dir) => $("div", { class: "recstack" }, recordCard(d, dir), sourcesView(d));
 
 function dbView(d, dir = d.type === "movie" ? "movies" : "shows") {
   const meta = META.shows?.[d.id] || {};                                                   // the site's own data fills gaps
@@ -861,7 +918,7 @@ function dbView(d, dir = d.type === "movie" ? "movies" : "shows") {
       }) };
     }
   }
-  return detailView(m2, S, { back: ["#/database", labelOf("database")], base: "database", record: recordCard(d, dir),
+  return detailView(m2, S, { back: ["#/database", labelOf("database")], base: "database", badge: "TCDB", record: recordStack(d, dir),
     streams: (e, key, i) => streamsFor(m2, m2.type === "movie" ? { youtube: d.youtube, watch: d.watch, url: d.url, title: d.title } : e, key, i + 1) });
 }
 
@@ -1097,7 +1154,9 @@ side.querySelector(".settings-btn").onclick = openSettings;
 
 const menuBtn = $("button", { class: "menu-btn", type: "button", "aria-controls": "sidebar" });
 const scrim = $("div", { class: "scrim" });
-document.body.append(menuBtn, scrim, side);
+const topSettings = $("button", { class: "top-settings", type: "button", "aria-label": "Settings", title: "Settings" }, icon("sliders"));
+topSettings.onclick = openSettings;
+document.body.append(menuBtn, topSettings, scrim, side);
 document.body.classList.add("has-side");
 
 const small = matchMedia("(max-width: 800px)");            // on a phone the sidebar slides in
@@ -1105,7 +1164,7 @@ let open = false;
 const setMenu = (v) => {
   open = v;
   document.body.classList.toggle("menu-open", open);
-  menuBtn.textContent = open ? "Close" : "Menu";
+  menuBtn.replaceChildren(icon(open ? "x" : "menu"));
   menuBtn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
   menuBtn.setAttribute("aria-expanded", String(open));
   side.inert = (small.matches || document.documentElement.dataset.sidehide === "on") && !open;
