@@ -3,8 +3,9 @@
   "id": "mysite-hazbin-hotel",
   "type": "series",
   "name": "Hazbin Hotel",
+  "poster": "https://image.tmdb.org/t/p/w500/aVYHMW8pdzJ9qG1OGRMKyGy9xor.jpg",
   "posterShape": "poster",
-  "description": "Charlie, the Princess of Hell, opens a hotel to rehabilitate demons and send them to Heaven.",
+  "description": "In attempt to find a non-violent alternative for reducing Hell's overpopulation, the daughter of Lucifer opens a rehabilitation hotel that offers a group of misfit demons a chance at redemption.",
   "releaseInfo": "2024-",
   "genres": [
    "Animation",
@@ -12,6 +13,7 @@
    "Fantasy",
    "Musical"
   ],
+  "background": "https://image.tmdb.org/t/p/w780/9K6QtLqyocVHgIZe4yqCIl1q2ZR.jpg",
   "director": [
    "Vivienne Medrano"
   ],
@@ -24,6 +26,18 @@
    "Alex Brightman",
    "Jeremy Jordan"
   ],
+  "trailers": [
+   {
+    "source": "OLSWVCwy88g",
+    "type": "Trailer"
+   }
+  ],
+  "trailerStreams": [
+   {
+    "title": "Trailer",
+    "ytId": "OLSWVCwy88g"
+   }
+  ],
   "videos": [
    {
     "id": "mysite-hazbin-hotel-specials-that-s-entertainment-pilot",
@@ -34,11 +48,31 @@
     "overview": "The original 2019 pilot, which introduced Charlie, Vaggie and Angel Dust."
    },
    {
-    "id": "mysite-hazbin-hotel-specials-hazbin-hotel-live-on-broadway",
-    "title": "Hazbin Hotel: Live on Broadway",
+    "id": "mysite-hazbin-hotel-specials-hazbin-hotel-pilot",
+    "title": "Hazbin Hotel (Pilot)",
     "season": 0,
     "episode": 2,
-    "released": "2025-11-17T00:00:00.000Z"
+    "released": "2019-10-28T00:00:00.000Z",
+    "overview": "Follow Charlie, the princess of Hell, as she pursues her seemingly impossible goal of rehabilitating demons to peacefully reduce overpopulation in her kingdom. After a yearly extermination imposed by angels, She opens a hotel in hopes that patients will be \"checking out\" into Heaven. While most of Hell mocks her goal, her devoted partner Vaggie, and their first test subject, adult film-star Angel Dust, stick by her side. When a powerful entity known as the \"Radio Demon\" reaches out to Charlie to assist in her endeavors, her crazy dream is given a chance to become a reality.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/hEDnBoVr3dwCqKc9T7Ek3me8HNg.jpg"
+   },
+   {
+    "id": "mysite-hazbin-hotel-specials-addict-music-video",
+    "title": "Addict (Music Video)",
+    "season": 0,
+    "episode": 3,
+    "released": "2020-07-17T00:00:00.000Z",
+    "overview": "Thank you Silva for creating this amazing fansong and allowing us to bring it to life!! I hope you all enjoy this deeper peek into Angel Dust, -and please look forward to BIG NEWS about HAZBIN HOTEL real soon!! Thank you everyone who has supported the project so far, stay tuned!!",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/5BCg11LYHT2TS7t8DMf6JyW9xRr.jpg"
+   },
+   {
+    "id": "mysite-hazbin-hotel-specials-hazbin-hotel-live-on-broadway",
+    "title": "Hazbin Hotel Live on Broadway",
+    "season": 0,
+    "episode": 4,
+    "released": "2025-11-17T00:00:00.000Z",
+    "overview": "Hosted by series lead Erika Henningsen, at New York’s historic Majestic Theater, this concert event features performances of the show's hit songs from Seasons One and Two by Erika Henningsen, Blake Roman, Amir Talai, Christian Borle, Jessica Vosk, Jeremy Jordan, and Krystina Alabado, with special appearances by Stephanie Beatriz, Kimiko Glenn, Vivienne Medrano, Sam Haft, and Richard Horvitz.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/hduqwC4YahXZxFFUo3wBUjNzUvC.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s1e1",
@@ -46,7 +80,8 @@
     "season": 1,
     "episode": 1,
     "released": "2024-01-19T00:00:00.000Z",
-    "overview": "Charlie introduces the Happy Hotel and her plan to rehabilitate sinners, while the first guests test everyone's patience."
+    "overview": "Charlie pitches Heaven her plan to save sinners by way of redeeming themselves through her Hotel. Vaggie enlists the staff to make a commercial to promote the hotel.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/8rj1UJrcPB9g498YmaE57jb4d9l.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s1e2",
@@ -54,14 +89,17 @@
     "season": 1,
     "episode": 2,
     "released": "2024-01-19T00:00:00.000Z",
-    "overview": "Alastor goes back on the air, and the hotel feels the consequences."
+    "overview": "The Vee's: Vox, Velvette, and Valentino rule their corner of Hell unchallenged, but Alastor's return to the airwaves may shake things up. Meanwhile, a new Hotel guest tests Angel's patience.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/AwcWnE5QDsKdhnmArgVGd5nnxkO.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s1e3",
     "title": "Scrambled Eggs",
     "season": 1,
     "episode": 3,
-    "released": "2024-01-19T00:00:00.000Z"
+    "released": "2024-01-19T00:00:00.000Z",
+    "overview": "While the Hotel's guests and crew spend the day learning about trust, information revealed at a meeting of overlords leads to a respectless dispute.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/9xdoUagj3AnplIS8VmlHzRmsQoU.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s1e4",
@@ -69,7 +107,8 @@
     "season": 1,
     "episode": 4,
     "released": "2024-01-19T00:00:00.000Z",
-    "overview": "Angel Dust tries to balance his work and the hotel until an unexpected arrival shakes things up."
+    "overview": "Angel struggles to juggle his work and his time at the Hotel. Charlie decides it's time to put her ‘Princess' status to use with Angel's boss.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/2voEbz6aZvWgTo8NTQSfqfZVBs4.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s1e5",
@@ -77,7 +116,8 @@
     "season": 1,
     "episode": 5,
     "released": "2024-01-26T00:00:00.000Z",
-    "overview": "Charlie invites her father, Lucifer, to the hotel to ask a favour, with Alastor stirring up trouble."
+    "overview": "Charlie struggles with asking her father, Lucifer, for help. Meanwhile, an unexpected new arrival shakes things up at the Hotel.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/cUtVWd5FyveDIu9SEfG3Rqisfxm.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s1e6",
@@ -85,7 +125,8 @@
     "season": 1,
     "episode": 6,
     "released": "2024-01-26T00:00:00.000Z",
-    "overview": "Charlie and Vaggie travel to Heaven to speak with Adam's manager."
+    "overview": "Charlie and Vaggie make their way to Heaven to speak to Adam's manager. Meanwhile an explosive reunion gives Angel the opportunity to show how far he's come.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/A93PBhKxwJMrkqKpqhptnR1w1rr.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s1e7",
@@ -93,7 +134,8 @@
     "season": 1,
     "episode": 7,
     "released": "2024-02-02T00:00:00.000Z",
-    "overview": "Charlie and Vaggie work to protect their home from destruction."
+    "overview": "With secrets revealed and the Hotel in the crosshairs, Charlie and Vaggie must do what they can to protect their home from destruction by any means necessary.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/wPzhMhtLOdppSltb3mnYmOFhTAt.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s1e8",
@@ -101,7 +143,8 @@
     "season": 1,
     "episode": 8,
     "released": "2024-02-02T00:00:00.000Z",
-    "overview": "The season finale brings the conflict between Heaven and Hell to a head."
+    "overview": "All bets are off as the confrontation between the legions of Heaven and Hell begins.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/mVa6wxS7I7097HyMi1FGe38XrOm.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s2e1",
@@ -109,14 +152,17 @@
     "season": 2,
     "episode": 1,
     "released": "2025-10-29T00:00:00.000Z",
-    "overview": "A month after the Extermination, the hotel fills with new residents."
+    "overview": "Charlie's victory against Heaven has sinners flocking to the newly rebuilt Hazbin Hotel. But can she make sure they're all there for the right reasons? Meanwhile, Vox reveals his plan for the Vees to gain their ultimate victory.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/tSzzDh1W5UX1bI3INyYI5t0XC6s.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s2e2",
     "title": "Storyteller",
     "season": 2,
     "episode": 2,
-    "released": "2025-10-29T00:00:00.000Z"
+    "released": "2025-10-29T00:00:00.000Z",
+    "overview": "Sir Pentious' redemption creates a stir in Heaven, but not everyone is happy to see a sinner redeemed.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/kbaF3AxYWH6O8F98KxboLURTv6U.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s2e3",
@@ -124,7 +170,8 @@
     "season": 2,
     "episode": 3,
     "released": "2025-11-05T00:00:00.000Z",
-    "overview": "Charlie sets up an interview with the Vees, with disastrous results."
+    "overview": "Charlie invites Voxtek to do a piece on the Hotel and Pentious' redemption. But she will need hard proof to convince her skeptical guests.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/v8mF1N5uUISUszKsUy1GcnYyykL.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s2e4",
@@ -132,14 +179,17 @@
     "season": 2,
     "episode": 4,
     "released": "2025-11-05T00:00:00.000Z",
-    "overview": "Alastor leaves the hotel and makes a move to get out of his deal."
+    "overview": "Charlie tries to do damage control by going live on television! Meanwhile, Alastor reaches his final straw.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/bzwvWHBbhTQ68ZsTFaCAVhv0yPD.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s2e5",
     "title": "Silenced",
     "season": 2,
     "episode": 5,
-    "released": "2025-11-12T00:00:00.000Z"
+    "released": "2025-11-12T00:00:00.000Z",
+    "overview": "Vox hosts a rally for his increasing supporters. Meanwhile, Charlie looks to Heaven for help.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/lXBrD4efdZg8orbdxzOaydmLx0z.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s2e6",
@@ -147,21 +197,26 @@
     "season": 2,
     "episode": 6,
     "released": "2025-11-12T00:00:00.000Z",
-    "overview": "Vox prepares for war against Heaven while tensions grow among the hotel's residents."
+    "overview": "Vox leads the overlords toward war with Heaven. Tensions run high at the hotel and Husk returns to his old ways.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/736fVKNNuw8xd9Jo5QuI3ujby0D.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s2e7",
     "title": "Weapon of Mass Distraction",
     "season": 2,
     "episode": 7,
-    "released": "2025-11-19T00:00:00.000Z"
+    "released": "2025-11-19T00:00:00.000Z",
+    "overview": "Vox unveils his secret weapon, giving Heaven their final warning.",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/fe2mLNXgJNoy8jbGZXTW0G19pgy.jpg"
    },
    {
     "id": "mysite-hazbin-hotel-s2e8",
     "title": "Curtain Call",
     "season": 2,
     "episode": 8,
-    "released": "2025-11-19T00:00:00.000Z"
+    "released": "2025-11-19T00:00:00.000Z",
+    "overview": "Vox (and the Vees, I guess) is hosting a party so everyone can watch him take over Heaven - and you're all invited!",
+    "thumbnail": "https://image.tmdb.org/t/p/w300/9sEN4QGCoa2gXxrWWVjcEbX0dLT.jpg"
    }
   ],
   "behaviorHints": {
