@@ -1,0 +1,7 @@
+The Community Archives 0.5.0-A: Stremio-style look
+- New dark purple look: rounded posters, large backdrop art, glass panels, pill buttons and Plus Jakarta Sans.
+- Title pages with clickable genre and cast chips that search the library, plus Trailer, list, watched, like, dislike, favourite and share buttons (saved in the browser only).
+- Clicking an episode opens a list of streams (YouTube plays in the site, Prime Video and others open in a new tab), with WATCHED marks.
+- Movies/Shows and the database sorted A to Z, with search and an always-present Movies tab.
+- Sharper pictures: bigger TMDB sizes are requested on big or sharp screens, and bigger YouTube thumbnails.
+- Settings scrolls properly. (An earlier flat-colour redesign was tried and replaced during this version.)

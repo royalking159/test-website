@@ -177,6 +177,10 @@ for (const e of LIBRARY) {
           const logo = (im.logos || []).filter((l) => l.iso_639_1 === "en").sort((a, b) => b.vote_average - a.vote_average)[0] || (im.logos || [])[0];
           if (logo) { md.logo = tImg(logo.file_path, "w500"); (md.src ??= {}).logo = "TMDB"; }
         } catch { /* no logo */ }
+        try {                                                    // the IMDb id lets Stremio attach Torrentio and other stream addons
+          const ext = await tmdb(`/tv/${tid}/external_ids`);
+          if (ext.imdb_id) { md.imdbId = ext.imdb_id; (md.src ??= {}).imdbId = "TMDB"; }
+        } catch { /* no id */ }
         for (const s of info.seasons || []) {
           const r = await tmdb(`/tv/${tid}/season/${s.season_number}`);
           if (r.poster_path) (md.seasonPosters ??= {})[s.season_number] = tImg(r.poster_path, "w500");
@@ -250,6 +254,7 @@ for (const e of LIBRARY) {
         overview: info.overview, runtime: info.runtime, genres: (info.genres || []).map((g) => g.name),
       }, "TMDB", true);
       if (info.vote_average) { md.score = Math.round(info.vote_average * 10) / 10; (md.src ??= {}).score = "TMDB"; }
+      if (info.imdb_id) { md.imdbId = info.imdb_id; (md.src ??= {}).imdbId = "TMDB"; }
     } catch (err) { console.warn("TMDB movie:", e.title, err.message); }
   }
   if (headers) {

@@ -32,7 +32,7 @@ const fromCommunity = (d) => {                               // a community file
     else { extra[s.name] = list; if (s.poster) seasonCovers[s.name] = s.poster; }   // named seasons like Shorts
   }
   return { type: d.type === "movie" ? "movie" : "show", title: d.title, year: d.year, overview: d.description, genres: d.genres,
-    poster: d.images?.poster, backdrop: d.images?.backdrop, cast: d.cast, directors: d.directors, logo: d.images?.logo, trailer: d.trailer, watch: d.watch, watchLink: d.watch?.[0]?.url, episodes, extra, seasonPosters, seasonCovers, seasonTrailers };
+    poster: d.images?.poster, backdrop: d.images?.backdrop, cast: castNames(d.cast), castRoles: castRoles(d.cast), directors: d.directors, logo: d.images?.logo, trailer: d.trailer, watch: d.watch, watchLink: d.watch?.[0]?.url, episodes, extra, seasonPosters, seasonCovers, seasonTrailers };
 };
 // An episode with no picture of its own gets the TMDB still the site already fetched (same name, else same season and number).
 const fillStills = (eps, md) => {
@@ -149,11 +149,10 @@ const showInPlayer = (info) => {
   if (!p.dlg.open) { document.documentElement.classList.add("lock"); p.dlg.showModal(); }
 };
 // Make a link open the player when it can; otherwise it stays a normal link.
-const wire = (a, info) => {
-  a.onclick = (ev) => { if (embedOf(info.url)) { ev.preventDefault(); showInPlayer(info); } };
-  return a;
-};
-const playLink = (info, label) => wire($("a", { class: "play", href: info.url, target: isWeb(info.url) ? "_blank" : "", rel: "noopener noreferrer", "aria-label": label }), info);
+// Nothing on the page can be highlighted or dragged (typing boxes still work).
+const typing = (n) => !!(n?.nodeType === 1 ? n : n?.parentElement)?.closest?.("input, textarea, select, .jsonout, [contenteditable]");
+document.addEventListener("selectstart", (e) => { if (!typing(e.target)) e.preventDefault(); });
+document.addEventListener("dragstart", (e) => { if (!typing(e.target)) e.preventDefault(); });
 
 // ---------------- Icons, your own likes and watched marks, backdrop art ----------------
 const ICON = {
@@ -214,6 +213,8 @@ const backdropLayer = () => {
 const byTitle = (a, b) => (a.title || "").localeCompare(b.title || "", undefined, { sensitivity: "base", numeric: true });
 // TMDB keeps every picture in several sizes. The small ones look soft on a big or sharp screen, so ask for a bigger one.
 const hi = (url, size) => (typeof url === "string" ? url.replace(/(image\.tmdb\.org\/t\/p\/)(w\d+|original)(\/)/, `$1${size}$3`) : url);
+const castNames = (c) => (c || []).map((x) => (typeof x === "string" ? x : x.name));
+const castRoles = (c) => Object.fromEntries((c || []).filter((x) => typeof x === "object" && x.role).map((x) => [x.name, x.role]));
 const dpr = () => Math.min(window.devicePixelRatio || 1, 3);
 const bdSize = () => (innerWidth * dpr() > 1500 ? "original" : "w1280");     // wide artwork
 const posterSize = () => (dpr() >= 1.5 ? "w780" : "w500");                    // posters
@@ -368,6 +369,7 @@ function detailView(m, S, ctx) {
   const bd = backdropLayer();
   const link = (k, v) => `#/${ctx.base}?${k}=${encodeURIComponent(v)}`;
   let at = 0, paintGrid = () => {};
+  const dbmode = ctx.base === "database";                                          // a TCDB title page gets the record look
   const seasonsCount = S ? names.filter((n) => /^Season \d+$/i.test(n)).length : 0;
 
   // ---- billboard: artwork, title, facts, genres, summary and the buttons ----
@@ -406,7 +408,7 @@ function detailView(m, S, ctx) {
   const actions = $("div", { class: "bb-actions" }, playB, tr.el, $("div", { class: "abgroup" }, libB, watchB, likeB, dislikeB, loveB), $("div", { class: "abgroup" }, shareB));
   const back = $("a", { class: "roundbtn bb-back", href: ctx.back[0], "aria-label": `Back to ${ctx.back[1]}`, title: `Back to ${ctx.back[1]}` }, icon("left"));
   const billboard = $("header", { class: "billboard" }, bd.el, back,
-    $("div", { class: "bb-text" }, ctx.badge ? $("span", { class: "tcdb ctxbadge" }, ctx.badge) : null, heading, meta, genreChips, m.overview ? expandable(m.overview, "bb-syn", 3) : null, actions), posterBox);
+    $("div", { class: "bb-text" }, ctx.badge ? $("div", { class: "ctxrow" }, $("span", { class: "tcdb ctxbadge" }, ctx.badge), $("code", { class: "idcode" }, m.id)) : null, heading, meta, genreChips, m.overview ? expandable(m.overview, "bb-syn", 3) : null, actions), posterBox);
 
   // ---- the streams for one episode (or film), shown in a sheet ----
   const sheet = $("dialog", { class: "sheet", "aria-label": "Streams" });
@@ -465,12 +467,33 @@ function detailView(m, S, ctx) {
     const next = $("button", { type: "button", class: "arrow", "aria-label": "Next season" }, icon("right"));
     const dd = $("div", { class: "dd" }, ddBtn, menu);
     const search = $("input", { type: "search", class: "search", placeholder: "Search episodes", "aria-label": "Search episodes" });
-    const grid = $("ol", { class: "epgrid" }), none = $("p", { class: "empty" }, "No episodes match.");
+    const tbody = $("tbody");
+    const grid = dbmode ? $("table", { class: "eptable" }, $("thead", {}, $("tr", {}, ["No.", "Title", "Air date", "Record", "Streams"].map((t) => $("th", { scope: "col" }, t)))), tbody) : $("ol", { class: "epgrid" });
+    const none = $("p", { class: "empty" }, "No episodes match.");
     none.hidden = true;
     const toggle = (open) => { menu.hidden = !open; ddBtn.setAttribute("aria-expanded", String(open)); if (open) opts[at].focus(); };
     paintGrid = () => {
       const n = names[at], sx = S[n], ql = search.value.trim().toLowerCase();
       const rows = sx.eps.map((e, i) => [e, i]).filter(([e]) => !ql || `${e.title} ${e.overview || ""}`.toLowerCase().includes(ql));
+      if (dbmode) {
+        tbody.replaceChildren(...rows.map(([e, i]) => {
+          const has = e.has || {};
+          const flag = (ok, label) => $("span", { class: `flag ${ok ? "ok" : "no"}`, title: `${label}: ${ok ? "in the record" : "missing"}` }, label);
+          const sts = ctx.streams(e, sx.key, i);
+          const tr = $("tr", { class: "row", tabindex: "0" },
+            $("td", { class: "mono" }, String(i + 1).padStart(2, "0")),
+            $("td", {}, $("strong", {}, e.title || "TBA"), USER.has("watched", wid(sx.key, i)) ? $("span", { class: "watched" }, icon("eye"), "Watched") : null, e.overview ? $("small", {}, e.overview) : null),
+            $("td", { class: "mono" }, e.date ? fmt(e.date) : ""),
+            $("td", {}, $("div", { class: "flags" }, flag(has.desc, "Description"), flag(has.art, "Artwork"), flag(has.stream, "Stream"))),
+            $("td", {}, sts.length ? $("div", { class: "pills" }, sts.map((st) => $("span", { class: `srcpill ${st.kind === "yt" ? "yt" : "other"}` }, st.name))) : $("span", { class: "muted" }, "None yet")));
+          const go = () => openEp(n, i);
+          tr.onclick = go;
+          tr.onkeydown = (ev) => { if (ev.key === "Enter") go(); };
+          return tr;
+        }));
+        none.hidden = rows.length > 0;
+        return;
+      }
       grid.replaceChildren(...rows.map(([e, i]) => {
         const thumb = () => $("div", { class: "thumb" });
         const b = $("button", { type: "button", class: "epc" },
@@ -532,7 +555,7 @@ function detailView(m, S, ctx) {
     $("div", {}, $("h2", {}, "Summary"), m.overview ? $("p", { class: "sdesc" }, m.overview) : $("p", { class: "empty" }, "No summary yet.")),
     $("dl", { class: "factcard" }, rows.flatMap(([k, v]) => [$("dt", {}, k), $("dd", {}, String(v))]))));
   const person = (name, role, href) => $("a", { class: "person", href }, $("span", { class: "avatar", style: `--h:${hueOf(name)}` }, initialsOf(name)), $("strong", {}, name), $("small", {}, role));
-  const people = [...(m.directors || []).map((d) => person(d, "Director", link("q", d))), ...(m.cast || []).map((c) => person(c, "Cast", link("cast", c)))];
+  const people = [...(m.directors || []).map((d) => person(d, "Director", link("q", d))), ...(m.cast || []).map((c) => person(c, m.castRoles?.[c] ? `${(m.genres || []).some((g) => /animation/i.test(g)) ? "Voices" : "Plays"} ${m.castRoles[c]}` : "Cast", link("cast", c)))];
   panels.cast = $("section", { class: "tabpanel", role: "tabpanel" }, people.length ? $("div", { class: "people" }, people) : $("p", { class: "empty" }, "No cast listed yet."));
   if (ctx.record) panels.record = $("section", { class: "tabpanel", role: "tabpanel" }, $("div", { class: "recordwrap" }, ctx.record));
 
@@ -545,7 +568,8 @@ function detailView(m, S, ctx) {
   };
   tabs.onclick = (e) => { const b = e.target.closest("button"); if (b) show(b.dataset.k); };
   show("eps");
-  return $("div", { class: "detail" }, billboard, tabs, ...Object.values(panels), sheet);
+  if (dbmode) for (const k of Object.keys(panels)) if (k !== "record") { const box = $("div", { class: "recbox" }); box.append(...panels[k].childNodes); panels[k].append(box); }
+  return $("div", { class: dbmode ? "detail dbmode" : "detail" }, billboard, tabs, ...Object.values(panels), sheet);
 }
 
 function showPage(id) {
@@ -603,6 +627,7 @@ function editorView(base) {
   const tmdb = val(input("289892", { inputmode: "numeric" }), base?.ids?.tmdb), imdb = val(input("tt10691770"), base?.ids?.imdb);
   const tvdb = val(input("(optional)", { inputmode: "numeric" }), base?.ids?.tvdb), poster = val(input("https://..."), base?.images?.poster);
   const trailer = val(input("YouTube link or id"), base?.trailer), who = input("your GitHub name");
+  const directors = val(input("Director name, another director"), (base?.directors || []).join(", "));
 
   const seasons = $("div", { class: "seasonsform" });
   const renumber = (box) => {
@@ -631,15 +656,17 @@ function editorView(base) {
   };
   const addSeason = (src = {}, name = src.name || "") => {
     const nm = input("Season 1", { value: name }), sum = $("summary"), list = $("div", { class: "eplist" });
+    const sn = val(input("for example 5", { inputmode: "numeric" }), src.season);
     const bulk = $("textarea", { rows: "3", placeholder: "Paste episode titles here, one per line" });
     const bulkBtn = $("button", { type: "button", class: "btn" }, "Add these titles"), addBtn = $("button", { type: "button", class: "btn" }, "Add an episode");
     const upS = mini("Move season up", "↑"), downS = mini("Move season down", "↓"), rmS = mini("Remove season", "✕");
     const box = $("details", { class: "seasonbox" }, sum,
       $("div", { class: "seasonhead" }, field("Name", nm, "Name it anything, for example Season 1, Specials or Shorts"), $("div", { class: "epbtns" }, upS, downS, rmS)),
+      field("Stremio season number", sn, "Optional. For a named section, the season number IMDb and Stremio use, so streams line up"),
       list, $("div", { class: "actions" }, addBtn),
       $("details", { class: "bulk" }, $("summary", {}, "Paste a list of titles"), bulk, bulkBtn));
     box.open = true;
-    Object.assign(box, { src, nm, sum, list });
+    Object.assign(box, { src, nm, sn, sum, list });
     (src.episodes || []).forEach((e) => addEp(box, e));
     if (!(src.episodes || []).length) addEp(box);
     nm.addEventListener("input", () => renumber(box));
@@ -658,7 +685,7 @@ function editorView(base) {
   const seasonsWrap = $("div", {}, $("h2", {}, "Seasons and episodes"), seasons,
     $("div", { class: "actions" }, plusBtn));
 
-  const out = $("pre", { class: "jsonout" }), problems = $("ul", { class: "problems" });
+  const out = $("pre", { class: "jsonout" }), problems = $("ul", { class: "problems" }), tips = $("ul", { class: "tips" });
   const copy = $("button", { type: "button", class: "btn primary" }, "Copy file contents");
   const open = $("a", { class: "btn", target: "_blank", rel: "noopener noreferrer" }, editing ? "Open the file on GitHub" : "Open on GitHub");
   let json = "";
@@ -689,10 +716,14 @@ function editorView(base) {
     if (Object.keys(images).length) o.images = images; else delete o.images;
     if (trailer.value.trim() && !yid(trailer.value)) bad.push("That trailer doesn't look like a YouTube link.");
     put("trailer", yid(trailer.value));
+    const dirs = directors.value.split(",").map((x) => x.trim()).filter(Boolean);
+    if (dirs.length) o.directors = dirs; else delete o.directors;
+    const cast = [...castList.children].map((r) => ({ name: r.nm.value.trim(), role: r.rl.value.trim() })).filter((c) => c.name).map((c) => (c.role ? c : c.name));
+    if (cast.length) o.cast = cast; else delete o.cast;
     seasonsWrap.hidden = !isShow;
     if (isShow && [...seasons.children].some((b) => !b.nm.value.trim())) bad.push("Give every section a name.");
     if (isShow) {
-      o.seasons = [...seasons.children].map((box) => ({ ...box.src, name: box.nm.value.trim() || "Untitled",
+      o.seasons = [...seasons.children].map((box) => { const nm2 = box.nm.value.trim() || "Untitled", num = parseInt(box.sn.value, 10); const sx = { ...box.src, name: nm2,
         episodes: [...box.list.children].map((row) => {
           const e = { ...row.src, title: row.t.value.trim() };
           if (row.d.value) e.date = row.d.value; else delete e.date;
@@ -702,11 +733,18 @@ function editorView(base) {
           if (yv && yid(yv)) e.youtube = yid(yv); else delete e.youtube;
           if (yv && !yid(yv)) bad.push(`"${e.title}": that YouTube link isn't valid.`);
           return e;
-        }).filter((e) => e.title) }));
+        }).filter((e) => e.title) };
+        if (!/^Season \d+$/i.test(nm2) && Number.isInteger(num) && num >= 0) sx.season = num; else delete sx.season;
+        return sx;
+      });
     } else delete o.seasons;
     const people = new Set(o.contributors || []);
     if (who.value.trim()) people.add(who.value.trim());
     if (people.size) o.contributors = [...people]; else delete o.contributors;
+    const tipList = [];
+    if (!ids.imdb) tipList.push("Tip: the IMDb id lets Stremio attach Torrentio and other stream addons to this title. If you leave it out, the metadata update tries to find it from TMDB.");
+    else if (isShow) for (const sx of o.seasons) if (!/^Season \d+$/i.test(sx.name) && !/^specials$/i.test(sx.name) && sx.season == null) tipList.push(`Tip: "${sx.name}" will be its own series in Stremio. Give it a Stremio season number if it is part of the main show.`);
+    tips.replaceChildren(...tipList.map((t) => $("li", {}, t)));
     json = JSON.stringify(o, null, 2) + "\n";
     if (/[<>]/.test(JSON.stringify(o))) bad.push("Please leave out < and > characters.");
     out.textContent = json;
@@ -719,17 +757,33 @@ function editorView(base) {
     try { await navigator.clipboard.writeText(json); copy.textContent = "Copied!"; } catch { copy.textContent = "Select the text below and copy it"; }
     setTimeout(() => (copy.textContent = "Copy file contents"), 2200);
   };
-  [kind, title, year, genres, desc, tmdb, imdb, tvdb, poster, trailer, who].forEach((el) => el.addEventListener("input", update));
+  const castList = $("div", { class: "castlist" });
+  const addCast = (src = {}) => {
+    const nm = val(input("Actor name"), typeof src === "string" ? src : src.name), rl = val(input("Character they voice or play"), typeof src === "string" ? "" : src.role);
+    const rm = mini("Remove this person", "✕");
+    const row = $("div", { class: "castrow" }, nm, rl, rm);
+    Object.assign(row, { nm, rl });
+    rm.onclick = () => { row.remove(); update(); };
+    row.addEventListener("input", update);
+    castList.append(row);
+    return row;
+  };
+  const castPlus = $("button", { type: "button", class: "btn plus", "aria-label": "Add a cast member", title: "Add a cast member" }, "+");
+  castPlus.onclick = () => { addCast().nm.focus(); update(); };
+  (base?.cast || []).forEach(addCast);
+  [kind, title, year, genres, desc, tmdb, imdb, tvdb, poster, trailer, who, directors].forEach((el) => el.addEventListener("input", update));
   if (base?.seasons?.length) base.seasons.forEach((s) => addSeason(s)); else if ((base?.type || "show") === "show") addSeason({}, "Season 1");
   update();
   return page(editing ? `Edit ${base.title}` : "Add a title",
     $("p", { class: "lead" }, editing ? "Change anything below. Your changes are checked as you type, then you send them to the owner for review." : "Fill this in and the file is built for you. Write the description in your own words (not copied from another site)."),
     $("div", { class: "addform" },
       field("Type", kind), field("Title", title), $("div", { class: "row2" }, field("Year", year), field("Genres", genres, "Separate with commas")),
-      field("Description", desc), $("div", { class: "row2" }, field("TMDB id", tmdb), field("IMDb id", imdb)),
+      field("Description", desc), $("div", { class: "row2" }, field("TMDB id", tmdb), field("IMDb id", imdb, "Lets Stremio attach Torrentio and other stream addons")),
       $("div", { class: "row2" }, field("TVDB id", tvdb), field("Poster link", poster, "An https:// link")),
-      field("Trailer", trailer, "A YouTube link or the 11-character id"), field("Your GitHub name", who, "So you get the credit"),
-      seasonsWrap, $("h2", {}, "The file"), problems, out,
+      field("Trailer", trailer, "A YouTube link or the 11-character id"), field("Directed by", directors, "Separate with commas"),
+      $("div", {}, $("h2", {}, "Cast"), $("p", { class: "credit" }, "Add each actor and the character they voice or play."), castList, castPlus),
+      field("Your GitHub name", who, "So you get the credit"),
+      seasonsWrap, $("h2", {}, "The file"), problems, tips, out,
       $("div", { class: "actions" }, copy, open),
       $("p", { class: "credit" }, editing
         ? "Tap Copy, then Open the file on GitHub, tap the pencil, select everything and paste, then choose Commit changes and Propose changes. The owner reviews it before it goes live."
@@ -754,9 +808,6 @@ const repoInfo = () => {                                     // "owner/name" of 
 };
 const ghLink = (path, query = "") => (repoInfo() ? `https://github.com/${repoInfo()}/${path}${query}` : "");
 const extLink = (href, text, cls) => href && $("a", { class: cls, href, target: "_blank", rel: "noopener noreferrer" }, text);
-const DB_TEMPLATE = JSON.stringify({ id: "my-show", type: "show", title: "My Show", year: 2020, description: "Write a short summary in your own words.",
-  genres: ["Genre"], ids: {}, seasons: [{ name: "Season 1", episodes: [{ title: "Episode title", date: "2020-01-31" }] }], contributors: ["your-github-name"] }, null, 2);
-
 
 function dbList(qs) {
   const state = { kind: "All", q: qs?.get("q") || "", genre: qs?.get("genre") || "", cast: qs?.get("cast") || "", sort: "title", dir: 1 };
@@ -822,10 +873,18 @@ function dbList(qs) {
       .map(([v, l]) => $("li", {}, $("b", {}, String(v)), $("span", {}, l))));
     draw();
   });
+  const manifest = new URL("../addon/manifest.json", location.href).href;
+  const addonLink = $("input", { type: "text", class: "search", value: manifest, "aria-label": "Stremio addon link" });
+  addonLink.readOnly = true;
+  const copy = $("button", { type: "button", class: "btn" }, "Copy addon link");
+  copy.onclick = async () => { try { await navigator.clipboard.writeText(manifest); toast("Addon link copied"); } catch { addonLink.select(); toast("Copy the link above"); } };
+  const addon = $("section", { class: "addoncard" },
+    $("div", {}, $("h2", {}, "Stremio addon"), $("p", {}, "Add the TCDB to Stremio to see these titles, episodes and descriptions there, with official YouTube and Prime Video links. Add Torrentio (or any stream addon) as well and its streams attach to the same episodes."), addonLink),
+    $("div", { class: "actions" }, $("a", { class: "btn primary", href: manifest.replace(/^https?:\/\//, "stremio://") }, "Add to Stremio"), copy));
   return page(labelOf("database"),
     $("div", { class: "tcdbhead" }, $("p", { class: "lead" }, "The community-written record behind this site. Every title is a small file on GitHub that anyone can add to or correct."),
       $("a", { class: "btn primary", href: "#/add" }, "Add a title")),
-    stats, $("div", { class: "dbtools" }, search, bar), chips, table, note,
+    stats, addon, $("div", { class: "dbtools" }, search, bar), chips, table, note,
     $("p", { class: "legend" }, "Completion shows how complete a title's record is. Descriptions counts episodes that have a summary, Artwork counts episodes that have a picture, and Streams counts episodes that have a YouTube or other watch link. The percentage is the average of the three."));
 }
 
@@ -904,7 +963,7 @@ const recordStack = (d, dir) => $("div", { class: "recstack" }, recordCard(d, di
 function dbView(d, dir = d.type === "movie" ? "movies" : "shows") {
   const meta = META.shows?.[d.id] || {};                                                   // the site's own data fills gaps
   const yl = meta.ytLinks || {};
-  const m2 = { id: d.id, title: d.title, type: d.type === "movie" ? "movie" : "show", year: d.year, overview: d.description, genres: d.genres, cast: d.cast, directors: d.directors,
+  const m2 = { id: d.id, title: d.title, type: d.type === "movie" ? "movie" : "show", year: d.year, overview: d.description, genres: d.genres, cast: castNames(d.cast), castRoles: castRoles(d.cast), directors: d.directors,
     poster: d.images?.poster || meta.poster, backdrop: d.images?.backdrop || meta.backdrop, logo: d.images?.logo || meta.logo, trailer: d.trailer || meta.trailer,
     runtime: meta.runtime, score: meta.score, ytLinks: yl, watchLink: d.watch?.[0]?.url };
   let S = null;
@@ -914,7 +973,7 @@ function dbView(d, dir = d.type === "movie" ? "movies" : "shows") {
       const n = /^Season (\d+)$/i.exec(s.name)?.[1];
       S[s.name] = { key: s.name, cover: s.poster || m2.poster, eps: (s.episodes || []).map((e, j) => {
         const id = e.youtube || yl[normBase(e.title)] || (n ? yl[`s${n}e${j + 1}`] : "");
-        return { ...e, orig: e.title, season: n ? Number(n) : 0, number: j + 1, image: e.image || (id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : "") || m2.backdrop || m2.poster };
+        return { ...e, orig: e.title, has: { desc: !!e.overview, art: !!e.image, stream: !!(e.youtube || e.watch?.length) }, season: n ? Number(n) : 0, number: j + 1, image: e.image || (id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : "") || m2.backdrop || m2.poster };
       }) };
     }
   }
@@ -963,7 +1022,7 @@ async function searchAll(q) {
   };
   const out = { movies: [], projects: [], database: [], about: [] };
   for (const m of library()) {
-    const hit = rate([{ text: m.title, w: 100 }, { text: (m.genres || []).join(" "), w: 40 }, { text: [...(m.cast || []), ...(m.directors || [])].join(" "), w: 35 }, { text: m.overview, w: 15 }], m.title);
+    const hit = rate([{ text: m.title, w: 100 }, { text: (m.genres || []).join(" "), w: 40 }, { text: [...(m.cast || []), ...Object.values(m.castRoles || {}), ...(m.directors || [])].join(" "), w: 35 }, { text: m.overview, w: 15 }], m.title);
     if (hit) out.movies.push({ score: hit, title: m.title, sub: [m.type === "show" ? "Series" : "Film", m.year].filter(Boolean).join(", "), href: `#/${m.type === "show" ? "show" : "movie"}/${m.id}`, poster: m.poster, kind: m.type === "show" ? "Show" : "Film" });
     for (const e of [...(m.episodes || []), ...Object.values(m.extra || {}).flat()]) {
       const s = rate([{ text: e.title, w: 60 }], e.title);
@@ -977,7 +1036,7 @@ async function searchAll(q) {
   try {
     const { titles = [] } = await loadCommunity();
     titles.forEach((t) => {
-      const s = rate([{ text: t.title, w: 100 }, { text: t.id, w: 60 }, { text: (t.genres || []).join(" "), w: 40 }, { text: [...(t.cast || []), ...(t.directors || [])].join(" "), w: 35 }, { text: t.description, w: 15 }], t.title);
+      const s = rate([{ text: t.title, w: 100 }, { text: t.id, w: 60 }, { text: (t.genres || []).join(" "), w: 40 }, { text: [...(t.cast || []), ...Object.values(t.castRoles || {}), ...(t.directors || [])].join(" "), w: 35 }, { text: t.description, w: 15 }], t.title);
       if (s) out.database.push({ score: s, title: t.title, sub: `TCDB record, ${t.id}`, href: `#/db/${t.id}`, poster: t.poster, kind: "Record" });
     });
   } catch { /* the database could not be loaded */ }
@@ -1138,7 +1197,8 @@ const P = {
       SITE.tmdbLogo && $("img", { src: SITE.tmdbLogo, alt: "TMDB", class: "tmdb-logo" }),
       $("p", {}, "This product uses the TMDB API but is not endorsed or certified by ",
         $("a", { href: "https://www.themoviedb.org", target: "_blank", rel: "noopener noreferrer" }, "TMDB"), "."),
-      $("p", {}, "Some metadata is provided by ", $("a", { href: "https://thetvdb.com", target: "_blank", rel: "noopener noreferrer" }, "TheTVDB"), "."))),
+      $("p", {}, "Some metadata is provided by ", $("a", { href: "https://thetvdb.com", target: "_blank", rel: "noopener noreferrer" }, "TheTVDB"), "."),
+      SITE.version && $("p", {}, `Version ${SITE.version}`))),
 };
 
 // ---- Sidebar ----
@@ -1215,7 +1275,7 @@ Promise.all([fetch("../data/metadata.json").then((r) => (r.ok ? r.json() : {})).
   .then(([j]) => {
     META = { movies: j.movies || {}, shows: j.shows || {} };
     document.querySelector(".settings-body").append($("p", { class: "status" }, j.updated
-      ? `Posters and episodes last updated ${fmt(j.updated)}.`
-      : "Posters and episodes haven't been fetched yet. On GitHub: open Actions, choose Update movie metadata, then Run workflow."));
+      ? `Posters and episodes last updated ${fmt(j.updated)}. Version ${SITE.version}.`
+      : `Posters and episodes haven't been fetched yet. On GitHub: open Actions, choose Update movie metadata, then Run workflow. Version ${SITE.version}.`));
     render();
   });

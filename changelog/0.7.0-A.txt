@@ -1,0 +1,6 @@
+The Community Archives 0.7.0-A: Phone menu and metadata sources
+- Phone: a menu button at the top left opens a drawer, and a settings button sits at the top right. The old bottom bar buttons did not respond and are gone.
+- The section editor has a single + button so you can name a section anything.
+- TCDB Coverage renamed Completion, with each bar labelled Descriptions, Artwork and Streams.
+- TCDB record tab shows where each piece of information comes from (TCDB, TMDB, TVDB, YouTube lookup). The metadata Action now records the source of each field.
+- TCDB title pages get a TCDB badge and record id.

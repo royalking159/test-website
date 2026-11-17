@@ -12,6 +12,8 @@ const coverage = (d) => {                                     // how many episod
   if (!eps.length) return { eps: 0, desc: d.description ? 1 : 0, art: d.images?.poster ? 1 : 0, streams: d.youtube || d.watch?.length ? 1 : 0 };
   return { eps: eps.length, desc: eps.filter((e) => e.overview).length, art: eps.filter((e) => e.image).length, streams: eps.filter((e) => e.youtube || e.watch?.length).length };
 };
+const castNames = (c) => (c || []).map((x) => (typeof x === "string" ? x : x.name));
+const castRoles = (c) => Object.fromEntries((c || []).filter((x) => typeof x === "object" && x.role).map((x) => [x.name, x.role]));
 const errors = [];
 const titles = [];
 const seen = new Map();
@@ -37,7 +39,8 @@ function check(file, d, type) {
   if (ids.imdb != null && !/^tt\d+$/.test(ids.imdb)) err(file, 'ids.imdb must look like "tt1234567"');
   for (const k of ["poster", "backdrop"]) if (d.images?.[k] && !isUrl(d.images[k])) err(file, `images.${k} must be a link starting with https://`);
   (d.links || []).forEach((l, i) => { if (!isStr(l?.name, 80) || !isUrl(l?.url)) err(file, `links[${i}] needs a name and an https:// url`); });
-  for (const k of ["cast", "directors"]) if (d[k] != null && !(Array.isArray(d[k]) && d[k].length <= 40 && d[k].every((c) => isStr(c, 80)))) err(file, `${k} must be a list of names`);
+  if (d.directors != null && !(Array.isArray(d.directors) && d.directors.length <= 40 && d.directors.every((c) => isStr(c, 80)))) err(file, "directors must be a list of names");
+  if (d.cast != null && !(Array.isArray(d.cast) && d.cast.length <= 60 && d.cast.every((c) => isStr(c, 80) || (c && isStr(c.name, 80) && (c.role == null || isStr(c.role, 80)))))) err(file, "cast must be a list of names, or of { name, role } (the character they voice or play)");
   const watchOk = (w) => w == null || (Array.isArray(w) && w.length <= 6 && w.every((x) => isStr(x?.name, 40) && isUrl(x?.url)));
   if (!watchOk(d.watch)) err(file, "watch must be a list of { name, url } with https:// links");
   if (d.trailer && !/^[\w-]{11}$/.test(d.trailer)) err(file, "trailer must be an 11-character YouTube video id");
@@ -50,6 +53,7 @@ function check(file, d, type) {
     if (!isStr(s?.name, 60)) err(file, `${at}.name is required`);
     if (s?.trailer && !/^[\w-]{11}$/.test(s.trailer)) err(file, `${at}.trailer must be an 11-character YouTube video id`);
     if (s?.poster && !isUrl(s.poster)) err(file, `${at}.poster must be a link starting with https://`);
+    if (s?.season != null && !(Number.isInteger(s.season) && s.season >= 0 && s.season <= 200)) err(file, `${at}.season must be a whole number from 0 to 200 (the season number Stremio and IMDb use)`);
     if (!Array.isArray(s?.episodes)) return err(file, `${at}.episodes must be a list`);
     s.episodes.forEach((e, j) => {
       const ep = `${at}.episodes[${j}]`;
@@ -59,7 +63,15 @@ function check(file, d, type) {
       if (!watchOk(e?.watch)) err(file, `${ep}.watch must be a list of { name, url } with https:// links`);
       if (e?.image && !isUrl(e.image)) err(file, `${ep}.image must start with https://`);
       if (e?.youtube && !/^[\w-]{11}$/.test(e.youtube)) err(file, `${ep}.youtube must be an 11-character YouTube video id`);
+      if (e?.episode != null && !(Number.isInteger(e.episode) && e.episode >= 1 && e.episode <= 5000)) err(file, `${ep}.episode must be a whole number (the episode number Stremio and IMDb use)`);
     });
+  });
+  const used = new Map();                                      // two sections cannot share one Stremio season number
+  d.seasons.forEach((s, i) => {
+    const n = /^specials$/i.test(s?.name || "") ? 0 : /^Season (\d+)$/i.exec(s?.name || "")?.[1] ?? s?.season;
+    if (n == null) return;
+    if (used.has(Number(n))) err(file, `seasons[${i}] uses Stremio season number ${n}, which seasons[${used.get(Number(n))}] already uses`);
+    used.set(Number(n), i);
   });
 }
 
@@ -122,7 +134,7 @@ for (const [type, dir] of Object.entries(DIRS)) {
     check(file, d, type);
     if (seen.has(d?.id)) err(file, `id "${d.id}" is already used by ${seen.get(d.id)}`); else seen.set(d?.id, file);
     const eps = (d.seasons || []).reduce((n, s) => n + (s.episodes?.length || 0), 0);
-    titles.push({ id: d.id, type, title: d.title, year: d.year, description: (d.description || "").slice(0, 240), genres: d.genres || [], cast: d.cast || [], directors: d.directors || [], contributors: d.contributors || [], coverage: coverage(d),
+    titles.push({ id: d.id, type, title: d.title, year: d.year, description: (d.description || "").slice(0, 240), genres: d.genres || [], cast: castNames(d.cast), castRoles: castRoles(d.cast), directors: d.directors || [], contributors: d.contributors || [], coverage: coverage(d),
       poster: d.images?.poster || siteData[type === "show" ? "shows" : "movies"]?.[d.id]?.poster || "", ids: d.ids || {}, seasons: (d.seasons || []).length, episodes: eps });
   }
 }

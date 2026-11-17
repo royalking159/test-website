@@ -32,6 +32,7 @@ The metadata Action fills in missing `youtube` ids for you (`node scripts/commun
 Episodes and titles can also have `watch`, a list of official links that are not YouTube, for example
 `"watch": [{ "name": "Prime Video", "url": "https://www.primevideo.com/detail/..." }]`. The website uses it for the play button when there is no YouTube video,
 and Stremio lists it as a stream that opens in the browser or app. A title-level `watch` is used for every episode that has no link of its own.
+`cast` lists the actors. Each one is either just a name or `{ "name": "Actor", "role": "Character" }` (the character they voice or play), and the site shows "Voices Character" or "Plays Character" on their card. `directors` is a list of names.
 A title can have `images.poster`, `images.backdrop` and `images.logo`, a season can have `poster`, and an episode can have `image` (all https links).
 Anything you leave out is filled from TMDB when the metadata Action has run, so you only need to add what you want to override.
 
@@ -52,3 +53,11 @@ After a change is merged, the Action rebuilds the `addon/` folder. It is served 
 and episodes that have a `youtube` id get an official YouTube stream.
 Stremio only knows season numbers, so "Specials" becomes season 0, and any other named season (like Shorts) becomes its own series, for example "Helluva Boss: Shorts".
 Episodes without a `date` are left out of the addon.
+
+## Stremio
+
+The Stremio addon (`addon/`, rebuilt by the metadata Action) is made from these files. The TCDB page has Add to Stremio and Copy addon link buttons.
+
+- **Streams from Torrentio and other addons.** A title that has an IMDb id (`"ids": { "imdb": "tt1234567" }`, or one the metadata update finds on TMDB) is published in Stremio under that id, so a stream addon you have installed attaches to the same episodes. This only lines up when the season and episode numbers match IMDb's. Put `"stremioImdb": false` in a title's file to publish it under this addon's own id instead (no other addon's streams).
+- **Section names.** A section can be named anything, such as the arcs of a long anime. Stremio only understands season numbers, so a named section needs `"season": 5` (the season number IMDb uses) to join the main show. A named section without a season number shows up as its own series (for example "Helluva Boss: Shorts"). `"Specials"` is season 0. Two sections cannot use the same season number.
+- **Episode numbers.** An episode is numbered by its position in its section. Give it `"episode": 12` when IMDb numbers it differently.

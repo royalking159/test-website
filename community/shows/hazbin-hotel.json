@@ -26,13 +26,34 @@
     "Vivienne Medrano"
   ],
   "cast": [
-    "Erika Henningsen",
-    "Stephanie Beatriz",
-    "Blake Roman",
-    "Amir Talai",
-    "Keith David",
-    "Alex Brightman",
-    "Jeremy Jordan"
+    {
+      "name": "Erika Henningsen",
+      "role": "Charlie"
+    },
+    {
+      "name": "Stephanie Beatriz",
+      "role": "Vaggie"
+    },
+    {
+      "name": "Blake Roman",
+      "role": "Angel Dust"
+    },
+    {
+      "name": "Amir Talai",
+      "role": "Alastor"
+    },
+    {
+      "name": "Keith David",
+      "role": "Husk"
+    },
+    {
+      "name": "Alex Brightman",
+      "role": "Sir Pentious"
+    },
+    {
+      "name": "Jeremy Jordan",
+      "role": "Lucifer"
+    }
   ],
   "seasons": [
     {

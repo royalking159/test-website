@@ -1,0 +1,5 @@
+The Community Archives 0.3.0-A: Community database and Stremio addon
+- The community/ folder: one small JSON file per title, checked by scripts/community.mjs, and a Database page to browse them.
+- Add and edit titles by GitHub pull request, with a template and a pull request checklist.
+- A static Stremio addon built from the database (addon/): catalogs, episode lists, YouTube streams, thumbnails, and an optional IMDb mode.
+- Shorts and other named sections become their own series in Stremio.

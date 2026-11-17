@@ -2,7 +2,9 @@
 // SITE SETTINGS. Edit this file to customise the site.
 // (Your movies and shows live in library.js, not here.)
 // ============================================================================
+  // (version is the release number, written major.minor.patch-build, and shown in Settings and on the About page)
 const SITE = {
+  version: "0.8.0-A",
   name: "The Community Archives",                      // the sidebar badge shows its initials (TCA); set short: "ABC" to choose your own
   tagline: "A community-built archive of shows, films and projects.",
   intro: "Browse the library, dig through the TCDB, or add what is missing.",

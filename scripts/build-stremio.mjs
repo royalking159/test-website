@@ -5,8 +5,12 @@
 // - Seasons named "Season N" and "Specials" become seasons N and 0 of the show.
 // - Any other named season (like Shorts) becomes its own Stremio series, e.g. "Helluva Boss: Shorts".
 // - Episode thumbnails: the episode's own image, else the TMDB still the website already fetched, else the YouTube thumbnail.
-// - IMDb mode: put  "stremioImdb": true  in a show's file and the show uses its IMDb id (ids like tt1234567:1:2), so other stream
-//   addons you have installed (for example Torrentio) can answer next to the YouTube stream this addon gives.
+// - Streams from other addons: a title that has an IMDb id (ids.imdb in its file, or the one the metadata update found on TMDB) is published under that id (tt1234567:1:2 for season 1, episode 2),
+//   so stream addons you have installed (for example Torrentio) attach to the same episodes next to this addon's YouTube and Prime links.
+//   Put  "stremioImdb": false  in a title's file to publish it under this addon's own id instead.
+// - A named section (for example an arc) can join the main show: give it  "season": 5  (the season number IMDb and Stremio use).
+//   An episode can carry  "episode": 12  when its number differs from its position in the list. Named sections without a season number
+//   become their own series.
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import vm from "node:vm";
@@ -47,15 +51,19 @@ const tmdbEp = (d, e, i, num) => {                            // the website's T
 };
 
 // ---- Work out every Stremio series: each show, plus one extra series per named season (like Shorts) ----
+const imdbOf = (d) => d.ids?.imdb || mine(d, d.type === "movie" ? "movies" : "shows").imdbId || "";   // the file's own IMDb id, else the one the metadata update found
+const useImdb = (d) => d.stremioImdb !== false && !!imdbOf(d);
 const items = [];
 for (const d of shows) {
-  const imdbMode = !!(d.stremioImdb && d.ids?.imdb);
+  const imdbMode = useImdb(d);
   const showPoster = web(d.images?.poster) || web(mine(d, "shows").poster);
-  const main = { id: imdbMode ? d.ids.imdb : PREFIX + d.id, name: d.title, d, imdbMode, poster: showPoster, trailer: d.trailer || mine(d, "shows").trailer, description: tmdbText ? mine(d, "shows").overview : undefined, backdrop: web(d.images?.backdrop) || web(mine(d, "shows").backdrop), seasons: [] };
+  const main = { id: imdbMode ? imdbOf(d) : PREFIX + d.id, name: d.title, d, imdbMode, poster: showPoster, trailer: d.trailer || mine(d, "shows").trailer, description: tmdbText ? mine(d, "shows").overview : undefined, backdrop: web(d.images?.backdrop) || web(mine(d, "shows").backdrop), seasons: [] };
   items.push(main);
   for (const s of d.seasons || []) {
-    const num = /^Season (\d+)$/i.exec(s.name)?.[1], special = /^specials$/i.test(s.name);
-    if (num || special) main.seasons.push({ n: special ? 0 : Number(num), num, special, s });
+    const named = /^Season (\d+)$/i.exec(s.name)?.[1];
+    const special = /^specials$/i.test(s.name) || (!named && s.season === 0);
+    const num = named ?? (!special && Number.isInteger(s.season) && s.season > 0 ? String(s.season) : null);
+    if (num || special) main.seasons.push({ n: special ? 0 : Number(num), num: special ? null : num, special, s });
     else items.push({ id: `${PREFIX}${d.id}-${slug(s.name)}`, name: `${d.title}: ${s.name}`, d, imdbMode: false, description: `${s.name} from ${d.title}.`,
       poster: web(s.poster) || web(mine(d, "shows").seasonPosters?.[0]) || showPoster, backdrop: main.backdrop, seasons: [{ n: 1, num: null, named: true, s }] });
   }
@@ -91,11 +99,12 @@ for (const it of items) {
       const t = slug(e.title), c = (seen.get(t) || 0) + 1;
       seen.set(t, c);
       const dup = c > 1 ? "-" + c : "";
-      const vid = num ? (it.imdbMode ? `${it.id}:${n}:${i + 1}` : `${it.id}-s${n}e${i + 1}`)
-        : special ? (it.imdbMode ? `${it.id}:0:${i + 1}` : `${it.id}-specials-${t}${dup}`) : `${it.id}-${t}${dup}`;
+      const ep = Number.isInteger(e.episode) && e.episode > 0 ? e.episode : i + 1;          // the episode number Stremio uses
+      const vid = num ? (it.imdbMode ? `${it.id}:${n}:${ep}` : `${it.id}-s${n}e${ep}`)
+        : special ? (it.imdbMode ? `${it.id}:0:${ep}` : `${it.id}-specials-${t}${dup}`) : `${it.id}-${t}${dup}`;
       const yt = ytFor(it.d, e, i, num);
       const thumbnail = web(e.image) || web(hit?.image) || (yt ? ytThumb(yt) : undefined);
-      videos.push({ id: vid, title: e.title, season: n, episode: i + 1, released, overview: (tmdbText ? hit?.overview || e.overview : e.overview || hit?.overview) || undefined, thumbnail });
+      videos.push({ id: vid, title: e.title, season: n, episode: ep, released, overview: (tmdbText ? hit?.overview || e.overview : e.overview || hit?.overview) || undefined, thumbnail });
       write(`addon/stream/series/${vid}.json`, ytStream(yt, e.watch?.length ? e.watch : it.d.watch));
       episodes++;
       if (yt) withVideo++;
@@ -103,10 +112,10 @@ for (const it of items) {
     });
   }
   videos.sort((a, b) => a.season - b.season || a.episode - b.episode);
-  write(`addon/meta/series/${it.id}.json`, { meta: { ...preview(it), background: it.backdrop, director: it.d.directors?.length ? it.d.directors : undefined, cast: it.d.cast?.length ? it.d.cast : undefined,
+  write(`addon/meta/series/${it.id}.json`, { meta: { ...preview(it), background: it.backdrop, director: it.d.directors?.length ? it.d.directors : undefined, cast: it.d.cast?.length ? it.d.cast.map((c) => (typeof c === "string" ? c : c.name)) : undefined,
     ...(it.trailer ? { trailers: [{ source: it.trailer, type: "Trailer" }], trailerStreams: [{ title: "Trailer", ytId: it.trailer }] } : {}), videos, behaviorHints: { hasScheduledVideos: true } } });
 }
-const movieMeta = (d) => ({ id: d.stremioImdb && d.ids?.imdb ? d.ids.imdb : PREFIX + d.id, type: "movie", name: d.title, poster: web(d.images?.poster) || web(mine(d, "movies").poster),
+const movieMeta = (d) => ({ id: useImdb(d) ? imdbOf(d) : PREFIX + d.id, type: "movie", name: d.title, poster: web(d.images?.poster) || web(mine(d, "movies").poster),
   posterShape: "poster", description: d.description || undefined, releaseInfo: d.year ? String(d.year) : undefined, genres: d.genres?.length ? d.genres : undefined });
 for (const d of movies) {
   const m = movieMeta(d);
@@ -118,10 +127,10 @@ const catalogs = [];
 if (items.length) { catalogs.push({ type: "series", id: PREFIX + "shows", name: "Community shows" }); write(`addon/catalog/series/${PREFIX}shows.json`, { metas: items.map(preview) }); }
 if (movies.length) { catalogs.push({ type: "movie", id: PREFIX + "movies", name: "Community movies" }); write(`addon/catalog/movie/${PREFIX}movies.json`, { metas: movies.map(movieMeta) }); }
 
-const imdbIds = [...items.filter((it) => it.imdbMode).map((it) => it.id), ...movies.filter((d) => d.stremioImdb && d.ids?.imdb).map((d) => d.ids.imdb)];
+const imdbIds = [...items.filter((it) => it.imdbMode).map((it) => it.id), ...movies.filter(useImdb).map(imdbOf)];
 const name = process.env.ADDON_NAME || cfg.name || "Community Metadata";
 write("addon/manifest.json", {
-  id: `community.${slug(owner || "site")}.database`, version: "1.0.0", name,
+  id: `community.${slug(owner || "site")}.database`, version: (cfg.version || "1.0.0").replace(/-.*$/, ""), name,
   description: "Show and movie details from a community-written database, with official YouTube links where known.",
   logo: items.map((it) => it.poster).find(Boolean),
   resources: ["catalog", "meta", "stream"], types: [...(items.length ? ["series"] : []), ...(movies.length ? ["movie"] : [])],

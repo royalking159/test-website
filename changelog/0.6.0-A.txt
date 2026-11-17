@@ -1,0 +1,8 @@
+The Community Archives 0.6.0-A: The Community Archives
+- The site is now The Community Archives (TCA) and the database is the TCDB.
+- Floating dock sidebar, new page order (Home, Movies/Shows, Projects/Study tools, TCDB, About), and a gradient accent.
+- Home: a search across every page (shows, episodes, projects, study tools, TCDB records, About) with results grouped like the sidebar and ranked best first, plus empty Saved and Watched headings for when accounts exist.
+- TCDB rebuilt as a ledger of records with stats, sortable columns and completion meters; each record has a card with ids, completion and a Suggest an edit button.
+- Projects/Study tools: search, small tag chips and project cards. GitHub and Email moved to the About page.
+- Title pages rebuilt: artwork billboard, Episodes / About / Cast & crew tabs, episode cards and a streams sheet.
+- Sign-in page behind the TCA badge (it cannot sign in yet), unselectable text, and a coverage explanation.

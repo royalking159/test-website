@@ -1,0 +1,5 @@
+The Community Archives 0.2.0-A: Automatic metadata
+- The Update movie metadata GitHub Action (daily and on demand) fills in posters, backdrops, descriptions, episodes and episode pictures from TMDB, TVDB and MDBList.
+- Finds official YouTube videos for episodes using the YouTube API.
+- Credits for TMDB and TVDB on the About page, and a diagnostic page at #/check/<id> for a show.
+- Helluva Boss and Hazbin Hotel added to the library, with season posters and season order options.

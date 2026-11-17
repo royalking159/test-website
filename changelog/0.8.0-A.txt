@@ -1,0 +1,10 @@
+The Community Archives 0.8.0-A: Record look, cast roles and clean-up
+- TCDB title pages use the record look: a record table of episodes with Description, Artwork and Stream flags, record panels, and monospace tabs.
+- Cast cards say who each actor voices or plays (for example Voices Blitzo). Search finds a show by character name. The add and edit page has a Cast section with a character for each person, and a Directed by box.
+- The Completion heading and its bars are centred in the TCDB list.
+- Nothing on the page can be highlighted, in any browser (typing boxes still work).
+- Clean-up: unused code and styles removed, the section list in the editor spaced properly, and the unused files left out of the download.
+- Version numbers and these changelog files added. The version shows in Settings and on the About page.
+- Stremio: the TCDB page has Add to Stremio and Copy addon link buttons.
+- Stremio: a title with an IMDb id (set in its file, or found on TMDB by the metadata update) is published under that id, so Torrentio and other stream addons you have installed attach to the same episodes next to the YouTube and Prime Video links. Put "stremioImdb": false in a title's file to opt out.
+- Sections can be named anything (for example the arcs of One Piece). A named section can take a Stremio season number so it joins the main show and lines up with IMDb; one without a number becomes its own series. The editor has a Stremio season number box and tips.

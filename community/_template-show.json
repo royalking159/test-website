@@ -40,5 +40,14 @@
   "contributors": [
     "your-github-name"
   ],
-  "trailer": ""
+  "trailer": "",
+  "cast": [
+    {
+      "name": "Actor name",
+      "role": "Character they voice or play"
+    }
+  ],
+  "directors": [
+    "Director name"
+  ]
 }

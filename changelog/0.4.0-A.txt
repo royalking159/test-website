@@ -1,0 +1,7 @@
+The Community Archives 0.4.0-A: Real data, trailers and the title editor
+- Helluva Boss filled in: Seasons 1 to 3 (all seven Season 3 episodes), Specials and 14 Shorts, with summaries, cast and directors. Hazbin Hotel added with two seasons and the pilot.
+- Season 3 and Hazbin Hotel episodes link directly to Prime Video.
+- Play trailer buttons, using the official trailer TMDB lists (per season too) or a trailer set in the database.
+- TMDB now fills any gap field by field (picture, description, date, whole seasons and extra specials), and TMDB's official descriptions are used first.
+- An Add a title page with a season and episode editor, and a Suggest an edit page, instead of editing JSON on GitHub.
+- community/youtube-ids.txt: paste YouTube ids and the Action saves them into the right episodes.

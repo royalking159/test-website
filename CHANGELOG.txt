@@ -1,0 +1,78 @@
+The Community Archives: changelog
+
+Version numbers are written major.minor.patch-build, for example 0.8.0-A.
+  major  changes only when the site is rebuilt from the ground up (0 means it is still being built)
+  minor  a release with new features or a new look
+  patch  a small fix or content change that does not add a feature
+  build  a letter for a re-release of the same number (A, then B, C...)
+Small changes such as a metadata tweak are folded into the next version instead of getting their own.
+Each version also has its own short file in the changelog folder.
+
+The Community Archives 0.8.0-A: Record look, cast roles and clean-up
+- TCDB title pages use the record look: a record table of episodes with Description, Artwork and Stream flags, record panels, and monospace tabs.
+- Cast cards say who each actor voices or plays (for example Voices Blitzo). Search finds a show by character name. The add and edit page has a Cast section with a character for each person, and a Directed by box.
+- The Completion heading and its bars are centred in the TCDB list.
+- Nothing on the page can be highlighted, in any browser (typing boxes still work).
+- Clean-up: unused code and styles removed, the section list in the editor spaced properly, and the unused files left out of the download.
+- Version numbers and these changelog files added. The version shows in Settings and on the About page.
+- Stremio: the TCDB page has Add to Stremio and Copy addon link buttons.
+- Stremio: a title with an IMDb id (set in its file, or found on TMDB by the metadata update) is published under that id, so Torrentio and other stream addons you have installed attach to the same episodes next to the YouTube and Prime Video links. Put "stremioImdb": false in a title's file to opt out.
+- Sections can be named anything (for example the arcs of One Piece). A named section can take a Stremio season number so it joins the main show and lines up with IMDb; one without a number becomes its own series. The editor has a Stremio season number box and tips.
+
+
+The Community Archives 0.7.0-A: Phone menu and metadata sources
+- Phone: a menu button at the top left opens a drawer, and a settings button sits at the top right. The old bottom bar buttons did not respond and are gone.
+- The section editor has a single + button so you can name a section anything.
+- TCDB Coverage renamed Completion, with each bar labelled Descriptions, Artwork and Streams.
+- TCDB record tab shows where each piece of information comes from (TCDB, TMDB, TVDB, YouTube lookup). The metadata Action now records the source of each field.
+- TCDB title pages get a TCDB badge and record id.
+
+
+The Community Archives 0.6.0-A: The Community Archives
+- The site is now The Community Archives (TCA) and the database is the TCDB.
+- Floating dock sidebar, new page order (Home, Movies/Shows, Projects/Study tools, TCDB, About), and a gradient accent.
+- Home: a search across every page (shows, episodes, projects, study tools, TCDB records, About) with results grouped like the sidebar and ranked best first, plus empty Saved and Watched headings for when accounts exist.
+- TCDB rebuilt as a ledger of records with stats, sortable columns and completion meters; each record has a card with ids, completion and a Suggest an edit button.
+- Projects/Study tools: search, small tag chips and project cards. GitHub and Email moved to the About page.
+- Title pages rebuilt: artwork billboard, Episodes / About / Cast & crew tabs, episode cards and a streams sheet.
+- Sign-in page behind the TCA badge (it cannot sign in yet), unselectable text, and a coverage explanation.
+
+
+The Community Archives 0.5.0-A: Stremio-style look
+- New dark purple look: rounded posters, large backdrop art, glass panels, pill buttons and Plus Jakarta Sans.
+- Title pages with clickable genre and cast chips that search the library, plus Trailer, list, watched, like, dislike, favourite and share buttons (saved in the browser only).
+- Clicking an episode opens a list of streams (YouTube plays in the site, Prime Video and others open in a new tab), with WATCHED marks.
+- Movies/Shows and the database sorted A to Z, with search and an always-present Movies tab.
+- Sharper pictures: bigger TMDB sizes are requested on big or sharp screens, and bigger YouTube thumbnails.
+- Settings scrolls properly. (An earlier flat-colour redesign was tried and replaced during this version.)
+
+
+The Community Archives 0.4.0-A: Real data, trailers and the title editor
+- Helluva Boss filled in: Seasons 1 to 3 (all seven Season 3 episodes), Specials and 14 Shorts, with summaries, cast and directors. Hazbin Hotel added with two seasons and the pilot.
+- Season 3 and Hazbin Hotel episodes link directly to Prime Video.
+- Play trailer buttons, using the official trailer TMDB lists (per season too) or a trailer set in the database.
+- TMDB now fills any gap field by field (picture, description, date, whole seasons and extra specials), and TMDB's official descriptions are used first.
+- An Add a title page with a season and episode editor, and a Suggest an edit page, instead of editing JSON on GitHub.
+- community/youtube-ids.txt: paste YouTube ids and the Action saves them into the right episodes.
+
+
+The Community Archives 0.3.0-A: Community database and Stremio addon
+- The community/ folder: one small JSON file per title, checked by scripts/community.mjs, and a Database page to browse them.
+- Add and edit titles by GitHub pull request, with a template and a pull request checklist.
+- A static Stremio addon built from the database (addon/): catalogs, episode lists, YouTube streams, thumbnails, and an optional IMDb mode.
+- Shorts and other named sections become their own series in Stremio.
+
+
+The Community Archives 0.2.0-A: Automatic metadata
+- The Update movie metadata GitHub Action (daily and on demand) fills in posters, backdrops, descriptions, episodes and episode pictures from TMDB, TVDB and MDBList.
+- Finds official YouTube videos for episodes using the YouTube API.
+- Credits for TMDB and TVDB on the About page, and a diagnostic page at #/check/<id> for a show.
+- Helluva Boss and Hazbin Hotel added to the library, with season posters and season order options.
+
+
+The Community Archives 0.1.0-A: First working site
+- A single-page site that runs on GitHub Pages: Home, Projects/Study tools, Movies/Shows and About, with a sidebar to move between them.
+- Settings window: dark, light or automatic, colour themes, accent and background colours, fonts, text and poster size, sidebar position and hiding, reduced motion. Choices are saved in the browser.
+- Projects and Study tools lists with a tag filter.
+- Show and movie pages with a season dropdown, episode lists, and an in-site player for YouTube, Google Drive and video links, with next and previous episode.
+- Everything you write lives in data/config.js (text, links, projects) and data/library.js (your shows and movies).

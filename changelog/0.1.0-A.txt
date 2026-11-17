@@ -1,0 +1,6 @@
+The Community Archives 0.1.0-A: First working site
+- A single-page site that runs on GitHub Pages: Home, Projects/Study tools, Movies/Shows and About, with a sidebar to move between them.
+- Settings window: dark, light or automatic, colour themes, accent and background colours, fonts, text and poster size, sidebar position and hiding, reduced motion. Choices are saved in the browser.
+- Projects and Study tools lists with a tag filter.
+- Show and movie pages with a season dropdown, episode lists, and an in-site player for YouTube, Google Drive and video links, with next and previous episode.
+- Everything you write lives in data/config.js (text, links, projects) and data/library.js (your shows and movies).

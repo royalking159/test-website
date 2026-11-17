@@ -156,6 +156,12 @@ figcaption small { display: block; }
 /* TCDB: the record ledger */
 .tcdbhead { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem 2rem; margin-bottom: 1.25rem; }
 .tcdbhead .lead { margin: 0; }
+.addoncard { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem; margin: 0 0 1.5rem; padding: 1.2rem 1.4rem; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: .35rem var(--r) var(--r) .35rem; }
+.addoncard h2 { margin-bottom: .3rem; font-size: 1.1rem; font-weight: 800; }
+.addoncard p { max-width: 54ch; margin: 0 0 .8rem; color: var(--muted); }
+.addoncard .search { max-width: 36rem; font-size: .85rem; }
+.tips { margin: 0; padding-left: 1.2rem; font-size: .9rem; color: var(--muted); }
+.tips:empty { display: none; }
 .stats { display: flex; flex-wrap: wrap; gap: .75rem; margin: 0 0 1.5rem; padding: 0; list-style: none; }
 .stats li { min-width: 8.5rem; padding: .85rem 1.2rem; background: var(--glass); border-left: 3px solid var(--accent); border-radius: .35rem var(--r) var(--r) .35rem; }
 .stats b { display: block; font: 800 1.6rem/1.1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
@@ -168,6 +174,8 @@ figcaption small { display: block; }
 .ledger th[aria-sort="ascending"] button::after { content: " ↑"; }
 .ledger th[aria-sort="descending"] button::after { content: " ↓"; }
 .ledger td { padding: .65rem 1rem; vertical-align: middle; background: var(--glass); }
+.ledger th[data-k="cov"], .ledger td:nth-child(6) { text-align: center; }
+.ledger td:nth-child(6) .cov { justify-content: center; }
 .ledger td:first-child { border-radius: 1rem 0 0 1rem; }
 .ledger td:last-child { border-radius: 0 1rem 1rem 0; }
 .ledger tr.row { cursor: pointer; }
@@ -287,6 +295,35 @@ figcaption small { display: block; }
 .person:hover { background: var(--glass-2); }
 .avatar { display: grid; place-items: center; width: 4.2rem; height: 4.2rem; margin-bottom: .3rem; font-size: 1.25rem; font-weight: 800; color: #fff; background: linear-gradient(135deg, hsl(var(--h) 65% 50%), hsl(calc(var(--h) + 45) 65% 38%)); border-radius: 50%; }
 .person strong { line-height: 1.25; }
+/* TCDB title pages use the record look */
+.ctxrow { display: flex; align-items: center; gap: .7rem; }
+.idcode { font-size: .85rem; color: var(--muted); }
+.dbmode .tabs { background: var(--panel); }
+.dbmode .tabs button { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; }
+.recbox { padding: 1.4rem 1.5rem; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: .35rem var(--r) var(--r) .35rem; backdrop-filter: blur(14px); }
+.dbmode .eptools { margin-bottom: 1.1rem; }
+.eptable { width: 100%; border-collapse: collapse; }
+.eptable th { padding: .4rem .8rem; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-align: left; text-transform: uppercase; white-space: nowrap; color: var(--muted); border-bottom: 1px solid var(--line); }
+.eptable td { padding: .75rem .8rem; vertical-align: top; border-bottom: 1px solid var(--line); }
+.eptable td:first-child { width: 3.5rem; color: var(--muted); }
+.eptable tr.row { cursor: pointer; }
+.eptable tr.row:hover td, .eptable tr.row:focus-visible td { background: var(--glass); }
+.eptable tr.row:focus-visible { outline: none; }
+.eptable strong { margin-right: .6rem; font-weight: 700; }
+.eptable td small { display: block; max-width: 56ch; margin-top: .2rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.flags { display: flex; flex-wrap: wrap; gap: .35rem; }
+.flag { padding: .15rem .55rem; font-size: .7rem; font-weight: 800; letter-spacing: .03em; white-space: nowrap; border-radius: .35rem; }
+.flag.ok { color: var(--on-accent); background: var(--grad); }
+.flag.no { color: var(--muted); box-shadow: inset 0 0 0 1px var(--line); }
+.dbmode .factcard { padding: 0; background: none; border-radius: 0; }
+.dbmode .factcard dt { align-self: center; font-size: .76rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.dbmode .people { grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); gap: .5rem 1rem; }
+.dbmode .person { grid-template-columns: auto 1fr; justify-items: start; column-gap: .9rem; padding: .6rem .9rem; text-align: left; border-radius: .8rem; }
+.dbmode .person .avatar { grid-row: span 2; width: 2.8rem; height: 2.8rem; margin: 0; font-size: .95rem; }
+.dbmode .person strong { align-self: end; }
+.dbmode .person small { align-self: start; }
+.castlist { display: grid; gap: .6rem; margin-bottom: .7rem; }
+.castrow { display: grid; grid-template-columns: 1fr 1fr auto; gap: .5rem; align-items: center; }
 .recstack { display: grid; gap: 2.5rem; max-width: 60rem; }
 .record { max-width: 44rem; }
 .sources h2 { margin-bottom: .5rem; font-size: 1.2rem; font-weight: 800; }
@@ -360,15 +397,15 @@ dialog.sheet::backdrop { background: rgb(0 0 0 / .6); backdrop-filter: blur(6px)
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
 .field { display: grid; gap: .35rem; align-content: start; }
 .field > span { font-weight: 700; }
-.field input, .field select, .field textarea, .eprow input, .eprow textarea, .seasonhead input, .bulk textarea { width: 100%; padding: .7rem 1rem; font: inherit; color: var(--text); background: var(--glass); border: 2px solid transparent; border-radius: .9rem; }
+.field input, .field select, .field textarea, .eprow input, .eprow textarea, .castrow input, .seasonhead input, .bulk textarea { width: 100%; padding: .7rem 1rem; font: inherit; color: var(--text); background: var(--glass); border: 2px solid transparent; border-radius: .9rem; }
 .field select option { color: #111; }
-.field input:focus, .field select:focus, .field textarea:focus, .eprow input:focus, .eprow textarea:focus, .seasonhead input:focus, .bulk textarea:focus { border-color: var(--accent); outline: none; }
+.field input:focus, .field select:focus, .field textarea:focus, .eprow input:focus, .eprow textarea:focus, .castrow input:focus, .seasonhead input:focus, .bulk textarea:focus { border-color: var(--accent); outline: none; }
 .field textarea { resize: vertical; }
 details.seasonbox { margin-bottom: 1rem; background: var(--glass); border-radius: var(--r); }
 .seasonbox > summary { padding: 1rem 1.2rem; font-weight: 800; cursor: pointer; }
 .seasonbox > :not(summary) { margin: 0 1.2rem 1.2rem; }
 .seasonhead { display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: end; }
-.eplist.editor, .eplist2 { display: grid; gap: .7rem; }
+.eplist { display: grid; gap: .7rem; }
 .eprow { display: grid; grid-template-columns: 2rem minmax(0, 1.6fr) 9.5rem minmax(0, 1fr) auto; gap: .5rem; align-items: center; padding: .7rem; background: var(--glass); border-radius: 1rem; }
 .eprow textarea { grid-column: 2 / -1; resize: vertical; }
 .epn { font-weight: 800; color: var(--muted); text-align: right; }
@@ -389,7 +426,7 @@ details.seasonbox { margin-bottom: 1rem; background: var(--glass); border-radius
 dialog.settings { width: min(34rem, calc(100vw - 1.5rem)); height: min(46rem, 92vh); padding: 0; overflow: hidden; color: var(--text); background: color-mix(in srgb, var(--bg) 90%, var(--text)); border: 1px solid var(--line); border-radius: 1.5rem; }
 dialog.settings[open] { display: flex; flex-direction: column; }
 dialog.settings::backdrop, dialog.player::backdrop { background: rgb(0 0 0 / .65); backdrop-filter: blur(6px); }
-.panel-s, .settings .panel { position: static; display: flex; flex: 1 1 auto; flex-direction: column; gap: 0; width: 100%; height: auto; min-height: 0; padding: 0; overflow: hidden; background: none; border-radius: 0; backdrop-filter: none; }
+.settings .panel { position: static; display: flex; flex: 1 1 auto; flex-direction: column; gap: 0; width: 100%; height: auto; min-height: 0; padding: 0; overflow: hidden; background: none; border-radius: 0; backdrop-filter: none; }
 .s-head { display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--line); }
 .s-head h2 { font-size: 1.4rem; font-weight: 800; }
 .settings-body { flex: 1 1 auto; min-height: 0; padding: .5rem 1.5rem 1rem; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
@@ -408,7 +445,7 @@ dialog.settings::backdrop, dialog.player::backdrop { background: rgb(0 0 0 / .65
 .preset { display: grid; gap: .35rem; padding: .4rem; font-size: .85rem; font-weight: 700; color: var(--muted); text-align: center; background: var(--glass); border: 2px solid transparent; border-radius: 1rem; cursor: pointer; }
 .preset:hover { color: var(--text); }
 .preset[aria-pressed="true"] { color: var(--text); border-color: var(--accent); }
-.pv2, .preset .pv { display: flex; flex-direction: column; justify-content: center; gap: .3rem; height: 2.7rem; padding: 0 .55rem; border-radius: .7rem; }
+.preset .pv { display: flex; flex-direction: column; justify-content: center; gap: .3rem; height: 2.7rem; padding: 0 .55rem; border-radius: .7rem; }
 .preset .pv i { display: block; width: 55%; height: .35rem; border-radius: 1rem; }
 .preset .pv b { display: block; width: 80%; height: .25rem; border-radius: 1rem; opacity: .55; }
 .swatches { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem; }
@@ -459,7 +496,8 @@ dialog.player { width: min(78rem, 96vw, calc((100vh - 7.5rem) * 1.7778)); max-wi
   [data-sidehide="on"] .scrim { position: fixed; inset: 0; z-index: 10; background: rgb(0 0 0 / .5); }
   [data-sidehide="on"] .menu-open .scrim { display: block; }
   [data-sidehide="on"] #view > *:not(.detail) { padding-top: 4.5rem; }
-  [data-sidehide="on"] .detail-main { padding-top: 4.5rem; }
+  [data-sidehide="on"] .billboard { padding-top: 7rem; }
+  [data-sidehide="on"] .bb-back { top: 4.6rem; }
 }
 
 /* =============================================================================
@@ -504,6 +542,15 @@ dialog.player { width: min(78rem, 96vw, calc((100vh - 7.5rem) * 1.7778)); max-wi
   .ledger td:nth-child(1) { grid-column: 1 / -1; }
   .ledger td:nth-child(n+4):not(:nth-child(6)) { display: none; }
   .row2 { grid-template-columns: 1fr; }
+  .castrow { grid-template-columns: 1fr auto; }
+  .castrow input:nth-child(2) { grid-column: 1; }
+  .eptable thead { display: none; }
+  .eptable, .eptable tbody { display: block; }
+  .eptable td small { max-width: none; white-space: normal; }
+  .eptable tr.row { display: grid; grid-template-columns: 2.4rem minmax(0, 1fr); gap: .25rem .6rem; padding: .75rem 0; border-bottom: 1px solid var(--line); }
+  .eptable td { display: block; min-width: 0; padding: 0; border: 0; }
+  .eptable td:nth-child(n+3) { grid-column: 2; }
+  .recbox { padding: 1rem; }
   .eprow { grid-template-columns: 2rem minmax(0, 1fr) auto; }
   .eprow .epbtns { grid-column: 3; grid-row: 1; }
   .ep-d, .ep-y { grid-column: 2 / -1; }
@@ -522,7 +569,7 @@ dialog.player { width: min(78rem, 96vw, calc((100vh - 7.5rem) * 1.7778)); max-wi
    Nothing on the page can be highlighted (typing boxes still work)
    ============================================================================= */
 html { -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
-body { -webkit-user-select: none; user-select: none; }
+*, *::before, *::after { -webkit-user-select: none; user-select: none; }
 input, textarea, select, .jsonout, [contenteditable] { -webkit-user-select: text; user-select: text; }
 img, a { -webkit-user-drag: none; user-drag: none; }
 ::selection { background: transparent; }
