@@ -1,6 +1,6 @@
 {
  "meta": {
-  "id": "mysite-hazbin-hotel",
+  "id": "tt7216636",
   "type": "series",
   "name": "Hazbin Hotel",
   "poster": "https://image.tmdb.org/t/p/w500/aVYHMW8pdzJ9qG1OGRMKyGy9xor.jpg",
@@ -40,7 +40,7 @@
   ],
   "videos": [
    {
-    "id": "mysite-hazbin-hotel-specials-that-s-entertainment-pilot",
+    "id": "tt7216636:0:1",
     "title": "That's Entertainment (Pilot)",
     "season": 0,
     "episode": 1,
@@ -48,7 +48,7 @@
     "overview": "The original 2019 pilot, which introduced Charlie, Vaggie and Angel Dust."
    },
    {
-    "id": "mysite-hazbin-hotel-specials-hazbin-hotel-pilot",
+    "id": "tt7216636:0:2",
     "title": "Hazbin Hotel (Pilot)",
     "season": 0,
     "episode": 2,
@@ -57,7 +57,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/hEDnBoVr3dwCqKc9T7Ek3me8HNg.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-specials-addict-music-video",
+    "id": "tt7216636:0:3",
     "title": "Addict (Music Video)",
     "season": 0,
     "episode": 3,
@@ -66,7 +66,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/5BCg11LYHT2TS7t8DMf6JyW9xRr.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-specials-hazbin-hotel-live-on-broadway",
+    "id": "tt7216636:0:4",
     "title": "Hazbin Hotel Live on Broadway",
     "season": 0,
     "episode": 4,
@@ -75,7 +75,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/hduqwC4YahXZxFFUo3wBUjNzUvC.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s1e1",
+    "id": "tt7216636:1:1",
     "title": "Overture",
     "season": 1,
     "episode": 1,
@@ -84,7 +84,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/8rj1UJrcPB9g498YmaE57jb4d9l.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s1e2",
+    "id": "tt7216636:1:2",
     "title": "Radio Killed the Video Star",
     "season": 1,
     "episode": 2,
@@ -93,7 +93,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/AwcWnE5QDsKdhnmArgVGd5nnxkO.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s1e3",
+    "id": "tt7216636:1:3",
     "title": "Scrambled Eggs",
     "season": 1,
     "episode": 3,
@@ -102,7 +102,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/9xdoUagj3AnplIS8VmlHzRmsQoU.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s1e4",
+    "id": "tt7216636:1:4",
     "title": "Masquerade",
     "season": 1,
     "episode": 4,
@@ -111,7 +111,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/2voEbz6aZvWgTo8NTQSfqfZVBs4.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s1e5",
+    "id": "tt7216636:1:5",
     "title": "Dad Beat Dad",
     "season": 1,
     "episode": 5,
@@ -120,7 +120,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/cUtVWd5FyveDIu9SEfG3Rqisfxm.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s1e6",
+    "id": "tt7216636:1:6",
     "title": "Welcome to Heaven",
     "season": 1,
     "episode": 6,
@@ -129,7 +129,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/A93PBhKxwJMrkqKpqhptnR1w1rr.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s1e7",
+    "id": "tt7216636:1:7",
     "title": "Hello Rosie!",
     "season": 1,
     "episode": 7,
@@ -138,7 +138,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/wPzhMhtLOdppSltb3mnYmOFhTAt.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s1e8",
+    "id": "tt7216636:1:8",
     "title": "The Show Must Go On",
     "season": 1,
     "episode": 8,
@@ -147,7 +147,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/mVa6wxS7I7097HyMi1FGe38XrOm.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s2e1",
+    "id": "tt7216636:2:1",
     "title": "New Pentious",
     "season": 2,
     "episode": 1,
@@ -156,7 +156,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/tSzzDh1W5UX1bI3INyYI5t0XC6s.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s2e2",
+    "id": "tt7216636:2:2",
     "title": "Storyteller",
     "season": 2,
     "episode": 2,
@@ -165,7 +165,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/kbaF3AxYWH6O8F98KxboLURTv6U.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s2e3",
+    "id": "tt7216636:2:3",
     "title": "Behind Closed Doors",
     "season": 2,
     "episode": 3,
@@ -174,7 +174,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/v8mF1N5uUISUszKsUy1GcnYyykL.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s2e4",
+    "id": "tt7216636:2:4",
     "title": "It's A Deal",
     "season": 2,
     "episode": 4,
@@ -183,7 +183,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/bzwvWHBbhTQ68ZsTFaCAVhv0yPD.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s2e5",
+    "id": "tt7216636:2:5",
     "title": "Silenced",
     "season": 2,
     "episode": 5,
@@ -192,7 +192,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/lXBrD4efdZg8orbdxzOaydmLx0z.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s2e6",
+    "id": "tt7216636:2:6",
     "title": "Scream Rain",
     "season": 2,
     "episode": 6,
@@ -201,7 +201,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/736fVKNNuw8xd9Jo5QuI3ujby0D.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s2e7",
+    "id": "tt7216636:2:7",
     "title": "Weapon of Mass Distraction",
     "season": 2,
     "episode": 7,
@@ -210,7 +210,7 @@
     "thumbnail": "https://image.tmdb.org/t/p/w300/fe2mLNXgJNoy8jbGZXTW0G19pgy.jpg"
    },
    {
-    "id": "mysite-hazbin-hotel-s2e8",
+    "id": "tt7216636:2:8",
     "title": "Curtain Call",
     "season": 2,
     "episode": 8,

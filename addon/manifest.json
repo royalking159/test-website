@@ -1,6 +1,6 @@
 {
  "id": "community.royalking159.database",
- "version": "1.0.0",
+ "version": "0.8.0",
  "name": "The Community Archives",
  "description": "Show and movie details from a community-written database, with official YouTube links where known.",
  "logo": "https://image.tmdb.org/t/p/w500/aVYHMW8pdzJ9qG1OGRMKyGy9xor.jpg",
@@ -13,7 +13,9 @@
   "series"
  ],
  "idPrefixes": [
-  "mysite-"
+  "mysite-",
+  "tt7216636",
+  "tt10691770"
  ],
  "catalogs": [
   {
