@@ -241,6 +241,95 @@
      }
     },
     {
+     "title": "When I See Him // Full Moon (BTS)",
+     "season": 0,
+     "number": 19,
+     "date": "2024-07-07",
+     "image": "https://artworks.thetvdb.com/banners/v4/episode/11861411/screencap/6a5f61b86c093.jpg",
+     "overview": "Vivziepop shares a behind-the-scenes look at the vocal performances for a musical number in the Helluva Boss episode The Full Moon. Voice performers discuss their approach to conveying the complex emotions of the characters during this pivotal scene.",
+     "src": {
+      "date": "TMDB",
+      "overview": "TMDB",
+      "image": "TVDB"
+     }
+    },
+    {
+     "title": "Klown B*tch (Music Video)",
+     "season": 0,
+     "number": 20,
+     "date": "2023-11-21",
+     "image": "https://artworks.thetvdb.com/banners/v4/episode/11861412/screencap/6a94de2ccfbf8.jpg",
+     "overview": "\"KLOWN B*TCH\" Performed by Faye Mata & Allison Kaplan Written & Produced by Sam Haft & Andrew Underberg",
+     "src": {
+      "date": "TMDB",
+      "overview": "TMDB",
+      "image": "TVDB"
+     }
+    },
+    {
+     "title": "2 Minutes Notice (Music Video)",
+     "season": 0,
+     "number": 21,
+     "date": "2023-11-23",
+     "image": "https://artworks.thetvdb.com/banners/v4/episode/11861413/screencap/6a3fc6cbe04c2.jpg",
+     "overview": "\"2 Minutes Notice\" Performed by Alex Brightman Written & Produced by Sam Haft & Andrew Underberg",
+     "src": {
+      "date": "TMDB",
+      "overview": "TMDB",
+      "image": "TVDB"
+     }
+    },
+    {
+     "title": "Look At This (Music Video)",
+     "season": 0,
+     "number": 22,
+     "date": "2023-09-09",
+     "overview": "\"Look At This!\" Written by Sam Haft Co-produced by Sam Haft, SilvaHound, Shane Lance performed by Alex Brightman",
+     "src": {
+      "date": "TMDB",
+      "overview": "TMDB"
+     }
+    },
+    {
+     "title": "Juggling Iz Cool (Music Video)",
+     "season": 0,
+     "number": 23,
+     "date": "2023-11-20",
+     "image": "https://artworks.thetvdb.com/banners/v4/episode/11861415/screencap/6a94ddec65a1b.jpg",
+     "overview": "\"JUGGLING IZ COOL\" Written by Tom Cardy performed by Tom Cardy",
+     "src": {
+      "date": "TMDB",
+      "overview": "TMDB",
+      "image": "TVDB"
+     }
+    },
+    {
+     "title": "Crooked (Music Video)",
+     "season": 0,
+     "number": 24,
+     "date": "2023-11-22",
+     "image": "https://artworks.thetvdb.com/banners/v4/episode/11861416/screencap/6a77372fefb7a.jpg",
+     "overview": "\"Crooked\" Performed by James Monroe Iglehart & Alex Brightman Written by Julian Hornik Produced by Julian Hornik & Sam Haft",
+     "src": {
+      "date": "TMDB",
+      "overview": "TMDB",
+      "image": "TVDB"
+     }
+    },
+    {
+     "title": "Oh Millie (Music Video)",
+     "season": 0,
+     "number": 25,
+     "date": "2020-02-14",
+     "image": "https://artworks.thetvdb.com/banners/v4/episode/11456053/screencap/6a115bb279894.jpg",
+     "overview": "A fully-animated music video for the song sung during the end credits of the pilot episode.",
+     "src": {
+      "date": "TMDB",
+      "overview": "TMDB",
+      "image": "TVDB"
+     }
+    },
+    {
      "title": "Murder Family",
      "season": 1,
      "number": 1,
@@ -708,6 +797,12 @@
     "sharkboysummer": "-mLSmR58ZaQ",
     "helluvashorts12imptrainingvideo": "4kJXWQWW-og",
     "helluvashorts13missionbookreport": "ZAkGmkP9j5c",
+    "klownbtch": "nyYUc89dkq4",
+    "2minutesnotice": "s9HyDRpJrsw",
+    "lookatthis": "MDB5eFskLBg",
+    "jugglingizcool": "rCJeOgrVqJA",
+    "crooked": "pZiNw3NvdhU",
+    "ohmillie": "Dz8cpq2PjlQ",
     "murderfamily": "el_PChGfJN8",
     "s1e1": "el_PChGfJN8",
     "loolooland": "kpnwRg268FQ",
@@ -1031,5 +1126,5 @@
    }
   }
  },
- "updated": "2026-11-23T11:54:16.253Z"
+ "updated": "2026-11-24T13:20:29.985Z"
 }
